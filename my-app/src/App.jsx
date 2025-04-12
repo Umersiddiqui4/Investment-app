@@ -6,6 +6,8 @@ import InvestmentDashboard from './components/investment-dashboard'
 import InvestorsPage from './components/investors-page'
 import { ThemeProvider } from './components/theme/theme-provider'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import CreateCompanyPage from './components/CreateCompany'
+import Profile from './components/Profile'
 
 
 
@@ -20,6 +22,8 @@ function App() {
       <Routes>
         <Route path="/" element={<InvestmentDashboard />} />
         <Route path="/investors" element={<InvestorsPage />} />
+        <Route path="/create-company" element={<CreateCompanyPage />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
 

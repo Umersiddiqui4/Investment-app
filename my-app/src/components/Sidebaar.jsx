@@ -271,7 +271,7 @@ function NavItem({ icon, label, active = true, collapsed = false, category, nav 
       },
       {
         name: "Sales",
-        href: "/customer-request",
+        href: "/customer",
         icon: (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -291,7 +291,7 @@ function NavItem({ icon, label, active = true, collapsed = false, category, nav 
       },
       {
         name: "Purchase",
-        href: "/customer-request",
+        href: "/customerrequest",
         icon: (
           <svg
             xmlns="http://www.w3.org/2000/svg"
