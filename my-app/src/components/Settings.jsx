@@ -1,14 +1,14 @@
-"use client"
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Avatar } from "@/components/ui/avatar"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { useToast } from "@/components/ui/use-toast"
-import { ThemeToggle } from "./theme/theme-toggle"
-import { useTheme } from "next-themes"
+"use client";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { useToast } from "@/components/ui/use-toast";
+import { ThemeToggle } from "./theme/theme-toggle";
+import { useTheme } from "next-themes";
 import {
   Menu,
   Bell,
@@ -23,19 +23,19 @@ import {
   Palette,
   Eye,
   Check,
-} from "lucide-react"
-import Sidebaar from "./Sidebaar"
-import { useDispatch, useSelector } from "react-redux"
-import { setIsMobile, setSidebarOpen } from "@/redux/appSlice"
+} from "lucide-react";
+import Sidebaar from "./Sidebaar";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsMobile, setSidebarOpen } from "@/redux/appSlice";
 
 export default function Settings() {
   const sidebarOpen = useSelector((state) => state.app.sideBarOpen);
   const sidebarCollapsed = useSelector((state) => state.app.sidebarCollapsed);
   const isMobile = useSelector((state) => state.app.isMobile);
   const dispatch = useDispatch();
-  const [activeSection, setActiveSection] = useState("appearance")
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
+  const [activeSection, setActiveSection] = useState("appearance");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -68,27 +68,26 @@ export default function Settings() {
       dateFormat: "MM/DD/YYYY",
       timeFormat: "12h",
     },
-  })
+  });
 
   // Check if we're on mobile
   useEffect(() => {
     const checkIfMobile = () => {
-      dispatch(setIsMobile(window.innerWidth < 768))
+      dispatch(setIsMobile(window.innerWidth < 768));
       if (window.innerWidth >= 768) {
-        dispatch(setSidebarOpen(false))
+        dispatch(setSidebarOpen(false));
       }
-    }
+    };
 
     // Initial check
-    checkIfMobile()
+    checkIfMobile();
 
     // Add event listener
-    window.addEventListener("resize", checkIfMobile)
+    window.addEventListener("resize", checkIfMobile);
 
     // Cleanup
-    return () => window.removeEventListener("resize", checkIfMobile)
-  }, [])
-
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
   const handleSettingChange = (section, setting, value) => {
     setSettings((prev) => ({
@@ -97,26 +96,26 @@ export default function Settings() {
         ...prev[section],
         [setting]: value,
       },
-    }))
+    }));
 
     // If changing theme, update the theme
     if (section === "appearance" && setting === "theme") {
-      setTheme(value)
+      setTheme(value);
     }
-  }
+  };
 
   const handleSaveSettings = () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
-      setIsLoading(false)
+      setIsLoading(false);
       toast({
         title: "Settings saved",
         description: "Your settings have been updated successfully.",
-      })
-    }, 1000)
-  }
+      });
+    }, 1000);
+  };
 
   const renderSettingsSection = () => {
     switch (activeSection) {
@@ -132,7 +131,9 @@ export default function Settings() {
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30"
                       : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
                   }`}
-                  onClick={() => handleSettingChange("appearance", "theme", "light")}
+                  onClick={() =>
+                    handleSettingChange("appearance", "theme", "light")
+                  }
                 >
                   <div className="flex justify-center mb-2">
                     <Sun className="h-6 w-6 text-amber-500" />
@@ -145,7 +146,9 @@ export default function Settings() {
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30"
                       : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
                   }`}
-                  onClick={() => handleSettingChange("appearance", "theme", "dark")}
+                  onClick={() =>
+                    handleSettingChange("appearance", "theme", "dark")
+                  }
                 >
                   <div className="flex justify-center mb-2">
                     <Moon className="h-6 w-6 text-indigo-500" />
@@ -158,7 +161,9 @@ export default function Settings() {
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30"
                       : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
                   }`}
-                  onClick={() => handleSettingChange("appearance", "theme", "system")}
+                  onClick={() =>
+                    handleSettingChange("appearance", "theme", "system")
+                  }
                 >
                   <div className="flex justify-center mb-2">
                     <Smartphone className="h-6 w-6 text-slate-500" />
@@ -176,7 +181,13 @@ export default function Settings() {
                 <Switch
                   id="animations"
                   checked={settings.appearance.animationsEnabled}
-                  onCheckedChange={(checked) => handleSettingChange("appearance", "animationsEnabled", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange(
+                      "appearance",
+                      "animationsEnabled",
+                      checked
+                    )
+                  }
                 />
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -194,7 +205,9 @@ export default function Settings() {
                 max={16}
                 step={1}
                 value={[settings.appearance.borderRadius]}
-                onValueChange={(value) => handleSettingChange("appearance", "borderRadius", value[0])}
+                onValueChange={(value) =>
+                  handleSettingChange("appearance", "borderRadius", value[0])
+                }
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
@@ -213,7 +226,9 @@ export default function Settings() {
                 max={1.4}
                 step={0.05}
                 value={[settings.appearance.fontScale]}
-                onValueChange={(value) => handleSettingChange("appearance", "fontScale", value[0])}
+                onValueChange={(value) =>
+                  handleSettingChange("appearance", "fontScale", value[0])
+                }
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
@@ -222,7 +237,7 @@ export default function Settings() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case "notifications":
         return (
@@ -230,7 +245,10 @@ export default function Settings() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="emailNotifications" className="text-base font-medium">
+                  <Label
+                    htmlFor="emailNotifications"
+                    className="text-base font-medium"
+                  >
                     Email notifications
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -240,13 +258,22 @@ export default function Settings() {
                 <Switch
                   id="emailNotifications"
                   checked={settings.notifications.emailNotifications}
-                  onCheckedChange={(checked) => handleSettingChange("notifications", "emailNotifications", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange(
+                      "notifications",
+                      "emailNotifications",
+                      checked
+                    )
+                  }
                 />
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="pushNotifications" className="text-base font-medium">
+                  <Label
+                    htmlFor="pushNotifications"
+                    className="text-base font-medium"
+                  >
                     Push notifications
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -256,13 +283,22 @@ export default function Settings() {
                 <Switch
                   id="pushNotifications"
                   checked={settings.notifications.pushNotifications}
-                  onCheckedChange={(checked) => handleSettingChange("notifications", "pushNotifications", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange(
+                      "notifications",
+                      "pushNotifications",
+                      checked
+                    )
+                  }
                 />
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="marketingEmails" className="text-base font-medium">
+                  <Label
+                    htmlFor="marketingEmails"
+                    className="text-base font-medium"
+                  >
                     Marketing emails
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -272,13 +308,22 @@ export default function Settings() {
                 <Switch
                   id="marketingEmails"
                   checked={settings.notifications.marketingEmails}
-                  onCheckedChange={(checked) => handleSettingChange("notifications", "marketingEmails", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange(
+                      "notifications",
+                      "marketingEmails",
+                      checked
+                    )
+                  }
                 />
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="investmentAlerts" className="text-base font-medium">
+                  <Label
+                    htmlFor="investmentAlerts"
+                    className="text-base font-medium"
+                  >
                     Investment alerts
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -288,13 +333,22 @@ export default function Settings() {
                 <Switch
                   id="investmentAlerts"
                   checked={settings.notifications.investmentAlerts}
-                  onCheckedChange={(checked) => handleSettingChange("notifications", "investmentAlerts", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange(
+                      "notifications",
+                      "investmentAlerts",
+                      checked
+                    )
+                  }
                 />
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="soundEnabled" className="text-base font-medium">
+                  <Label
+                    htmlFor="soundEnabled"
+                    className="text-base font-medium"
+                  >
                     Sound effects
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -304,12 +358,18 @@ export default function Settings() {
                 <Switch
                   id="soundEnabled"
                   checked={settings.notifications.soundEnabled}
-                  onCheckedChange={(checked) => handleSettingChange("notifications", "soundEnabled", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange(
+                      "notifications",
+                      "soundEnabled",
+                      checked
+                    )
+                  }
                 />
               </div>
             </div>
           </div>
-        )
+        );
 
       case "security":
         return (
@@ -317,7 +377,10 @@ export default function Settings() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="twoFactorAuth" className="text-base font-medium">
+                  <Label
+                    htmlFor="twoFactorAuth"
+                    className="text-base font-medium"
+                  >
                     Two-factor authentication
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -327,13 +390,18 @@ export default function Settings() {
                 <Switch
                   id="twoFactorAuth"
                   checked={settings.security.twoFactorAuth}
-                  onCheckedChange={(checked) => handleSettingChange("security", "twoFactorAuth", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange("security", "twoFactorAuth", checked)
+                  }
                 />
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="biometricLogin" className="text-base font-medium">
+                  <Label
+                    htmlFor="biometricLogin"
+                    className="text-base font-medium"
+                  >
                     Biometric login
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -343,18 +411,29 @@ export default function Settings() {
                 <Switch
                   id="biometricLogin"
                   checked={settings.security.biometricLogin}
-                  onCheckedChange={(checked) => handleSettingChange("security", "biometricLogin", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange("security", "biometricLogin", checked)
+                  }
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="passwordChangeInterval" className="text-base font-medium">
+                <Label
+                  htmlFor="passwordChangeInterval"
+                  className="text-base font-medium"
+                >
                   Password change interval
                 </Label>
                 <select
                   id="passwordChangeInterval"
                   value={settings.security.passwordChangeInterval}
-                  onChange={(e) => handleSettingChange("security", "passwordChangeInterval", e.target.value)}
+                  onChange={(e) =>
+                    handleSettingChange(
+                      "security",
+                      "passwordChangeInterval",
+                      e.target.value
+                    )
+                  }
                   className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
                 >
                   <option value="30days">Every 30 days</option>
@@ -378,7 +457,7 @@ export default function Settings() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case "privacy":
         return (
@@ -386,7 +465,10 @@ export default function Settings() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="shareUsageData" className="text-base font-medium">
+                  <Label
+                    htmlFor="shareUsageData"
+                    className="text-base font-medium"
+                  >
                     Share usage data
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -396,13 +478,18 @@ export default function Settings() {
                 <Switch
                   id="shareUsageData"
                   checked={settings.privacy.shareUsageData}
-                  onCheckedChange={(checked) => handleSettingChange("privacy", "shareUsageData", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange("privacy", "shareUsageData", checked)
+                  }
                 />
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="allowCookies" className="text-base font-medium">
+                  <Label
+                    htmlFor="allowCookies"
+                    className="text-base font-medium"
+                  >
                     Allow cookies
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -412,13 +499,18 @@ export default function Settings() {
                 <Switch
                   id="allowCookies"
                   checked={settings.privacy.allowCookies}
-                  onCheckedChange={(checked) => handleSettingChange("privacy", "allowCookies", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange("privacy", "allowCookies", checked)
+                  }
                 />
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
-                  <Label htmlFor="showProfileToOthers" className="text-base font-medium">
+                  <Label
+                    htmlFor="showProfileToOthers"
+                    className="text-base font-medium"
+                  >
                     Profile visibility
                   </Label>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -428,7 +520,13 @@ export default function Settings() {
                 <Switch
                   id="showProfileToOthers"
                   checked={settings.privacy.showProfileToOthers}
-                  onCheckedChange={(checked) => handleSettingChange("privacy", "showProfileToOthers", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSettingChange(
+                      "privacy",
+                      "showProfileToOthers",
+                      checked
+                    )
+                  }
                 />
               </div>
 
@@ -443,7 +541,7 @@ export default function Settings() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case "language":
         return (
@@ -455,7 +553,9 @@ export default function Settings() {
               <select
                 id="appLanguage"
                 value={settings.language.appLanguage}
-                onChange={(e) => handleSettingChange("language", "appLanguage", e.target.value)}
+                onChange={(e) =>
+                  handleSettingChange("language", "appLanguage", e.target.value)
+                }
                 className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
               >
                 <option value="english">English</option>
@@ -475,7 +575,9 @@ export default function Settings() {
               <select
                 id="dateFormat"
                 value={settings.language.dateFormat}
-                onChange={(e) => handleSettingChange("language", "dateFormat", e.target.value)}
+                onChange={(e) =>
+                  handleSettingChange("language", "dateFormat", e.target.value)
+                }
                 className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
               >
                 <option value="MM/DD/YYYY">MM/DD/YYYY</option>
@@ -495,9 +597,13 @@ export default function Settings() {
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30"
                       : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
                   }`}
-                  onClick={() => handleSettingChange("language", "timeFormat", "12h")}
+                  onClick={() =>
+                    handleSettingChange("language", "timeFormat", "12h")
+                  }
                 >
-                  <p className="text-center text-sm font-medium">12-hour (AM/PM)</p>
+                  <p className="text-center text-sm font-medium">
+                    12-hour (AM/PM)
+                  </p>
                 </div>
                 <div
                   className={`p-3 rounded-lg border transition-all cursor-pointer ${
@@ -505,30 +611,35 @@ export default function Settings() {
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30"
                       : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
                   }`}
-                  onClick={() => handleSettingChange("language", "timeFormat", "24h")}
+                  onClick={() =>
+                    handleSettingChange("language", "timeFormat", "24h")
+                  }
                 >
                   <p className="text-center text-sm font-medium">24-hour</p>
                 </div>
               </div>
             </div>
           </div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
         {/* Mobile Overlay */}
         {isMobile && sidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => dispatch(setSidebarOpen(false))} />
+          <div
+            className="fixed inset-0 bg-black/50 z-20 md:hidden"
+            onClick={() => dispatch(setSidebarOpen(false))}
+          />
         )}
 
         {/* Sidebar - Mobile: full slide in, Desktop: collapsible */}
-       <Sidebaar />
+        <Sidebaar />
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -545,7 +656,9 @@ export default function Settings() {
                   <Menu size={20} />
                 </Button>
               )}
-              <h1 className="text-lg font-semibold hidden md:block">Settings</h1>
+              <h1 className="text-lg font-semibold hidden md:block">
+                Settings
+              </h1>
             </div>
             <div className="flex items-center gap-2 md:gap-4">
               <ThemeToggle />
@@ -561,7 +674,9 @@ export default function Settings() {
                 <Avatar className="h-8 w-8 border-2 border-cyan-500">
                   <div className="bg-gradient-to-br from-purple-500 to-cyan-500 w-full h-full"></div>
                 </Avatar>
-                <span className="text-sm font-medium hidden md:inline-block">Admin</span>
+                <span className="text-sm font-medium hidden md:inline-block">
+                  Admin
+                </span>
               </div>
             </div>
           </header>
@@ -613,11 +728,21 @@ export default function Settings() {
                   <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 overflow-hidden">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        {activeSection === "appearance" && <Palette className="h-5 w-5" />}
-                        {activeSection === "notifications" && <BellRing className="h-5 w-5" />}
-                        {activeSection === "security" && <Lock className="h-5 w-5" />}
-                        {activeSection === "privacy" && <Eye className="h-5 w-5" />}
-                        {activeSection === "language" && <Globe className="h-5 w-5" />}
+                        {activeSection === "appearance" && (
+                          <Palette className="h-5 w-5" />
+                        )}
+                        {activeSection === "notifications" && (
+                          <BellRing className="h-5 w-5" />
+                        )}
+                        {activeSection === "security" && (
+                          <Lock className="h-5 w-5" />
+                        )}
+                        {activeSection === "privacy" && (
+                          <Eye className="h-5 w-5" />
+                        )}
+                        {activeSection === "language" && (
+                          <Globe className="h-5 w-5" />
+                        )}
                         {activeSection === "appearance" && "Appearance"}
                         {activeSection === "notifications" && "Notifications"}
                         {activeSection === "security" && "Security"}
@@ -673,7 +798,7 @@ export default function Settings() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Settings Navigation Item
@@ -687,13 +812,21 @@ function SettingsNavItem({ icon, label, active = false, onClick }) {
       }`}
       onClick={onClick}
     >
-      <span className={`${active ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"}`}>
+      <span
+        className={`${
+          active
+            ? "text-blue-600 dark:text-blue-400"
+            : "text-slate-500 dark:text-slate-400"
+        }`}
+      >
         {icon}
       </span>
       <span>{label}</span>
-      {active && <Check className="ml-auto h-4 w-4 text-blue-600 dark:text-blue-400" />}
+      {active && (
+        <Check className="ml-auto h-4 w-4 text-blue-600 dark:text-blue-400" />
+      )}
     </button>
-  )
+  );
 }
 
 // Navigation Item Component
@@ -706,10 +839,12 @@ function NavItem({ icon, label, active = false, collapsed = false }) {
           : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-700/50"
       }`}
     >
-      <div className={`${active ? "text-blue-600 dark:text-blue-400" : ""}`}>{icon}</div>
+      <div className={`${active ? "text-blue-600 dark:text-blue-400" : ""}`}>
+        {icon}
+      </div>
       {!collapsed && <span className="ml-3 text-sm">{label}</span>}
     </div>
-  )
+  );
 }
 
 // Sidebar Navigation Component
@@ -862,22 +997,26 @@ function SidebarNav({ collapsed = false, isMobile = false, activePath = "/" }) {
         </svg>
       ),
     },
-  ]
+  ];
 
   return (
     <nav className="space-y-1 px-2">
       {navItems.map((item) => {
-        const isActive = activePath === item.href
+        const isActive = activePath === item.href;
         return (
           <NavItem
             key={item.href}
             icon={item.icon}
-            label={isMobile && item.name === "Customer Request for App owner only" ? "Customer Request" : item.name}
+            label={
+              isMobile && item.name === "Customer Request for App owner only"
+                ? "Customer Request"
+                : item.name
+            }
             active={isActive}
             collapsed={collapsed}
           />
-        )
+        );
       })}
     </nav>
-  )
+  );
 }

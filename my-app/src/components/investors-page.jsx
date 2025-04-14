@@ -114,7 +114,6 @@ export default function InvestorsPage() {
   const isMobile = useSelector((state) => state.app.isMobile);
   const dispatch = useDispatch();
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
@@ -122,7 +121,7 @@ export default function InvestorsPage() {
         {isMobile && sidebarOpen && (
           <div
             className="fixed inset-0 bg-black/50 z-20 md:hidden"
-              onClick={() => dispatch(setSidebarOpen(false))}
+            onClick={() => dispatch(setSidebarOpen(false))}
           />
         )}
         <Sidebaar />
@@ -136,7 +135,7 @@ export default function InvestorsPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                    onClick={() => dispatch(setSidebarOpen(true))}
+                  onClick={() => dispatch(setSidebarOpen(true))}
                   className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white md:hidden"
                 >
                   <Menu size={20} />
@@ -383,4 +382,3 @@ function CompanyCard({ company }) {
   );
 }
 
-// Navigation Item Component

@@ -1,19 +1,37 @@
-"use client"
-import React from "react"
-import { useState, useRef } from "react"
+"use client";
+import React from "react";
+import { useState, useRef } from "react";
 
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Avatar } from "@/components/ui/avatar"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
-import { ThemeToggle } from "./theme/theme-toggle"
-import { User, Mail, Phone, MapPin, CreditCard, Edit, Save, X, Upload, ArrowLeft, ChevronRight, ChevronLeft, Bell, Menu } from "lucide-react"
-import Sidebaar from "./Sidebaar"
-import { useDispatch, useSelector } from "react-redux"
-import { setSidebarOpen } from "@/redux/appSlice"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { ThemeToggle } from "./theme/theme-toggle";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  CreditCard,
+  Edit,
+  Save,
+  X,
+  Upload,
+  Bell,
+  Menu,
+} from "lucide-react";
+import Sidebaar from "./Sidebaar";
+import { useDispatch, useSelector } from "react-redux";
+import { setSidebarOpen } from "@/redux/appSlice";
 
 // Sample user data - in a real app, this would come from an API or database
 const initialUserData = {
@@ -24,83 +42,85 @@ const initialUserData = {
   profileImage: "/placeholder.svg?height=200&width=200",
   cnicFront: "/placeholder.svg?height=300&width=500",
   cnicBack: "/placeholder.svg?height=300&width=500",
-}
+};
 
 export default function Profile() {
-  const [userData, setUserData] = useState(initialUserData)
-  const [isEditing, setIsEditing] = useState(false)
-  const [tempUserData, setTempUserData] = useState(initialUserData)
+  const [userData, setUserData] = useState(initialUserData);
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempUserData, setTempUserData] = useState(initialUserData);
   const isMobile = useSelector((state) => state.app.isMobile);
   const sidebarCollapsed = useSelector((state) => state.app.sideBarCollapsed);
-    const sidebarOpen = useSelector((state) => state.app.sideBarOpen);
-  const { toast } = useToast()
-  const dispatch = useDispatch()
-// Refs for file inputs
-const profileImageRef = useRef(null)
-const cnicFrontRef = useRef(null)
-const cnicBackRef = useRef(null)
+  const sidebarOpen = useSelector((state) => state.app.sideBarOpen);
+  const { toast } = useToast();
+  const dispatch = useDispatch();
+  // Refs for file inputs
+  const profileImageRef = useRef(null);
+  const cnicFrontRef = useRef(null);
+  const cnicBackRef = useRef(null);
 
-const handleEditToggle = () => {
-  if (isEditing) {
-    // Cancel editing
-    setTempUserData(userData)
-    setIsEditing(false)
-  } else {
-    // Start editing
-    setTempUserData(userData)
-    setIsEditing(true)
-  }
-}
-
-const handleSave = () => {
-  setUserData(tempUserData)
-  setIsEditing(false)
-  toast({
-    title: "Profile Updated",
-    description: "Your profile has been updated successfully."
-  })
-}
-
-const handleInputChange = e => {
-  const { name, value } = e.target
-  setTempUserData(prev => ({
-    ...prev,
-    [name]: value
-  }))
-}
-
-const handleImageUpload = (e, imageType) => {
-  const file = e.target.files?.[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = event => {
-      if (event.target?.result) {
-        setTempUserData(prev => ({
-          ...prev,
-          [imageType]: event.target?.result
-        }))
-      }
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Cancel editing
+      setTempUserData(userData);
+      setIsEditing(false);
+    } else {
+      // Start editing
+      setTempUserData(userData);
+      setIsEditing(true);
     }
-    reader.readAsDataURL(file)
-  }
-}
+  };
 
-const triggerFileInput = ref => {
-  ref.current?.click()
-}
+  const handleSave = () => {
+    setUserData(tempUserData);
+    setIsEditing(false);
+    toast({
+      title: "Profile Updated",
+      description: "Your profile has been updated successfully.",
+    });
+  };
 
-return (
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setTempUserData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleImageUpload = (e, imageType) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setTempUserData((prev) => ({
+            ...prev,
+            [imageType]: event.target?.result,
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = (ref) => {
+    ref.current?.click();
+  };
+
+  return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
         {/* Mobile Overlay */}
         {isMobile && sidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => dispatch(setSidebarOpen(false))} />
+          <div
+            className="fixed inset-0 bg-black/50 z-20 md:hidden"
+            onClick={() => dispatch(setSidebarOpen(false))}
+          />
         )}
 
         {/* Sidebar - Mobile: full slide in, Desktop: collapsible */}
-        
-         
-            <Sidebaar />
+
+        <Sidebaar />
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -133,7 +153,9 @@ return (
                 <Avatar className="h-8 w-8 border-2 border-cyan-500">
                   <div className="bg-gradient-to-br from-purple-500 to-cyan-500 w-full h-full"></div>
                 </Avatar>
-                <span className="text-sm font-medium hidden md:inline-block">Admin</span>
+                <span className="text-sm font-medium hidden md:inline-block">
+                  Admin
+                </span>
               </div>
             </div>
           </header>
@@ -155,7 +177,11 @@ return (
                           <Save className="h-4 w-4 mr-1" />
                           Save
                         </Button>
-                        <Button onClick={handleEditToggle} size="sm" variant="outline">
+                        <Button
+                          onClick={handleEditToggle}
+                          size="sm"
+                          variant="outline"
+                        >
                           <X className="h-4 w-4 mr-1" />
                           Cancel
                         </Button>
@@ -176,7 +202,11 @@ return (
                     <div className="relative group">
                       <Avatar className="h-32 w-32 border-4 border-white dark:border-slate-700 shadow-lg mb-4 overflow-hidden">
                         <img
-                          src={isEditing ? tempUserData.profileImage : userData.profileImage}
+                          src={
+                            isEditing
+                              ? tempUserData.profileImage
+                              : userData.profileImage
+                          }
                           alt="Profile"
                           className="object-cover w-full h-full"
                         />
@@ -192,7 +222,9 @@ return (
                             ref={profileImageRef}
                             className="hidden"
                             accept="image/*"
-                            onChange={(e) => handleImageUpload(e, "profileImage")}
+                            onChange={(e) =>
+                              handleImageUpload(e, "profileImage")
+                            }
                           />
                         </div>
                       )}
@@ -234,7 +266,9 @@ return (
                               className="bg-slate-100/50 dark:bg-slate-700/30 border-slate-200 dark:border-slate-600"
                             />
                           ) : (
-                            <p className="text-slate-900 dark:text-white pl-6">{userData.email}</p>
+                            <p className="text-slate-900 dark:text-white pl-6">
+                              {userData.email}
+                            </p>
                           )}
                         </div>
 
@@ -251,7 +285,9 @@ return (
                               className="bg-slate-100/50 dark:bg-slate-700/30 border-slate-200 dark:border-slate-600"
                             />
                           ) : (
-                            <p className="text-slate-900 dark:text-white pl-6">{userData.contact}</p>
+                            <p className="text-slate-900 dark:text-white pl-6">
+                              {userData.contact}
+                            </p>
                           )}
                         </div>
 
@@ -268,7 +304,9 @@ return (
                               className="bg-slate-100/50 dark:bg-slate-700/30 border-slate-200 dark:border-slate-600 min-h-[100px]"
                             />
                           ) : (
-                            <p className="text-slate-900 dark:text-white pl-6">{userData.address}</p>
+                            <p className="text-slate-900 dark:text-white pl-6">
+                              {userData.address}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -283,10 +321,16 @@ return (
 
                       <div className="space-y-6">
                         <div className="space-y-2">
-                          <Label className="text-slate-500 dark:text-slate-400">CNIC Front</Label>
+                          <Label className="text-slate-500 dark:text-slate-400">
+                            CNIC Front
+                          </Label>
                           <div className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
                             <img
-                              src={isEditing ? tempUserData.cnicFront : userData.cnicFront}
+                              src={
+                                isEditing
+                                  ? tempUserData.cnicFront
+                                  : userData.cnicFront
+                              }
                               alt="CNIC Front"
                               className="w-full h-auto object-cover"
                             />
@@ -301,7 +345,9 @@ return (
                                   ref={cnicFrontRef}
                                   className="hidden"
                                   accept="image/*"
-                                  onChange={(e) => handleImageUpload(e, "cnicFront")}
+                                  onChange={(e) =>
+                                    handleImageUpload(e, "cnicFront")
+                                  }
                                 />
                               </div>
                             )}
@@ -309,10 +355,16 @@ return (
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-500 dark:text-slate-400">CNIC Back</Label>
+                          <Label className="text-slate-500 dark:text-slate-400">
+                            CNIC Back
+                          </Label>
                           <div className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
                             <img
-                              src={isEditing ? tempUserData.cnicBack : userData.cnicBack}
+                              src={
+                                isEditing
+                                  ? tempUserData.cnicBack
+                                  : userData.cnicBack
+                              }
                               alt="CNIC Back"
                               className="w-full h-auto object-cover"
                             />
@@ -327,7 +379,9 @@ return (
                                   ref={cnicBackRef}
                                   className="hidden"
                                   accept="image/*"
-                                  onChange={(e) => handleImageUpload(e, "cnicBack")}
+                                  onChange={(e) =>
+                                    handleImageUpload(e, "cnicBack")
+                                  }
                                 />
                               </div>
                             )}
@@ -341,7 +395,10 @@ return (
                 {isEditing && (
                   <CardFooter className="border-t border-slate-200 dark:border-slate-700 pt-4 flex justify-end">
                     <div className="flex gap-2">
-                      <Button onClick={() => setIsEditing(false)} variant="outline">
+                      <Button
+                        onClick={() => setIsEditing(false)}
+                        variant="outline"
+                      >
                         Cancel
                       </Button>
                       <Button
@@ -366,20 +423,36 @@ return (
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 rounded-lg bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/5 dark:to-blue-500/5 border border-cyan-200/50 dark:border-cyan-800/30">
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Account Status</div>
-                      <div className="text-lg font-medium text-cyan-600 dark:text-cyan-400">Active</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
+                        Account Status
+                      </div>
+                      <div className="text-lg font-medium text-cyan-600 dark:text-cyan-400">
+                        Active
+                      </div>
                     </div>
                     <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/5 dark:to-pink-500/5 border border-purple-200/50 dark:border-purple-800/30">
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Member Since</div>
-                      <div className="text-lg font-medium text-purple-600 dark:text-purple-400">April 12, 2023</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
+                        Member Since
+                      </div>
+                      <div className="text-lg font-medium text-purple-600 dark:text-purple-400">
+                        April 12, 2023
+                      </div>
                     </div>
                     <div className="p-4 rounded-lg bg-gradient-to-br from-emerald-500/10 to-teal-500/10 dark:from-emerald-500/5 dark:to-teal-500/5 border border-emerald-200/50 dark:border-emerald-800/30">
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Last Login</div>
-                      <div className="text-lg font-medium text-emerald-600 dark:text-emerald-400">Today, 10:45 AM</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
+                        Last Login
+                      </div>
+                      <div className="text-lg font-medium text-emerald-600 dark:text-emerald-400">
+                        Today, 10:45 AM
+                      </div>
                     </div>
                     <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/5 dark:to-orange-500/5 border border-amber-200/50 dark:border-amber-800/30">
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Account Type</div>
-                      <div className="text-lg font-medium text-amber-600 dark:text-amber-400">Premium Investor</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
+                        Account Type
+                      </div>
+                      <div className="text-lg font-medium text-amber-600 dark:text-amber-400">
+                        Premium Investor
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -389,5 +462,5 @@ return (
         </div>
       </div>
     </div>
-  )
+  );
 }

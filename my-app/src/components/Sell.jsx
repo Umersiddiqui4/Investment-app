@@ -1,18 +1,27 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Avatar } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Search, ChevronRight, Calendar, Percent, Bell, Menu, ChevronLeft, X, LayoutGrid, List } from "lucide-react"
-import { ThemeToggle } from "./theme/theme-toggle"
-import { SellItemDetails } from "./SellDetail"
-import Sidebaar from "./Sidebaar"
-import { useDispatch, useSelector } from "react-redux"
-import { setIsMobile, setSidebarOpen } from "@/redux/appSlice"
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Avatar } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Search,
+  ChevronRight,
+  Calendar,
+  Percent,
+  Bell,
+  Menu,
+  LayoutGrid,
+  List,
+} from "lucide-react";
+import { ThemeToggle } from "./theme/theme-toggle";
+import { SellItemDetails } from "./SellDetail";
+import Sidebaar from "./Sidebaar";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsMobile, setSidebarOpen } from "@/redux/appSlice";
 
 // Sample data
 const sellItemsData = [
@@ -59,7 +68,8 @@ const sellItemsData = [
     ],
     totalAmount: 250000,
     currency: "USD",
-    description: "Next-generation quantum computing server with advanced cooling system and quantum bit stabilization.",
+    description:
+      "Next-generation quantum computing server with advanced cooling system and quantum bit stabilization.",
     installments: [
       {
         month: 1,
@@ -132,7 +142,8 @@ const sellItemsData = [
     ],
     totalAmount: 285000,
     currency: "USD",
-    description: "Advanced neural interface headset for direct brain-computer interaction with haptic feedback.",
+    description:
+      "Advanced neural interface headset for direct brain-computer interaction with haptic feedback.",
     installments: [
       {
         month: 1,
@@ -205,7 +216,8 @@ const sellItemsData = [
     ],
     totalAmount: 600000,
     currency: "USD",
-    description: "Compact fusion energy reactor with sustainable plasma containment and efficient energy conversion.",
+    description:
+      "Compact fusion energy reactor with sustainable plasma containment and efficient energy conversion.",
     installments: [
       {
         month: 1,
@@ -383,97 +395,99 @@ const sellItemsData = [
     completedPayments: 4,
     totalPayments: 4,
   },
-]
+];
 
 // My sell items (subset of all items)
-const mySellItemsData = [sellItemsData[0], sellItemsData[2], sellItemsData[4]]
+const mySellItemsData = [sellItemsData[0], sellItemsData[2], sellItemsData[4]];
 
 export default function Sell() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
-  const [selectedItem, setSelectedItem] = useState(null)
-  const [filteredItems, setFilteredItems] = useState(sellItemsData)
-  const [filteredMyItems, setFilteredMyItems] = useState(mySellItemsData)
-  const [viewMode, setViewMode] = useState("grid")
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [filteredItems, setFilteredItems] = useState(sellItemsData);
+  const [filteredMyItems, setFilteredMyItems] = useState(mySellItemsData);
+  const [viewMode, setViewMode] = useState("grid");
   const sidebarOpen = useSelector((state) => state.app.sideBarOpen);
   const isMobile = useSelector((state) => state.app.isMobile);
   const dispatch = useDispatch();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Check if we're on mobile
   useEffect(() => {
     const checkIfMobile = () => {
-      dispatch(setIsMobile(window.innerWidth < 768))
+      dispatch(setIsMobile(window.innerWidth < 768));
       if (window.innerWidth >= 768) {
-        dispatch(setSidebarOpen(false))
+        dispatch(setSidebarOpen(false));
       }
-    }
+    };
 
     // Initial check
-    checkIfMobile()
+    checkIfMobile();
 
     // Add event listener
-    window.addEventListener("resize", checkIfMobile)
+    window.addEventListener("resize", checkIfMobile);
 
     // Cleanup
-    return () => window.removeEventListener("resize", checkIfMobile)
-  }, [])
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
   // Filter items based on search query
   useEffect(() => {
     if (searchQuery) {
-      const lowercaseQuery = searchQuery.toLowerCase()
+      const lowercaseQuery = searchQuery.toLowerCase();
 
       const filtered = sellItemsData.filter(
         (item) =>
           item.itemName.toLowerCase().includes(lowercaseQuery) ||
           item.customerName.toLowerCase().includes(lowercaseQuery) ||
-          item.investorName.toLowerCase().includes(lowercaseQuery),
-      )
+          item.investorName.toLowerCase().includes(lowercaseQuery)
+      );
 
       const filteredMy = mySellItemsData.filter(
         (item) =>
           item.itemName.toLowerCase().includes(lowercaseQuery) ||
           item.customerName.toLowerCase().includes(lowercaseQuery) ||
-          item.investorName.toLowerCase().includes(lowercaseQuery),
-      )
+          item.investorName.toLowerCase().includes(lowercaseQuery)
+      );
 
-      setFilteredItems(filtered)
-      setFilteredMyItems(filteredMy)
+      setFilteredItems(filtered);
+      setFilteredMyItems(filteredMy);
     } else {
-      setFilteredItems(sellItemsData)
-      setFilteredMyItems(mySellItemsData)
+      setFilteredItems(sellItemsData);
+      setFilteredMyItems(mySellItemsData);
     }
-  }, [searchQuery])
-
+  }, [searchQuery]);
 
   const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "short", day: "numeric" }
-    return new Date(dateString).toLocaleDateString("en-US", options)
-  }
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
 
   const formatCurrency = (amount, currency = "USD") => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: currency,
       minimumFractionDigits: 0,
-    }).format(amount)
-  }
+    }).format(amount);
+  };
 
   const handleItemClick = (item) => {
-    setSelectedItem(item)
-  }
+    setSelectedItem(item);
+  };
 
   const handleBackClick = () => {
-    setSelectedItem(null)
-  }
+    setSelectedItem(null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100">
       <div className="flex h-screen overflow-hidden">
         {/* Mobile Overlay */}
         {isMobile && sidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => dispatch(setSidebarOpen(false))} />
+          <div
+            className="fixed inset-0 bg-black/50 z-20 md:hidden"
+            onClick={() => dispatch(setSidebarOpen(false))}
+          />
         )}
 
         {/* Sidebar - Mobile: full slide in, Desktop: collapsible */}
@@ -494,7 +508,9 @@ export default function Sell() {
                   <Menu size={20} />
                 </Button>
               )}
-              <h1 className="text-lg font-semibold hidden md:block">Investment Sales</h1>
+              <h1 className="text-lg font-semibold hidden md:block">
+                Investment Sales
+              </h1>
             </div>
             <div className="flex items-center gap-2 md:gap-4">
               <ThemeToggle />
@@ -510,7 +526,9 @@ export default function Sell() {
                 <Avatar className="h-8 w-8 border-2 border-cyan-500">
                   <div className="bg-gradient-to-br from-purple-500 to-cyan-500 w-full h-full"></div>
                 </Avatar>
-                <span className="text-sm font-medium hidden md:inline-block">Admin</span>
+                <span className="text-sm font-medium hidden md:inline-block">
+                  Admin
+                </span>
               </div>
             </div>
           </header>
@@ -539,7 +557,11 @@ export default function Sell() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className={`h-8 w-8 ${viewMode === "grid" ? "bg-slate-700 text-white" : "text-slate-400"}`}
+                        className={`h-8 w-8 ${
+                          viewMode === "grid"
+                            ? "bg-slate-700 text-white"
+                            : "text-slate-400"
+                        }`}
                         onClick={() => setViewMode("grid")}
                       >
                         <LayoutGrid size={16} />
@@ -547,7 +569,11 @@ export default function Sell() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className={`h-8 w-8 ${viewMode === "list" ? "bg-slate-700 text-white" : "text-slate-400"}`}
+                        className={`h-8 w-8 ${
+                          viewMode === "list"
+                            ? "bg-slate-700 text-white"
+                            : "text-slate-400"
+                        }`}
                         onClick={() => setViewMode("list")}
                       >
                         <List size={16} />
@@ -556,7 +582,11 @@ export default function Sell() {
                   </div>
                 </div>
 
-                <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
+                <Tabs
+                  defaultValue="all"
+                  className="w-full"
+                  onValueChange={setActiveTab}
+                >
                   <TabsList className="grid grid-cols-2 w-full bg-slate-800/50 p-1 mb-6">
                     <TabsTrigger
                       value="all"
@@ -574,7 +604,9 @@ export default function Sell() {
 
                   <TabsContent value="all" className="mt-0 space-y-4">
                     {filteredItems.length === 0 ? (
-                      <div className="text-center py-12 text-slate-400">No sales found matching your search</div>
+                      <div className="text-center py-12 text-slate-400">
+                        No sales found matching your search
+                      </div>
                     ) : (
                       <>
                         {viewMode === "grid" ? (
@@ -607,7 +639,9 @@ export default function Sell() {
 
                   <TabsContent value="my" className="mt-0 space-y-4">
                     {filteredMyItems.length === 0 ? (
-                      <div className="text-center py-12 text-slate-400">No sales found matching your search</div>
+                      <div className="text-center py-12 text-slate-400">
+                        No sales found matching your search
+                      </div>
                     ) : (
                       <>
                         {viewMode === "grid" ? (
@@ -644,12 +678,14 @@ export default function Sell() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function SellItemCard({ item, onClick, formatDate }) {
   // Calculate progress percentage
-  const progressPercentage = Math.round((item.completedPayments / item.totalPayments) * 100)
+  const progressPercentage = Math.round(
+    (item.completedPayments / item.totalPayments) * 100
+  );
 
   return (
     <Card
@@ -670,7 +706,7 @@ function SellItemCard({ item, onClick, formatDate }) {
           >
             {item.status === "active" ? "Active" : "Completed"}
           </Badge>
-            <br></br>
+          <br></br>
           {/* Item Header */}
           <div className="p-4 border-b border-slate-700/50">
             <div className="flex items-center gap-3">
@@ -698,7 +734,10 @@ function SellItemCard({ item, onClick, formatDate }) {
             <div className="flex justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8 border border-slate-600/50">
-                  <img src={item.customerImage || "/placeholder.svg"} alt={item.customerName} />
+                  <img
+                    src={item.customerImage || "/placeholder.svg"}
+                    alt={item.customerName}
+                  />
                 </Avatar>
                 <div>
                   <div className="text-xs text-slate-400">Customer</div>
@@ -712,7 +751,10 @@ function SellItemCard({ item, onClick, formatDate }) {
                   <div className="text-sm font-medium">{item.investorName}</div>
                 </div>
                 <Avatar className="h-8 w-8 border border-slate-600/50">
-                  <img src={item.investorImage || "/placeholder.svg"} alt={item.investorName} />
+                  <img
+                    src={item.investorImage || "/placeholder.svg"}
+                    alt={item.investorName}
+                  />
                 </Avatar>
               </div>
             </div>
@@ -737,10 +779,16 @@ function SellItemCard({ item, onClick, formatDate }) {
             <div className="flex justify-between items-center mt-3">
               <div className="flex items-center gap-1.5 bg-slate-700/50 px-2 py-1 rounded-md">
                 <Percent className="h-3.5 w-3.5 text-cyan-400" />
-                <span className="text-sm font-medium text-cyan-300">{item.rate}% Rate</span>
+                <span className="text-sm font-medium text-cyan-300">
+                  {item.rate}% Rate
+                </span>
               </div>
 
-              <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white hover:bg-slate-700/50">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-slate-400 hover:text-white hover:bg-slate-700/50"
+              >
                 <span className="text-xs mr-1">Details</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -749,12 +797,14 @@ function SellItemCard({ item, onClick, formatDate }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function SellItemListView({ item, onClick, formatDate, formatCurrency }) {
   // Calculate progress percentage
-  const progressPercentage = Math.round((item.completedPayments / item.totalPayments) * 100)
+  const progressPercentage = Math.round(
+    (item.completedPayments / item.totalPayments) * 100
+  );
 
   return (
     <div
@@ -803,7 +853,10 @@ function SellItemListView({ item, onClick, formatDate, formatCurrency }) {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8 border border-slate-600/50">
-                <img src={item.customerImage || "/placeholder.svg"} alt={item.customerName} />
+                <img
+                  src={item.customerImage || "/placeholder.svg"}
+                  alt={item.customerName}
+                />
               </Avatar>
               <div>
                 <div className="text-xs text-slate-400">Customer</div>
@@ -817,7 +870,10 @@ function SellItemListView({ item, onClick, formatDate, formatCurrency }) {
                 <div className="text-sm font-medium">{item.investorName}</div>
               </div>
               <Avatar className="h-8 w-8 border border-slate-600/50">
-                <img src={item.investorImage || "/placeholder.svg"} alt={item.investorName} />
+                <img
+                  src={item.investorImage || "/placeholder.svg"}
+                  alt={item.investorName}
+                />
               </Avatar>
             </div>
           </div>
@@ -827,7 +883,9 @@ function SellItemListView({ item, onClick, formatDate, formatCurrency }) {
         <div className="w-full md:w-auto flex flex-col items-end gap-2 mt-4 md:mt-0">
           <div className="text-right">
             <div className="text-xs text-slate-400">Total Amount</div>
-            <div className="text-base font-medium text-white">{formatCurrency(item.totalAmount, item.currency)}</div>
+            <div className="text-base font-medium text-white">
+              {formatCurrency(item.totalAmount, item.currency)}
+            </div>
           </div>
 
           <div className="w-full md:w-40">
@@ -847,183 +905,6 @@ function SellItemListView({ item, onClick, formatDate, formatCurrency }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-// Navigation Item Component
-function NavItem({ icon, label, active = false, collapsed = false }) {
-  return (
-    <div
-      className={`flex items-center px-3 py-2 rounded-lg transition-colors duration-200 ${
-        active
-          ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-          : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-      }`}
-    >
-      <div className={`${active ? "text-cyan-400" : ""}`}>{icon}</div>
-      {!collapsed && <span className="ml-3 text-sm">{label}</span>}
-    </div>
-  )
-}
-
-// Sidebar Navigation Component
-function SidebarNav({ collapsed = false, isMobile = false, activePath = "/" }) {
-  const navItems = [
-    {
-      name: "Dashboard",
-      href: "/",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect width="7" height="9" x="3" y="3" rx="1" />
-          <rect width="7" height="5" x="14" y="3" rx="1" />
-          <rect width="7" height="9" x="14" y="12" rx="1" />
-          <rect width="7" height="5" x="3" y="16" rx="1" />
-        </svg>
-      ),
-    },
-    {
-      name: "Investors Or Company",
-      href: "/investors",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-      ),
-    },
-    {
-      name: "Installments",
-      href: "/installments",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-          <line x1="16" x2="16" y1="2" y2="6" />
-          <line x1="8" x2="8" y1="2" y2="6" />
-          <line x1="3" x2="21" y1="10" y2="10" />
-        </svg>
-      ),
-    },
-    {
-      name: "Create Company",
-      href: "/create-company",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-          <path d="M3 6h18" />
-          <path d="M16 10a4 4 0 0 1-8 0" />
-        </svg>
-      ),
-    },
-    {
-      name: "Settings",
-      href: "/settings",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-      ),
-    },
-    {
-      name: "Profile",
-      href: "/profile",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-      ),
-    },
-    {
-      name: "Customer Request",
-      href: "/customer-request",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
-          <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
-        </svg>
-      ),
-    },
-  ]
-
-  return (
-    <nav className="space-y-1 px-2">
-      {navItems.map((item) => {
-        const isActive = activePath === item.href
-        return <NavItem key={item.href} icon={item.icon} label={item.name} active={isActive} collapsed={collapsed} />
-      })}
-    </nav>
-  )
-}

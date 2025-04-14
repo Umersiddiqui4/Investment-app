@@ -32,9 +32,8 @@ import { installmentsData } from "./api/installments";
 
 // Sample data - in a real app, this would come from an API
 
-
 export default function Installments() {
-    // const installmentsData = installmentsData
+  // const installmentsData = installmentsData
   const sidebarOpen = useSelector((state) => state.app.sideBarOpen);
   const isMobile = useSelector((state) => state.app.isMobile);
   const dispatch = useDispatch();

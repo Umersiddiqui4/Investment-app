@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 import {
   Search,
@@ -14,11 +14,11 @@ import {
   Wallet,
   Menu,
   X,
-} from "lucide-react"
-import { useDispatch, useSelector } from "react-redux"
-import { setSidebarOpen } from "@/redux/appSlice"
-import Sidebaar from "./Sidebaar"
-import { ThemeToggle } from "./theme/theme-toggle"
+} from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { setSidebarOpen } from "@/redux/appSlice";
+import Sidebaar from "./Sidebaar";
+import { ThemeToggle } from "./theme/theme-toggle";
 import { installmentsData } from "./api/installments";
 
 // Sample data
@@ -28,65 +28,64 @@ const investmentData = {
   profit: "$350,000",
   profitPercentage: 14.3,
   installments: installmentsData,
-}
+};
 
 export default function InvestmentDashboard() {
-  const [activeTab, setActiveTab] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useSelector((state) => state.app.isMobile);
   const sidebarOpen = useSelector((state) => state.app.sideBarOpen);
   const dispatch = useDispatch();
 
   // Check if we're on mobile
-  
 
   // Filter installments based on active tab and search query
   const filteredInstallments = investmentData.installments.filter((item) => {
-    const matchesTab = activeTab === "all" || item.status === activeTab
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesTab && matchesSearch
-  })
+    const matchesTab = activeTab === "all" || item.status === activeTab;
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
 
   const getStatusColor = (status) => {
     switch (status) {
       case "paid":
-        return "bg-emerald-500"
+        return "bg-emerald-500";
       case "late":
-        return "bg-rose-500"
+        return "bg-rose-500";
       case "due":
-        return "bg-amber-500"
+        return "bg-amber-500";
       default:
-        return "bg-slate-500"
+        return "bg-slate-500";
     }
-  }
+  };
 
   const getStatusText = (status) => {
     switch (status) {
       case "paid":
-        return "Paid"
+        return "Paid";
       case "pending":
-        return "Pending"
+        return "Pending";
       case "due":
-        return "Due"
+        return "Due";
       default:
-        return "Unknown"
+        return "Unknown";
     }
-  }
+  };
 
-  
-  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
         {/* Mobile Overlay */}
         {isMobile && sidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => dispatch(setSidebarOpen(false))} />
+          <div
+            className="fixed inset-0 bg-black/50 z-20 md:hidden"
+            onClick={() => dispatch(setSidebarOpen(false))}
+          />
         )}
 
-      
-
-            <Sidebaar  />
-        
+        <Sidebaar />
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -127,7 +126,9 @@ export default function InvestmentDashboard() {
                 <Avatar className="h-8 w-8 border-2 border-cyan-500">
                   <div className="bg-gradient-to-br from-purple-500 to-cyan-500 w-full h-full"></div>
                 </Avatar>
-                <span className="text-sm font-medium hidden md:inline-block">Admin</span>
+                <span className="text-sm font-medium hidden md:inline-block">
+                  Admin
+                </span>
               </div>
             </div>
           </header>
@@ -142,7 +143,9 @@ export default function InvestmentDashboard() {
                   <CardContent className="p-4 md:p-6">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm">Total Investment</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm">
+                          Total Investment
+                        </p>
                         <h3 className="text-xl md:text-3xl font-bold mt-1 bg-gradient-to-r from-cyan-600 to-purple-600 dark:from-cyan-400 dark:to-purple-500 bg-clip-text text-transparent">
                           {investmentData.total}
                         </h3>
@@ -153,7 +156,9 @@ export default function InvestmentDashboard() {
                     </div>
                     <div className="mt-2 md:mt-4 flex items-center text-xs text-slate-500 dark:text-slate-400">
                       <TrendingUp className="mr-1 h-3 w-3 text-emerald-500" />
-                      <span className="text-emerald-500 font-medium">+12.5%</span>
+                      <span className="text-emerald-500 font-medium">
+                        +12.5%
+                      </span>
                       <span className="ml-1">from last month</span>
                     </div>
                   </CardContent>
@@ -164,7 +169,9 @@ export default function InvestmentDashboard() {
                   <CardContent className="p-4 md:p-6">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm">Float Investment</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm">
+                          Float Investment
+                        </p>
                         <h3 className="text-xl md:text-3xl font-bold mt-1 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-500 bg-clip-text text-transparent">
                           {investmentData.float}
                         </h3>
@@ -175,7 +182,9 @@ export default function InvestmentDashboard() {
                     </div>
                     <div className="mt-2 md:mt-4 flex items-center text-xs text-slate-500 dark:text-slate-400">
                       <TrendingUp className="mr-1 h-3 w-3 text-emerald-500" />
-                      <span className="text-emerald-500 font-medium">+8.3%</span>
+                      <span className="text-emerald-500 font-medium">
+                        +8.3%
+                      </span>
                       <span className="ml-1">from last month</span>
                     </div>
                   </CardContent>
@@ -186,7 +195,9 @@ export default function InvestmentDashboard() {
                   <CardContent className="p-4 md:p-6">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm">Investment Profit</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm">
+                          Investment Profit
+                        </p>
                         <h3 className="text-xl md:text-3xl font-bold mt-1 bg-gradient-to-r from-emerald-600 to-cyan-600 dark:from-emerald-400 dark:to-cyan-500 bg-clip-text text-transparent">
                           {investmentData.profit}
                         </h3>
@@ -197,7 +208,9 @@ export default function InvestmentDashboard() {
                     </div>
                     <div className="mt-2 md:mt-4 flex items-center text-xs text-slate-500 dark:text-slate-400">
                       <TrendingUp className="mr-1 h-3 w-3 text-emerald-500" />
-                      <span className="text-emerald-500 font-medium">+{investmentData.profitPercentage}%</span>
+                      <span className="text-emerald-500 font-medium">
+                        +{investmentData.profitPercentage}%
+                      </span>
                       <span className="ml-1">return rate</span>
                     </div>
                   </CardContent>
@@ -207,7 +220,11 @@ export default function InvestmentDashboard() {
               {/* Installment Tabs */}
               <Card className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700/50">
                 <CardContent className="p-4 md:p-6">
-                  <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
+                  <Tabs
+                    defaultValue="all"
+                    className="w-full"
+                    onValueChange={setActiveTab}
+                  >
                     <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
                       <TabsList className="grid grid-cols-4 w-full min-w-[500px] md:min-w-0 bg-slate-100 dark:bg-slate-700/30 p-1">
                         <TabsTrigger
@@ -250,7 +267,11 @@ export default function InvestmentDashboard() {
                           >
                             <div className="p-3 md:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
                               <Avatar className="h-12 w-12 md:h-14 md:w-14 rounded-xl border border-slate-300 dark:border-slate-600">
-                                <img src={item.image || "/placeholder.svg"} alt={item.name} className="object-cover" />
+                                <img
+                                  src={item.image || "/placeholder.svg"}
+                                  alt={item.name}
+                                  className="object-cover"
+                                />
                               </Avatar>
                               <div className="flex-1 flex flex-col md:flex-row md:items-center md:justify-between gap-2 w-full">
                                 <div>
@@ -262,7 +283,11 @@ export default function InvestmentDashboard() {
                                   </p>
                                 </div>
                                 <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3">
-                                  <Badge className={`${getStatusColor(item.status)} px-2 py-0.5 text-xs`}>
+                                  <Badge
+                                    className={`${getStatusColor(
+                                      item.status
+                                    )} px-2 py-0.5 text-xs`}
+                                  >
                                     {getStatusText(item.status)}
                                   </Badge>
                                   <span className="text-base md:text-lg font-semibold text-slate-900 dark:text-white">
@@ -283,6 +308,5 @@ export default function InvestmentDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
