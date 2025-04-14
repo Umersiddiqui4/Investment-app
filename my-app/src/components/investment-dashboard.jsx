@@ -9,15 +9,6 @@ import { Button } from "@/components/ui/button"
 import {
   Search,
   Bell,
-  ChevronLeft,
-  ChevronRight,
-  LayoutDashboard,
-  Users,
-  Calendar,
-  Building2,
-  Settings,
-  User,
-  HeadphonesIcon,
   TrendingUp,
   DollarSign,
   Wallet,
@@ -25,9 +16,10 @@ import {
   X,
 } from "lucide-react"
 import { useDispatch, useSelector } from "react-redux"
-import { setIsMobile, setSidebarCollapsed, setSidebarOpen } from "@/redux/appSlice"
+import { setSidebarOpen } from "@/redux/appSlice"
 import Sidebaar from "./Sidebaar"
 import { ThemeToggle } from "./theme/theme-toggle"
+import { installmentsData } from "./api/installments";
 
 // Sample data
 const investmentData = {
@@ -35,48 +27,7 @@ const investmentData = {
   float: "$1,200,000",
   profit: "$350,000",
   profitPercentage: 14.3,
-  installments: [
-    {
-      id: 1,
-      name: "Tech Innovations Inc.",
-      amount: "$120,000",
-      status: "paid",
-      dueDate: "Completed on Apr 05, 2025",
-      image: "/placeholder.svg?height=50&width=50",
-    },
-    {
-      id: 2,
-      name: "Green Energy Solutions",
-      amount: "$85,000",
-      status: "late",
-      dueDate: "Overdue by 7 days",
-      image: "/placeholder.svg?height=50&width=50",
-    },
-    {
-      id: 3,
-      name: "Quantum Computing Labs",
-      amount: "$210,000",
-      status: "due",
-      dueDate: "Due in 3 days",
-      image: "/placeholder.svg?height=50&width=50",
-    },
-    {
-      id: 4,
-      name: "Biotech Research Group",
-      amount: "$175,000",
-      status: "paid",
-      dueDate: "Completed on Apr 01, 2025",
-      image: "/placeholder.svg?height=50&width=50",
-    },
-    {
-      id: 5,
-      name: "AI Development Consortium",
-      amount: "$150,000",
-      status: "due",
-      dueDate: "Due tomorrow",
-      image: "/placeholder.svg?height=50&width=50",
-    },
-  ],
+  installments: installmentsData,
 }
 
 export default function InvestmentDashboard() {
@@ -113,8 +64,8 @@ export default function InvestmentDashboard() {
     switch (status) {
       case "paid":
         return "Paid"
-      case "late":
-        return "Late"
+      case "pending":
+        return "Pending"
       case "due":
         return "Due"
       default:

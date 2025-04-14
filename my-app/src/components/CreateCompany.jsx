@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { useNavigate } from "react-router-dom"
 import Sidebaar from "./Sidebaar"
+import { useDispatch, useSelector } from "react-redux"
+import { setIsMobile, setSidebarCollapsed, setSidebarOpen } from "@/redux/appSlice"
 
 
 const investorsData = [
@@ -26,10 +28,13 @@ const investorsData = [
   ]
   
 const CreateCompanyPage = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const sidebarOpen = useSelector((state) => state.app.sideBarOpen);
+  const sidebarCollapsed = useSelector((state) => state.app.sidebarCollapsed);
+  const isMobile = useSelector((state) => state.app.isMobile);
+  const dispatch = useDispatch();
+
+
     const [searchQuery, setSearchQuery] = useState("")
-    const [isMobile, setIsMobile] = useState(false)
     const [showSuggestions, setShowSuggestions] = useState(false)
     const [selectedInvestors, setSelectedInvestors] = useState([])
     const [investorPercentages, setInvestorPercentages] = useState({})
@@ -44,9 +49,9 @@ const CreateCompanyPage = () => {
     // Check if we're on mobile
     useEffect(() => {
       const checkIfMobile = () => {
-        setIsMobile(window.innerWidth < 768)
+        dispatch(setIsMobile(window.innerWidth < 768))
         if (window.innerWidth >= 768) {
-          setSidebarOpen(false)
+          dispatch(setSidebarOpen(false))
         }
       }
     
@@ -66,14 +71,6 @@ const CreateCompanyPage = () => {
         investor.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !selectedInvestors.some(selected => selected.id === investor.id)
     )
-    
-    const toggleSidebar = () => {
-      if (isMobile) {
-        setSidebarOpen(!sidebarOpen)
-      } else {
-        setSidebarCollapsed(!sidebarCollapsed)
-      }
-    }
     
     const handleSelectInvestor = investor => {
       setSelectedInvestors([...selectedInvestors, investor])
@@ -230,7 +227,7 @@ const CreateCompanyPage = () => {
        <div className="flex h-screen overflow-hidden">
          {/* Mobile Overlay */}
          {isMobile && sidebarOpen && (
-           <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setSidebarOpen(false)} />
+           <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => dispatch(setSidebarOpen(false))} />
          )}
  
         <Sidebaar />
@@ -244,7 +241,7 @@ const CreateCompanyPage = () => {
                  <Button
                    variant="ghost"
                    size="icon"
-                   onClick={() => setSidebarOpen(true)}
+                   onClick={() => dispatch(setSidebarOpen(true))}
                    className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white md:hidden"
                  >
                    <Menu size={20} />
