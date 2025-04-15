@@ -4,7 +4,8 @@ const initialState = {
   theme: "light",
   isMobile: false,
   sidebarCollapsed: false,
-  selectedCategory: ""
+  selectedCategory: "",
+  signOut: false,
 };
 
 const appSlice = createSlice({
@@ -23,8 +24,11 @@ const appSlice = createSlice({
     setSelectedCategory: (state, action) => {
       state.selectedCategory = action.payload;
     },
+    setSignOut: (state, action) => {
+      state.signOut = action.payload;
+    },
   },
 });
 
-export const { setSidebarOpen, setSidebarCollapsed, setIsMobile, setSelectedCategory } = appSlice.actions;
+export const { setSidebarOpen, setSidebarCollapsed, setIsMobile, setSelectedCategory, setSignOut } = appSlice.actions;
 export default appSlice.reducer;

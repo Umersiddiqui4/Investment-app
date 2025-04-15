@@ -205,4 +205,242 @@ export const installmentsData = [
         // More payments...
       ],
     },
+    {
+      id: 4,
+      name: "Startup 4",
+      customer: {
+        id: 104,
+        name: "Customer 4",
+        email: "customer4@example.com",
+        image: "/placeholder.svg?height=80&width=80"
+      },
+      totalAmount: 200000,
+      currency: "USD",
+      status: "paid",
+      startDate: "2025-04-01",
+      endDate: "2025-10-01",
+      duration: 6,
+      completedMonths: 4,
+      investors: [
+        {
+          id: 10,
+          name: "Investor 1",
+          image: "/placeholder.svg?height=60&width=60",
+          contribution: 50000,
+          percentage: 50
+        },
+        {
+          id: 11,
+          name: "Investor 2",
+          image: "/placeholder.svg?height=60&width=60",
+          contribution: 50000,
+          percentage: 50
+        }
+      ],
+      payments: [
+        {
+          month: 1,
+          date: "2025-04-01",
+          amount: 33333,
+          status: "paid"
+        },
+        {
+          month: 2,
+          date: "2025-05-01",
+          amount: 33333,
+          status: "paid"
+        },
+        {
+          month: 3,
+          date: "2025-05-31",
+          amount: 33333,
+          status: "due"
+        },
+        {
+          month: 4,
+          date: "2025-06-30",
+          amount: 33333,
+          status: "pending"
+        },
+        {
+          month: 5,
+          date: "2025-07-30",
+          amount: 33333,
+          status: "pending"
+        },
+        {
+          month: 6,
+          date: "2025-08-29",
+          amount: 33333,
+          status: "pending"
+        }
+      ]
+    },
+    {
+      id: 5,
+      name: "Startup 5",
+      customer: {
+        id: 105,
+        name: "Customer 5",
+        email: "customer5@example.com",
+        image: "/placeholder.svg?height=80&width=80"
+      },
+      totalAmount: 150000,
+      currency: "USD",
+      status: "due",
+      startDate: "2025-04-01",
+      endDate: "2025-12-01",
+      duration: 8,
+      completedMonths: 4,
+      investors: [
+        {
+          id: 10,
+          name: "Investor 1",
+          image: "/placeholder.svg?height=60&width=60",
+          contribution: 50000,
+          percentage: 50
+        },
+        {
+          id: 11,
+          name: "Investor 2",
+          image: "/placeholder.svg?height=60&width=60",
+          contribution: 50000,
+          percentage: 50
+        }
+      ],
+      payments: [
+        {
+          month: 1,
+          date: "2025-04-01",
+          amount: 18750,
+          status: "paid"
+        },
+        {
+          month: 2,
+          date: "2025-05-01",
+          amount: 18750,
+          status: "paid"
+        },
+        {
+          month: 3,
+          date: "2025-05-31",
+          amount: 18750,
+          status: "due"
+        },
+        {
+          month: 4,
+          date: "2025-06-30",
+          amount: 18750,
+          status: "pending"
+        },
+        {
+          month: 5,
+          date: "2025-07-30",
+          amount: 18750,
+          status: "pending"
+        },
+        {
+          month: 6,
+          date: "2025-08-29",
+          amount: 18750,
+          status: "pending"
+        },
+        {
+          month: 7,
+          date: "2025-09-28",
+          amount: 18750,
+          status: "pending"
+        },
+        {
+          month: 8,
+          date: "2025-10-28",
+          amount: 18750,
+          status: "pending"
+        }
+      ]
+    },
+    {
+      id: 6,
+      name: "Startup 6",
+      customer: {
+        id: 106,
+        name: "Customer 6",
+        email: "customer6@example.com",
+        image: "/placeholder.svg?height=80&width=80"
+      },
+      totalAmount: 150000,
+      currency: "USD",
+      status: "paid",
+      startDate: "2025-04-01",
+      endDate: "2025-12-01",
+      duration: 8,
+      completedMonths: 6,
+      investors: [
+        {
+          id: 10,
+          name: "Investor 1",
+          image: "/placeholder.svg?height=60&width=60",
+          contribution: 50000,
+          percentage: 50
+        },
+        {
+          id: 11,
+          name: "Investor 2",
+          image: "/placeholder.svg?height=60&width=60",
+          contribution: 50000,
+          percentage: 50
+        }
+      ],
+      payments: [
+        {
+          month: 1,
+          date: "2025-04-01",
+          amount: 18750,
+          status: "paid"
+        },
+        {
+          month: 2,
+          date: "2025-05-01",
+          amount: 18750,
+          status: "paid"
+        },
+        {
+          month: 3,
+          date: "2025-05-31",
+          amount: 18750,
+          status: "paid"
+        },
+        {
+          month: 4,
+          date: "2025-06-30",
+          amount: 18750,
+          status: "paid"
+        },
+        {
+          month: 5,
+          date: "2025-07-30",
+          amount: 18750,
+          status: "paid"
+        },
+        {
+          month: 6,
+          date: "2025-08-29",
+          amount: 18750,
+          status: "paid"
+        },
+        {
+          month: 7,
+          date: "2025-09-28",
+          amount: 18750,
+          status: "pending"
+        },
+        {
+          month: 8,
+          date: "2025-10-28",
+          amount: 18750,
+          status: "pending"
+        }
+      ]
+    }
+    
   ];

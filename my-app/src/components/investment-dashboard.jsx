@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSidebarOpen } from "@/redux/appSlice";
+import { setSidebarOpen, setSignOut } from "@/redux/appSlice";
 import Sidebaar from "./Sidebaar";
 import { ThemeToggle } from "./theme/theme-toggle";
 import { installmentsData } from "./api/installments";
@@ -35,6 +35,7 @@ export default function InvestmentDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useSelector((state) => state.app.isMobile);
   const sidebarOpen = useSelector((state) => state.app.sideBarOpen);
+  const signOut = useSelector((state) => state.app.signOut);
   const dispatch = useDispatch();
 
   // Check if we're on mobile
@@ -51,8 +52,10 @@ export default function InvestmentDashboard() {
   const getStatusColor = (status) => {
     switch (status) {
       case "paid":
+        return "bg-blue-500";
+      case "active":
         return "bg-emerald-500";
-      case "late":
+      case "pending":
         return "bg-rose-500";
       case "due":
         return "bg-amber-500";
@@ -62,9 +65,13 @@ export default function InvestmentDashboard() {
   };
 
   const getStatusText = (status) => {
+    console.log(status, "status");
+    
     switch (status) {
       case "paid":
         return "Paid";
+        case "active":
+        return "Active";
       case "pending":
         return "Pending";
       case "due":
@@ -73,6 +80,8 @@ export default function InvestmentDashboard() {
         return "Unknown";
     }
   };
+  console.log(signOut, "signOut");
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -126,9 +135,7 @@ export default function InvestmentDashboard() {
                 <Avatar className="h-8 w-8 border-2 border-cyan-500">
                   <div className="bg-gradient-to-br from-purple-500 to-cyan-500 w-full h-full"></div>
                 </Avatar>
-                <span className="text-sm font-medium hidden md:inline-block">
-                  Admin
-                </span>
+                <Button onClick={() => dispatch(setSignOut(true))}>Sign Out</Button>
               </div>
             </div>
           </header>
