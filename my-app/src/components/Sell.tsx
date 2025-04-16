@@ -1,124 +1,110 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Avatar } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Search,
-  ChevronRight,
-  Calendar,
-  Percent,
-  Bell,
-  Menu,
-  LayoutGrid,
-  List,
-} from "lucide-react";
-import { ThemeToggle } from "./theme/theme-toggle";
-import { SellItemDetails } from "./SellDetail";
-import Sidebaar from "./Sidebaar";
-import { useDispatch, useSelector } from "react-redux";
-import { setIsMobile, setSidebarOpen } from "@/redux/appSlice";
-import { sellItemsData, userData } from "./api/installments";
-import SellItemListView from "./ui/SellItemListView";
-
-// Sample data
-
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Avatar } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Search, ChevronRight, Calendar, Percent, Bell, Menu, LayoutGrid, List } from "lucide-react"
+import { ThemeToggle } from "./theme/theme-toggle"
+// import { SellItemDetails } from "./sell-item-details"
+import Sidebaar from "./Sidebaar"
+import { useDispatch, useSelector } from "react-redux"
+import { setIsMobile, setSidebarOpen } from "@/redux/appSlice"
+import { sellItemsData, userData } from "./api/installments"
+import SellItemListView from "./ui/SellItemListView"
+import { SellItemDetails } from "./SellDetail"
 
 // My sell items (subset of all items)
-const mySellItemsData = [sellItemsData[0], sellItemsData[2], sellItemsData[4]];
+const mySellItemsData = [sellItemsData[0], sellItemsData[2], sellItemsData[4]]
 
 export default function Sell() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [filteredItems, setFilteredItems] = useState(sellItemsData);
-  const [filteredMyItems, setFilteredMyItems] = useState(mySellItemsData);
-  const [viewMode, setViewMode] = useState("grid");
-  const sidebarOpen = useSelector((state: any) => state.app.sideBarOpen);
-  const isMobile = useSelector((state: any) => state.app.isMobile);
-  const dispatch = useDispatch();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("all")
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [filteredItems, setFilteredItems] = useState(sellItemsData)
+  const [filteredMyItems, setFilteredMyItems] = useState(mySellItemsData)
+  const [viewMode, setViewMode] = useState("grid")
+  const sidebarOpen = useSelector((state: any) => state.app.sideBarOpen)
+  const isMobile = useSelector((state: any) => state.app.isMobile)
+  const dispatch = useDispatch()
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   // Check if we're on mobile
   useEffect(() => {
     const checkIfMobile = () => {
-      dispatch(setIsMobile(window.innerWidth < 768));
+      dispatch(setIsMobile(window.innerWidth < 768))
       if (window.innerWidth >= 768) {
-        dispatch(setSidebarOpen(false));
+        dispatch(setSidebarOpen(false))
       }
-    };
+    }
 
     // Initial check
-    checkIfMobile();
+    checkIfMobile()
 
     // Add event listener
-    window.addEventListener("resize", checkIfMobile);
+    window.addEventListener("resize", checkIfMobile)
 
     // Cleanup
-    return () => window.removeEventListener("resize", checkIfMobile);
-  }, []);
+    return () => window.removeEventListener("resize", checkIfMobile)
+  }, [dispatch])
 
   // Filter items based on search query
   useEffect(() => {
     if (searchQuery) {
-      const lowercaseQuery = searchQuery.toLowerCase();
+      const lowercaseQuery = searchQuery.toLowerCase()
 
       const filtered = sellItemsData.filter(
         (item) =>
           item.itemName.toLowerCase().includes(lowercaseQuery) ||
           item.customerName.toLowerCase().includes(lowercaseQuery) ||
-          item.investorName.toLowerCase().includes(lowercaseQuery)
-      );
+          item.investorName.toLowerCase().includes(lowercaseQuery),
+      )
 
       const filteredMy = mySellItemsData.filter(
         (item) =>
           item.itemName.toLowerCase().includes(lowercaseQuery) ||
           item.customerName.toLowerCase().includes(lowercaseQuery) ||
-          item.investorName.toLowerCase().includes(lowercaseQuery)
-      );
+          item.investorName.toLowerCase().includes(lowercaseQuery),
+      )
 
-      setFilteredItems(filtered);
-      setFilteredMyItems(filteredMy);
+      setFilteredItems(filtered)
+      setFilteredMyItems(filteredMy)
     } else {
-      setFilteredItems(sellItemsData);
-      setFilteredMyItems(mySellItemsData);
+      setFilteredItems(sellItemsData)
+      setFilteredMyItems(mySellItemsData)
     }
-  }, [searchQuery]);
+  }, [searchQuery])
 
   const formatDate = (dateString: any) => {
-    const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString("en-US", options);
-  };
+    const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" }
+    return new Date(dateString).toLocaleDateString("en-US", options)
+  }
 
   const formatCurrency = (amount: any, currency = "USD") => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: currency,
       minimumFractionDigits: 0,
-    }).format(amount);
-  };
+    }).format(amount)
+  }
 
   const handleItemClick = (item: any) => {
-    setSelectedItem(item);
-  };
+    setSelectedItem(item)
+  }
 
   const handleBackClick = () => {
-    setSelectedItem(null);
-  };
+    setSelectedItem(null)
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100">
       <div className="flex h-screen overflow-hidden">
         {/* Mobile Overlay */}
         {isMobile && sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-20 md:hidden"
-            onClick={() => dispatch(setSidebarOpen(false))}
-          />
+          <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => dispatch(setSidebarOpen(false))} />
         )}
 
         {/* Sidebar - Mobile: full slide in, Desktop: collapsible */}
@@ -127,44 +113,41 @@ export default function Sell() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <header className="h-16 border-b border-slate-700/50 bg-slate-800/30 backdrop-blur-md flex items-center justify-between px-4 md:px-6">
+          <header className="h-16 border-b border-slate-200 dark:border-slate-700/50 bg-white/80 dark:bg-slate-800/30 backdrop-blur-md flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-2">
               {isMobile && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => dispatch(setSidebarOpen(true))}
-                  className="text-slate-500 dark:text-slate-400 hover:text-slate-100 hover:bg-slate-700/50 md:hidden"
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700/50 md:hidden"
                 >
                   <Menu size={20} />
                 </Button>
               )}
-              <h1 className="text-lg font-semibold hidden md:block">
-                Investment Sales
-              </h1>
+              <h1 className="text-lg font-semibold hidden md:block">Investment Sales</h1>
             </div>
             <div className="flex items-center gap-2 md:gap-4">
               <ThemeToggle />
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative text-slate-500 dark:text-slate-400 hover:text-slate-100 hover:bg-slate-700/50"
+                className="relative text-slate-500 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:text-white dark:hover:bg-slate-700/50"
               >
                 <Bell size={20} />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-500 rounded-full"></span>
               </Button>
               <div className="flex items-center gap-2">
-               <Avatar  className="h-8 w-8 border-2 border-cyan-500" >
-                                 <div className="bg-gradient-to-br from-purple-500 to-cyan-500 w-full h-full">
-                                 <img
-                                   src={userData.profile}
-                                   alt="User Avatar"
-                                   className="object-center object-cover"  />
-                                 </div>
-                               </Avatar>
-                <span className="text-sm font-medium hidden md:inline-block">
-                  Admin
-                </span>
+                <Avatar className="h-8 w-8 border-2 border-cyan-500">
+                  <div className="bg-gradient-to-br from-purple-500 to-cyan-500 w-full h-full">
+                    <img
+                      src={userData.profile || "/placeholder.svg"}
+                      alt="User Avatar"
+                      className="object-center object-cover"
+                    />
+                  </div>
+                </Avatar>
+                <span className="text-sm font-medium hidden md:inline-block">Admin</span>
               </div>
             </div>
           </header>
@@ -184,18 +167,18 @@ export default function Sell() {
                       <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
                       <Input
                         placeholder="Search sales..."
-                        className="pl-8 bg-slate-800/50 border-slate-700 focus:border-cyan-500 text-slate-100 w-full"
+                        className="pl-8 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-cyan-500 text-slate-900 dark:text-slate-100 w-full"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </div>
-                    <div className="flex bg-slate-800/50 rounded-md p-1 border border-slate-700">
+                    <div className="flex bg-white dark:bg-slate-800/50 rounded-md p-1 border border-slate-200 dark:border-slate-700">
                       <Button
                         variant="ghost"
                         size="icon"
                         className={`h-8 w-8 ${
                           viewMode === "grid"
-                            ? "bg-slate-700 text-white"
+                            ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white"
                             : "text-slate-400"
                         }`}
                         onClick={() => setViewMode("grid")}
@@ -207,7 +190,7 @@ export default function Sell() {
                         size="icon"
                         className={`h-8 w-8 ${
                           viewMode === "list"
-                            ? "bg-slate-700 text-white"
+                            ? "bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white"
                             : "text-slate-400"
                         }`}
                         onClick={() => setViewMode("list")}
@@ -218,21 +201,17 @@ export default function Sell() {
                   </div>
                 </div>
 
-                <Tabs
-                  defaultValue="all"
-                  className="w-full"
-                  onValueChange={setActiveTab}
-                >
-                  <TabsList className="grid grid-cols-2 w-full bg-slate-800/50 p-1 mb-6">
+                <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
+                  <TabsList className="grid grid-cols-2 w-full bg-white/80 dark:bg-slate-800/50 p-1 mb-6">
                     <TabsTrigger
                       value="all"
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-white data-[state=active]:shadow-[inset_0_0_12px_rgba(59,130,246,0.2)]"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-[inset_0_0_12px_rgba(59,130,246,0.2)]"
                     >
                       All Investors Sell
                     </TabsTrigger>
                     <TabsTrigger
                       value="my"
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-white data-[state=active]:shadow-[inset_0_0_12px_rgba(59,130,246,0.2)]"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:shadow-[inset_0_0_12px_rgba(59,130,246,0.2)]"
                     >
                       My Sell
                     </TabsTrigger>
@@ -240,9 +219,7 @@ export default function Sell() {
 
                   <TabsContent value="all" className="mt-0 space-y-4">
                     {filteredItems.length === 0 ? (
-                      <div className="text-center py-12 text-slate-400">
-                        No sales found matching your search
-                      </div>
+                      <div className="text-center py-12 text-slate-400">No sales found matching your search</div>
                     ) : (
                       <>
                         {viewMode === "grid" ? (
@@ -253,6 +230,7 @@ export default function Sell() {
                                 item={item}
                                 onClick={() => handleItemClick(item)}
                                 formatDate={formatDate}
+                                formatCurrency={formatCurrency}
                               />
                             ))}
                           </div>
@@ -275,9 +253,7 @@ export default function Sell() {
 
                   <TabsContent value="my" className="mt-0 space-y-4">
                     {filteredMyItems.length === 0 ? (
-                      <div className="text-center py-12 text-slate-400">
-                        No sales found matching your search
-                      </div>
+                      <div className="text-center py-12 text-slate-400">No sales found matching your search</div>
                     ) : (
                       <>
                         {viewMode === "grid" ? (
@@ -288,6 +264,7 @@ export default function Sell() {
                                 item={item}
                                 onClick={() => handleItemClick(item)}
                                 formatDate={formatDate}
+                                formatCurrency={formatCurrency}
                               />
                             ))}
                           </div>
@@ -314,18 +291,16 @@ export default function Sell() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-function SellItemCard({ item, onClick, formatDate }: any) {
+function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
   // Calculate progress percentage
-  const progressPercentage = Math.round(
-    (item.completedPayments / item.totalPayments) * 100
-  );
+  const progressPercentage = Math.round((item.completedPayments / item.totalPayments) * 100)
 
   return (
     <Card
-      className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 overflow-hidden hover:border-cyan-500/50 transition-all duration-300 cursor-pointer group"
+      className="bg-white/50 dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 overflow-hidden hover:border-cyan-500/50 transition-all duration-300 cursor-pointer group"
       onClick={onClick}
     >
       <CardContent className="p-0">
@@ -336,17 +311,17 @@ function SellItemCard({ item, onClick, formatDate }: any) {
           <Badge
             className={`absolute top-3 right-3 z-10 ${
               item.status === "active"
-                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                : "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                : "bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30"
             }`}
           >
             {item.status === "active" ? "Active" : "Completed"}
           </Badge>
-          <br></br>
+
           {/* Item Header */}
-          <div className="p-4 border-b border-slate-700/50">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700/50">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg overflow-hidden bg-slate-700/50 border border-slate-600/50">
+              <div className="h-12 w-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50">
                 <img
                   src={item.itemImage || "/placeholder.svg"}
                   alt={item.itemName}
@@ -354,10 +329,10 @@ function SellItemCard({ item, onClick, formatDate }: any) {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-lg text-white truncate group-hover:text-cyan-300 transition-colors">
+                <h3 className="font-medium text-lg text-slate-900 dark:text-white truncate group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">
                   {item.itemName}
                 </h3>
-                <div className="flex items-center text-xs text-slate-400">
+                <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
                   <Calendar className="h-3 w-3 mr-1" />
                   <span>{formatDate(item.date)}</span>
                 </div>
@@ -369,61 +344,53 @@ function SellItemCard({ item, onClick, formatDate }: any) {
           <div className="p-4">
             <div className="flex justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8 border border-slate-600/50">
-                  <img
-                    src={item.customerImage || "/placeholder.svg"}
-                    alt={item.customerName}
-                  />
+                <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-600/50">
+                  <img src={item.customerImage || "/placeholder.svg"} alt={item.customerName} />
                 </Avatar>
                 <div>
-                  <div className="text-xs text-slate-400">Customer</div>
-                  <div className="text-sm font-medium">{item.customerName}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">Customer</div>
+                  <div className="text-sm font-medium text-slate-900 dark:text-white">{item.customerName}</div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <div className="text-right">
-                  <div className="text-xs text-slate-400">Investor</div>
-                  <div className="text-sm font-medium">{item.investorName}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">Investor</div>
+                  <div className="text-sm font-medium text-slate-900 dark:text-white">{item.investorName}</div>
                 </div>
-                <Avatar className="h-8 w-8 border border-slate-600/50">
-                  <img
-                    src={item.investorImage || "/placeholder.svg"}
-                    alt={item.investorName}
-                  />
+                <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-600/50">
+                  <img src={item.investorImage || "/placeholder.svg"} alt={item.investorName} />
                 </Avatar>
               </div>
             </div>
 
             {/* Progress bar */}
             <div className="mb-3">
-              <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
                   style={{ width: `${progressPercentage}%` }}
                 ></div>
               </div>
               <div className="mt-1 flex justify-between text-xs">
-                <span className="text-slate-400">
+                <span className="text-slate-500 dark:text-slate-400">
                   {item.completedPayments} of {item.totalPayments} payments
                 </span>
-                <span className="text-cyan-400">{progressPercentage}%</span>
+                <span className="text-cyan-600 dark:text-cyan-400">{progressPercentage}%</span>
               </div>
             </div>
 
             {/* Rate */}
             <div className="flex justify-between items-center mt-3">
-              <div className="flex items-center gap-1.5 bg-slate-700/50 px-2 py-1 rounded-md">
-                <Percent className="h-3.5 w-3.5 text-cyan-400" />
-                <span className="text-sm font-medium text-cyan-300">
-                  {item.rate}% Rate
-                </span>
+              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md">
+                <Percent className="h-3.5 w-3.5 text-cyan-500" />
+                <span className="text-sm font-medium text-cyan-600 dark:text-cyan-300">{item.rate}% Rate</span>
               </div>
 
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-slate-400 hover:text-white hover:bg-slate-700/50"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50"
               >
                 <span className="text-xs mr-1">Details</span>
                 <ChevronRight className="h-4 w-4" />
@@ -433,7 +400,5 @@ function SellItemCard({ item, onClick, formatDate }: any) {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
-
-

@@ -23,6 +23,7 @@ import { installmentsData, sellItemsData, userData } from "./api/installments";
 import { useNavigate } from "react-router-dom";
 import { TabsContent } from "@radix-ui/react-tabs";
 import SellItemListView from "./ui/SellItemListView";
+import { SellItemDetails } from "./SellDetail";
 
 // Sample data
 const investmentData = {
@@ -81,6 +82,7 @@ function filterInstallments(
 export default function InvestmentDashboard() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItem, setSelectedItem] = useState(null);
   const isMobile = useSelector((state: any) => state.app.isMobile);
   const sidebarOpen = useSelector((state: any) => state.app.sideBarOpen);
   const isAuthenticated = useSelector((state: any) => state.app.isAuthenticated);
@@ -99,9 +101,6 @@ console.log(activeTab, "activeTab");
   
  
   console.log(isAuthenticated, "signOut");
-  
-  const handleItemClick = (item: any) => {
-  };
 
   const formatDate = (dateString: any) => {
     const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" };
@@ -115,6 +114,15 @@ console.log(activeTab, "activeTab");
       minimumFractionDigits: 0,
     }).format(amount);
   };
+
+  const handleItemClick = (item: any) => {
+    setSelectedItem(item);
+  };
+
+  const handleBackClick = () => {
+    setSelectedItem(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
@@ -129,7 +137,7 @@ console.log(activeTab, "activeTab");
         <Sidebaar />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-auto">
           {/* Header */}
           <header className="h-16 border-b border-slate-200 dark:border-slate-700/50 bg-white/80 dark:bg-slate-800/30 backdrop-blur-md flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-2">
@@ -176,8 +184,11 @@ console.log(activeTab, "activeTab");
               </div>
             </div>
           </header>
+
+          {selectedItem ? (
+                        <SellItemDetails item={selectedItem} onBack={handleBackClick} />
+                      ) : (
  
-          {/* Dashboard Content */}
           <main className="flex-1 overflow-auto p-4 md:p-6">
             <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
               {/* Investment Summary Cards */}
@@ -324,6 +335,7 @@ console.log(activeTab, "activeTab");
               </Card>
             </div>
           </main>
+                      )}
         </div>
       </div>
     </div>

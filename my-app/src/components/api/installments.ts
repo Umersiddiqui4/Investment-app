@@ -184,26 +184,20 @@ export const installmentsData = [
         },
       ],
       payments: [
-        {
-          month: 1,
-          date: "2025-04-10",
-          amount: 29166,
-          status: "paid",
-        },
-        {
-          month: 2,
-          date: "2025-05-10",
-          amount: 29166,
-          status: "due",
-        },
-        {
-          month: 3,
-          date: "2025-06-10",
-          amount: 29166,
-          status: "pending",
-        },
-        // More payments...
-      ],
+        { month: 1, date: "2025-04-10", amount: 29166, status: "paid" },
+        { month: 2, date: "2025-05-10", amount: 29166, status: "due" },
+        { month: 3, date: "2025-06-10", amount: 29166, status: "pending" },
+        { month: 4, date: "2025-07-10", amount: 29166, status: "pending" },
+        { month: 5, date: "2025-08-10", amount: 29166, status: "pending" },
+        { month: 6, date: "2025-09-10", amount: 29166, status: "pending" },
+        { month: 7, date: "2025-10-10", amount: 29166, status: "pending" },
+        { month: 8, date: "2025-11-10", amount: 29166, status: "pending" },
+        { month: 9, date: "2025-12-10", amount: 29166, status: "pending" },
+        { month: 10, date: "2026-01-10", amount: 29166, status: "pending" },
+        { month: 11, date: "2026-02-10", amount: 29166, status: "pending" },
+        { month: 12, date: "2026-03-10", amount: 29174, status: "pending" }, // adjustment for rounding
+      ]
+      
     },
     {
       id: 4,
@@ -224,14 +218,14 @@ export const installmentsData = [
       investors: [
         {
           id: 10,
-          name: "Investor 1",
+          name: "Sarah Johnson",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
           percentage: 50
         },
         {
           id: 11,
-          name: "Investor 2",
+          name: "Michael chen",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
           percentage: 50
@@ -295,14 +289,14 @@ export const installmentsData = [
       investors: [
         {
           id: 10,
-          name: "Investor 1",
+          name: "Lisha garcia",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
           percentage: 50
         },
         {
           id: 11,
-          name: "Investor 2",
+          name: "John smith",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
           percentage: 50
@@ -378,14 +372,14 @@ export const installmentsData = [
       investors: [
         {
           id: 10,
-          name: "Investor 1",
+          name: "Jenifer Lee",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
           percentage: 50
         },
         {
           id: 11,
-          name: "Investor 2",
+          name: "Emma williams",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
           percentage: 50
@@ -828,3 +822,146 @@ export const sellItemsData = [
     totalPayments: 4,
   },
 ];
+
+export const investorsData = [
+  {
+    id: 1,
+    name: "John Smith",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Jan 2023",
+    status: "Active",
+  },
+  {
+    id: 2,
+    name: "Sarah Johnson",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Feb 2023",
+    status: "Active",
+  },
+  {
+    id: 3,
+    name: "Michael Chen",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Mar 2023",
+    status: "Pending",
+  },
+  {
+    id: 4,
+    name: "Emma Williams",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Apr 2023",
+    status: "Active",
+  },
+  {
+    id: 5,
+    name: "David Brown",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "May 2023",
+    status: "Active",
+  },
+  {
+    id: 6,
+    name: "Lisa Garcia",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Jun 2023",
+    status: "Pending",
+  },
+  {
+    id: 7,
+    name: "Robert Taylor",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Jul 2023",
+    status: "Active",
+  },
+  {
+    id: 8,
+    name: "Jennifer Lee",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Aug 2023",
+    status: "Active",
+  },
+  {
+    id: 9,
+    name: "Thomas Wilson",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Sep 2023",
+    status: "Pending",
+  },
+  {
+    id: 10,
+    name: "Patricia Moore",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Oct 2023",
+    status: "Active",
+  },
+  {
+    id: 11,
+    name: "James Anderson",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Nov 2023",
+    status: "Active",
+  },
+  {
+    id: 12,
+    name: "Elizabeth Thomas",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Dec 2023",
+    status: "Pending",
+  },
+  {
+    id: 13,
+    name: "Richard Jackson",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Jan 2024",
+    status: "Active",
+  },
+  {
+    id: 14,
+    name: "Barbara White",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Feb 2024",
+    status: "Active",
+  },
+  {
+    id: 15,
+    name: "Joseph Harris",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Mar 2024",
+    status: "Pending",
+  },
+  {
+    id: 16,
+    name: "Susan Martin",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Apr 2024",
+    status: "Active",
+  },
+  {
+    id: 17,
+    name: "Charles Thompson",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "May 2024",
+    status: "Active",
+  },
+  {
+    id: 18,
+    name: "Jessica Garcia",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Jun 2024",
+    status: "Pending",
+  },
+  {
+    id: 19,
+    name: "Christopher Martinez",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Jul 2024",
+    status: "Active",
+  },
+  {
+    id: 20,
+    name: "Margaret Robinson",
+    image: "/placeholder.svg?height=80&width=80",
+    activeSince: "Aug 2024",
+    status: "Active",
+  },
+]
