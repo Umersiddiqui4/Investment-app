@@ -1,34 +1,25 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
 import {
   Menu,
   Bell,
   Search,
-  Mail,
   Calendar,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  Plus,
-  ArrowRight,
-  Users,
-  Filter,
 } from "lucide-react";
 import Sidebaar from "./Sidebaar";
-import InstallmentCard from "./ui/InstallmentCard";
+import InstallmentCard from "./ui/InstallmentCardInstallment";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setIsMobile,
-  setSidebarCollapsed,
   setSidebarOpen,
 } from "@/redux/appSlice";
-import { installmentsData, sellItemsData, userData } from "./api/installments";
+import { sellItemsData, userData } from "./api/installments";
+import { SellItemDetails } from "./SellDetail";
 
 // Sample data - in a real app, this would come from an API
 
@@ -38,12 +29,8 @@ export default function Installments() {
   const isMobile = useSelector((state: any) => state.app.isMobile);
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItem, setSelectedItem] = useState(null)
   const [activeTab, setActiveTab] = useState("all");
-  const [showCreateAccount, setShowCreateAccount] = useState(false);
-  const [customerEmail, setCustomerEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-  const emailInputRef = useRef(null);
 
   // Check if we're on mobile
   useEffect(() => {
@@ -64,30 +51,13 @@ export default function Installments() {
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
-  const handleCreateAccount = (e: any) => {
-    e.preventDefault();
-    if (!customerEmail) {
-      toast({
-        title: "Email required",
-        description: "Please enter a customer email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Invitation sent",
-        description: `An account creation invitation has been sent to ${customerEmail}`,
-      });
-      setCustomerEmail("");
-      setShowCreateAccount(false);
-    }, 1500);
-  };
+  const handleBackClick = () => {
+    setSelectedItem(null)
+  }
+  const handleItemClick = (item: any) => {
+    setSelectedItem(item)
+  }
+ 
 
   // Filter installments based on active tab and search query
   const filteredInstallments = sellItemsData.filter((item) => {
@@ -105,49 +75,6 @@ export default function Installments() {
 
     return matchesTab && matchesSearch;
   });
-
-  const formatCurrency = (amount: any, currency = "USD") => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: any) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(date);
-  };
-
-  const getStatusColor = (status: any) => {
-    switch (status) {
-      case "paid":
-        return "bg-emerald-500 text-white";
-      case "due":
-        return "bg-amber-500 text-white";
-      case "pending":
-        return "bg-slate-400 text-white dark:bg-slate-600";
-      default:
-        return "bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200";
-    }
-  };
-
-  const getStatusIcon = (status: any) => {
-    switch (status) {
-      case "paid":
-        return <CheckCircle2 className="h-4 w-4" />;
-      case "due":
-        return <Clock className="h-4 w-4" />;
-      case "pending":
-        return <AlertCircle className="h-4 w-4" />;
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -215,116 +142,11 @@ export default function Installments() {
 
           {/* Installments Content */}
           <main className="flex-1 overflow-auto p-4 md:p-6">
+            {selectedItem ? (
+                          <SellItemDetails item={selectedItem} onBack={handleBackClick} />
+                        ) : (
             <div className="max-w-7xl mx-auto space-y-6">
-              {/* Customer Account Creation */}
-              <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-cyan-500" />
-                      Customer Account Management
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowCreateAccount(!showCreateAccount)}
-                      className="text-cyan-500 hover:text-cyan-600 dark:text-cyan-400 dark:hover:text-cyan-300"
-                    >
-                      {showCreateAccount ? "Cancel" : "Create Customer Account"}
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {showCreateAccount ? (
-                    <form onSubmit={handleCreateAccount} className="space-y-4">
-                      <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 dark:from-cyan-500/5 dark:to-purple-500/5 p-4 rounded-lg border border-cyan-200/50 dark:border-cyan-800/30">
-                        <h3 className="text-lg font-medium mb-3 text-slate-900 dark:text-white">
-                          Create Customer Account
-                        </h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                          Enter the customer's email address to send them an
-                          invitation to create an account.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <div className="relative flex-1">
-                            <Mail className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
-                            <Input
-                              ref={emailInputRef}
-                              type="email"
-                              placeholder="customer@example.com"
-                              className="pl-10 bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
-                              value={customerEmail}
-                              onChange={(e) => setCustomerEmail(e.target.value)}
-                              required
-                            />
-                          </div>
-                          <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
-                          >
-                            {isSubmitting ? (
-                              <>
-                                <svg
-                                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                  ></circle>
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                  ></path>
-                                </svg>
-                                Sending...
-                              </>
-                            ) : (
-                              <>
-                                <ArrowRight className="mr-2 h-4 w-4" />
-                                Send Invitation
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                    </form>
-                  ) : (
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 dark:from-cyan-500/5 dark:to-purple-500/5 rounded-lg border border-cyan-200/50 dark:border-cyan-800/30">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-full bg-cyan-100 dark:bg-cyan-900/50">
-                          <Users className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-medium text-slate-900 dark:text-white">
-                            Manage Customer Accounts
-                          </h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">
-                            Create and manage customer accounts for installment
-                            tracking
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => setShowCreateAccount(true)}
-                        className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create Customer Account
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
+            
               {/* Installments Tabs */}
               <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 overflow-hidden">
                 <CardHeader className="pb-2">
@@ -367,28 +189,23 @@ export default function Installments() {
                         </TabsTrigger>
                       </TabsList>
 
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="hidden md:flex"
-                      >
-                        <Filter className="mr-2 h-4 w-4" />
-                        Filter
-                      </Button>
+                    
                     </div>
 
                     <TabsContent value="all" className="mt-0">
                       <div className="space-y-4">
                         {filteredInstallments.length === 0 ? (
-                          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                          <div  className="text-center py-12 text-slate-500 dark:text-slate-400 ">
                             No installments found matching your criteria
                           </div>
                         ) : (
                           filteredInstallments.map((installment: any) => (
+                            <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
                             <InstallmentCard
                               key={installment.id}
                               installment={installment}
                             />
+                            </div>
                           ))
                         )}
                       </div>
@@ -397,15 +214,17 @@ export default function Installments() {
                     <TabsContent value="active" className="mt-0">
                       <div className="space-y-4">
                         {filteredInstallments.length === 0 ? (
-                          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                          <div  className=" text-center py-12 text-slate-500 dark:text-slate-400">
                             No active installments found
                           </div>
                         ) : (
                           filteredInstallments.map((installment: any) => (
+                            <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
                             <InstallmentCard
                               key={installment.id}
                               installment={installment}
                             />
+                            </div>
                           ))
                         )}
                       </div>
@@ -414,15 +233,17 @@ export default function Installments() {
                     <TabsContent value="overdue" className="mt-0">
                       <div className="space-y-4">
                         {filteredInstallments.length === 0 ? (
-                          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                          <div  className=" text-center py-12 text-slate-500 dark:text-slate-400">
                             No overdue installments found
                           </div>
                         ) : (
                           filteredInstallments.map((installment: any) => (
+                            <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
                             <InstallmentCard
                               key={installment.id}
                               installment={installment}
                             />
+                            </div>
                           ))
                         )}
                       </div>
@@ -431,15 +252,17 @@ export default function Installments() {
                     <TabsContent value="completed" className="mt-0">
                       <div className="space-y-4">
                         {filteredInstallments.length === 0 ? (
-                          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                          <div  className=" text-center py-12 text-slate-500 dark:text-slate-400">
                             No completed installments found
                           </div>
                         ) : (
                           filteredInstallments.map((installment: any) => (
+                            <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
                             <InstallmentCard
                               key={installment.id}
                               installment={installment}
                             />
+                            </div>
                           ))
                         )}
                       </div>
@@ -448,6 +271,7 @@ export default function Installments() {
                 </CardContent>
               </Card>
             </div>
+                        )}
           </main>
         </div>
       </div>

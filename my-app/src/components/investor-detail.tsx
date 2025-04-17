@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ChevronLeft, DollarSign, TrendingUp, BarChart3, Wallet } from "lucide-react"
 import InstallmentCard from "./ui/InstallmentCard"
-import { installmentsData } from "./api/installments"
+import { installmentsData, sellItemsData } from "./api/installments"
+import { useState } from "react"
+import { SellItemDetails } from "./SellDetail"
 
 // Sample data for the investor detail
 const inves = {
@@ -60,9 +62,10 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
   // In a real app, you would fetch the investor data based on the ID
   // For this example, we'll use the sample data
   console.log("Investor ID:", investorData);
+   const [selectedItem, setSelectedItem] = useState<any | null>(null)
 
 
-const investorInstallments = installmentsData.filter((item) =>
+const investorInstallments = sellItemsData.filter((item) =>
   item.investors.some((inv) => inv.id === investorData.id)
 );
 
@@ -86,8 +89,16 @@ console.log(investorInstallments);
     })
   }
 
+  const handleItemClick = (item: any) => {
+    setSelectedItem(item)
+  }
+  const handleBackClick = () => {
+    setSelectedItem(null)
+  }
+
   return (
-    <div className="space-y-6">
+    <>
+    {selectedItem ? (<><SellItemDetails item={selectedItem} onBack={handleBackClick} /></>):(<> <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -198,11 +209,12 @@ console.log(investorInstallments);
                                       </div>
                                     ) : (
                                       investorInstallments.map((installment: any) => (
+                                        <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
                                         <InstallmentCard
-                                        
                                           key={installment.id}
                                           installment={installment}
                                         />
+                                        </div>
                                       ))
                                     )}
         </TabsContent>
@@ -245,6 +257,7 @@ console.log(investorInstallments);
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </div> </>)}
+    </>
   )
 }

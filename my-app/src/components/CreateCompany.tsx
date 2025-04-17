@@ -13,6 +13,7 @@ import Sidebaar from "./Sidebaar"
 import { useDispatch, useSelector } from "react-redux"
 import { setIsMobile, setSidebarCollapsed, setSidebarOpen } from "@/redux/appSlice"
 import { userData } from "./api/installments"
+import CustomerAccountCreation from "./ui/customerAccountCreation"
 
 
 const investorsData = [
@@ -275,6 +276,7 @@ const CreateCompanyPage = () => {
            {/* Create Company Content */}
            <main className="flex-1 overflow-auto p-4 md:p-6">
              <div className="max-w-4xl mx-auto space-y-6">
+              <CustomerAccountCreation />
                <Card className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 overflow-hidden">
                  <CardHeader>
                    <CardTitle className="text-slate-900 dark:text-white flex items-center gap-2">

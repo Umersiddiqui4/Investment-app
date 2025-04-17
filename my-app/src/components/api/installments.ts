@@ -162,7 +162,7 @@ export const installmentsData = [
       completedMonths: 1,
       investors: [
         {
-          id: 5,
+          id: 6,
           name: "Lisa Garcia",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 140000,
@@ -217,14 +217,14 @@ export const installmentsData = [
       completedMonths: 4,
       investors: [
         {
-          id: 10,
+          id: 2,
           name: "Sarah Johnson",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
           percentage: 50
         },
         {
-          id: 11,
+          id: 3,
           name: "Michael chen",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
@@ -295,7 +295,7 @@ export const installmentsData = [
           percentage: 50
         },
         {
-          id: 11,
+          id: 1,
           name: "John smith",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
@@ -378,7 +378,7 @@ export const installmentsData = [
           percentage: 50
         },
         {
-          id: 11,
+          id: 4,
           name: "Emma williams",
           image: "/placeholder.svg?height=60&width=60",
           contribution: 50000,
@@ -464,7 +464,7 @@ export const sellItemsData = [
     status: "active",
     guarantors: [
       {
-        id: 101,
+        id: 3,
         name: "Michael Chen",
         image: "/placeholder.svg?height=60&width=60",
         role: "Primary Guarantor",
@@ -478,14 +478,14 @@ export const sellItemsData = [
     ],
     investors: [
       {
-        id: 201,
+        id: 1,
         name: "Sarah Williams",
         image: "/placeholder.svg?height=60&width=60",
         contribution: 150000,
         percentage: 60,
       },
       {
-        id: 202,
+        id: 5,
         name: "David Brown",
         image: "/placeholder.svg?height=60&width=60",
         contribution: 100000,
@@ -626,7 +626,7 @@ export const sellItemsData = [
     ],
     investors: [
       {
-        id: 205,
+        id: 6,
         name: "Lisa Garcia",
         image: "/placeholder.svg?height=60&width=60",
         contribution: 300000,
@@ -700,7 +700,7 @@ export const sellItemsData = [
     ],
     investors: [
       {
-        id: 207,
+        id: 3,
         name: "Michael Chen",
         image: "/placeholder.svg?height=60&width=60",
         contribution: 175000,
@@ -774,7 +774,7 @@ export const sellItemsData = [
     ],
     investors: [
       {
-        id: 209,
+        id: 4,
         name: "Emma Williams",
         image: "/placeholder.svg?height=60&width=60",
         contribution: 220000,
