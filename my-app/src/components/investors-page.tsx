@@ -94,8 +94,8 @@ export default function InvestorsPage() {
   const handleCreateCompany = () => {
   };
 
-  const handleViewInvestor = (investorId: any) => {
-    setSelectedInvestorId(investorId);
+  const handleViewInvestor = (investor: any) => {
+    setSelectedInvestorId(investor);
   };
 
   const handleBackToInvestors = () => {
@@ -202,7 +202,7 @@ export default function InvestorsPage() {
             <div className="max-w-4xl mx-auto space-y-6">
               {selectedInvestorId ? (
                 <InvestorDetail
-                  investorId={selectedInvestorId}
+                investorData={selectedInvestorId}
                   onBack={handleBackToInvestors}
                 />
               ) : (
@@ -220,7 +220,7 @@ export default function InvestorsPage() {
                           <div
                             key={investor.id}
                             className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-700/30 hover:border-cyan-500/50 dark:hover:border-cyan-500/30 transition-all duration-200 cursor-pointer"
-                            onClick={() => handleViewInvestor(investor.id)}
+                            onClick={() => handleViewInvestor(investor)}
                           >
                             <div className="flex items-center gap-3">
                               <Avatar className="h-12 w-12 bg-cyan-100/50 dark:bg-cyan-200/20 border border-cyan-200/50 dark:border-cyan-300/30">

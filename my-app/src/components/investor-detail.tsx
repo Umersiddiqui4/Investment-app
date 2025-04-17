@@ -8,7 +8,7 @@ import InstallmentCard from "./ui/InstallmentCard"
 import { installmentsData } from "./api/installments"
 
 // Sample data for the investor detail
-const investorData = {
+const inves = {
   id: 1,
   name: "John Smith",
   image: "/placeholder.svg?height=120&width=120",
@@ -18,36 +18,7 @@ const investorData = {
   accountBalance: 175000,
   totalSales: 320000,
   revenueGenerated: 85000,
-  installments: [
-    {
-      id: 1,
-      date: "2023-05-15",
-      amount: 25000,
-      status: "Paid",
-      company: "Tech Innovations Inc.",
-    },
-    {
-      id: 2,
-      date: "2023-06-15",
-      amount: 25000,
-      status: "Paid",
-      company: "Tech Innovations Inc.",
-    },
-    {
-      id: 3,
-      date: "2023-07-15",
-      amount: 25000,
-      status: "Paid",
-      company: "Tech Innovations Inc.",
-    },
-    {
-      id: 4,
-      date: "2023-08-15",
-      amount: 25000,
-      status: "Upcoming",
-      company: "Tech Innovations Inc.",
-    },
-  ],
+ 
   sales: [
     {
       id: 1,
@@ -81,18 +52,18 @@ const investorData = {
 }
 
 interface InvestorDetailProps {
-  investorId: number
+  investorData: any
   onBack: () => void
 }
 
-export default function InvestorDetail({ investorId, onBack }: InvestorDetailProps) {
+export default function InvestorDetail({ investorData, onBack }: InvestorDetailProps) {
   // In a real app, you would fetch the investor data based on the ID
   // For this example, we'll use the sample data
-  console.log("Investor ID:", investorId);
+  console.log("Investor ID:", investorData);
 
 
 const investorInstallments = installmentsData.filter((item) =>
-  item.investors.some((inv) => inv.id === investorId)
+  item.investors.some((inv) => inv.id === investorData.id)
 );
 
 console.log(investorInstallments);
@@ -228,6 +199,7 @@ console.log(investorInstallments);
                                     ) : (
                                       investorInstallments.map((installment: any) => (
                                         <InstallmentCard
+                                        
                                           key={installment.id}
                                           installment={installment}
                                         />
@@ -253,7 +225,7 @@ console.log(investorInstallments);
                     </tr>
                   </thead>
                   <tbody>
-                    {investorData.sales.map((sale) => (
+                    {/* {investorData.sales.map((sale) => (
                       <tr
                         key={sale.id}
                         className="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30"
@@ -265,7 +237,7 @@ console.log(investorInstallments);
                           {formatCurrency(sale.amount)}
                         </td>
                       </tr>
-                    ))}
+                    ))} */}
                   </tbody>
                 </table>
               </div>
