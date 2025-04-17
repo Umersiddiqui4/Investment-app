@@ -28,26 +28,19 @@ import {
   Upload,
   Bell,
   Menu,
+  IdCard,
 } from "lucide-react";
 import Sidebaar from "./Sidebaar";
 import { useDispatch, useSelector } from "react-redux";
 import { setSidebarOpen } from "@/redux/appSlice";
+import { userData } from "./api/installments";
 
 // Sample user data - in a real app, this would come from an API or database
-const initialUserData = {
-  name: "John Smith",
-  email: "john.smith@example.com",
-  contact: "+92 300 1234567",
-  address: "123 Main Street, Islamabad, Pakistan",
-  profileImage: "/placeholder.svg?height=200&width=200",
-  cnicFront: "/placeholder.svg?height=300&width=500",
-  cnicBack: "/placeholder.svg?height=300&width=500",
-};
+
 
 export default function Profile() {
-  const [userData, setUserData] = useState(initialUserData);
   const [isEditing, setIsEditing] = useState(false);
-  const [tempUserData, setTempUserData] = useState(initialUserData);
+  const [tempUserData, setTempUserData] = useState(userData);
   const isMobile = useSelector((state: any) => state.app.isMobile);
   const sidebarCollapsed = useSelector((state: any) => state.app.sideBarCollapsed);
   const sidebarOpen = useSelector((state: any) => state.app.sideBarOpen);
@@ -71,7 +64,7 @@ export default function Profile() {
   };
 
   const handleSave = () => {
-    setUserData(tempUserData);
+    // setUserData(tempUserData);
     setIsEditing(false);
     toast({
       title: "Profile Updated",
@@ -204,8 +197,8 @@ export default function Profile() {
                         <img
                           src={
                             isEditing
-                              ? tempUserData.profileImage
-                              : userData.profileImage
+                              ? tempUserData.profile
+                              : userData.profile
                           }
                           alt="Profile"
                           className="object-cover w-full h-full"
@@ -232,13 +225,13 @@ export default function Profile() {
                     {isEditing ? (
                       <Input
                         name="name"
-                        value={tempUserData.name}
+                        value={tempUserData.username}
                         onChange={handleInputChange}
                         className="text-center text-2xl font-bold bg-transparent border-b border-slate-300 dark:border-slate-600 w-auto max-w-xs"
                       />
                     ) : (
                       <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-cyan-600 to-purple-600 dark:from-cyan-400 dark:to-purple-500 bg-clip-text text-transparent">
-                        {userData.name}
+                        {userData.username}
                       </h2>
                     )}
                   </div>
@@ -289,6 +282,15 @@ export default function Profile() {
                               {userData.contact}
                             </p>
                           )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="flex items-center text-slate-500 dark:text-slate-400">
+                            <IdCard className="h-4 w-4 mr-2" />
+                            CNIC Number
+                          </Label>
+                            <p className="text-slate-900 dark:text-white pl-6">
+                              {userData.cnicNumber}
+                            </p>
                         </div>
 
                         <div className="space-y-2">
@@ -422,36 +424,22 @@ export default function Profile() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/5 dark:to-blue-500/5 border border-cyan-200/50 dark:border-cyan-800/30">
-                      <div className="text-sm text-slate-500 dark:text-slate-400">
-                        Account Status
-                      </div>
-                      <div className="text-lg font-medium text-cyan-600 dark:text-cyan-400">
-                        Active
-                      </div>
-                    </div>
+                   
                     <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/5 dark:to-pink-500/5 border border-purple-200/50 dark:border-purple-800/30">
                       <div className="text-sm text-slate-500 dark:text-slate-400">
                         Member Since
                       </div>
                       <div className="text-lg font-medium text-purple-600 dark:text-purple-400">
-                        April 12, 2023
+                        {userData && userData.activeSince}
                       </div>
                     </div>
-                    <div className="p-4 rounded-lg bg-gradient-to-br from-emerald-500/10 to-teal-500/10 dark:from-emerald-500/5 dark:to-teal-500/5 border border-emerald-200/50 dark:border-emerald-800/30">
-                      <div className="text-sm text-slate-500 dark:text-slate-400">
-                        Last Login
-                      </div>
-                      <div className="text-lg font-medium text-emerald-600 dark:text-emerald-400">
-                        Today, 10:45 AM
-                      </div>
-                    </div>
+                    
                     <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/5 dark:to-orange-500/5 border border-amber-200/50 dark:border-amber-800/30">
                       <div className="text-sm text-slate-500 dark:text-slate-400">
                         Account Type
                       </div>
                       <div className="text-lg font-medium text-amber-600 dark:text-amber-400">
-                        Premium Investor
+                        Investor
                       </div>
                     </div>
                   </div>

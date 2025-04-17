@@ -445,6 +445,8 @@ export const userData =  {
   contact: "0333-1234567",
   cnicNumber: "42201-1234567-1",
   password: "owner123",
+  activeSince: "12/05/2015",
+  address: "123 Galaxy Way, Anytown, CA 90210, USA",
   cnicFront: "https://im.indiatimes.in/facebook/2017/Nov/pakistan-began-issuing-citizenship-to-chinese-people_1509706416_1509706428.jpg?w=1200&h=900&cc=1&webp=1&q=75",
   cnicBack: "https://online.theunitedinsurance.com/Admin_files/Images/cnic-back-side.jpg",
   profile: "https://laqpnneqguatxachbvsw.supabase.co/storage/v1/object/public/restaurant-images/images/WhatsApp%20Image%202025-04-16%20at%2011.33.20.jpeg",
