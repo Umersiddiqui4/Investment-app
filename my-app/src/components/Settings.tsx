@@ -27,15 +27,18 @@ import {
   Eye,
   Check,
 } from "lucide-react"
+import Sidebaar from "./Sidebaar"
+import { useDispatch, useSelector } from "react-redux"
+import { setIsMobile, setSidebarOpen } from "@/redux/appSlice"
 
 export default function SettingsComponent() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const isMobile = useSelector((state: any) => state.app.isMobile);
+  const sidebarOpen = useSelector((state: any) => state.app.sideBarOpen);
   const [activeSection, setActiveSection] = useState("appearance")
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
   const { theme, setTheme } = useTheme()
+  const dispatch = useDispatch();
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -73,9 +76,9 @@ export default function SettingsComponent() {
   // Check if we're on mobile
   useEffect(() => {
     const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768)
+      dispatch(setIsMobile(window.innerWidth < 768))
       if (window.innerWidth >= 768) {
-        setSidebarOpen(false)
+        dispatch(setSidebarOpen(false))
       }
     }
 
@@ -88,14 +91,6 @@ export default function SettingsComponent() {
     // Cleanup
     return () => window.removeEventListener("resize", checkIfMobile)
   }, [])
-
-  const toggleSidebar = () => {
-    if (isMobile) {
-      setSidebarOpen(!sidebarOpen)
-    } else {
-      setSidebarCollapsed(!sidebarCollapsed)
-    }
-  }
 
   const handleSettingChange = (
     section: keyof typeof settings,
@@ -535,53 +530,10 @@ export default function SettingsComponent() {
       <div className="flex h-screen overflow-hidden">
         {/* Mobile Overlay */}
         {isMobile && sidebarOpen && (
-          <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => dispatch(setSidebarOpen(false))} />
         )}
 
-        {/* Sidebar - Mobile: full slide in, Desktop: collapsible */}
-        <div
-          className={`${
-            isMobile
-              ? sidebarOpen
-                ? "translate-x-0 fixed inset-y-0 left-0 z-30"
-                : "-translate-x-full fixed inset-y-0 left-0 z-30"
-              : sidebarCollapsed
-                ? "w-20"
-                : "w-[220px]"
-          } bg-white/80 dark:bg-slate-800/50 backdrop-blur-md border-r border-slate-200 dark:border-slate-700/50 transition-all duration-300 flex flex-col ${
-            isMobile ? "w-[280px]" : ""
-          }`}
-        >
-          <div className="p-4 border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between">
-            {(!sidebarCollapsed || isMobile) && (
-              <div className="font-bold text-xl bg-gradient-to-r from-cyan-600 to-purple-600 dark:from-cyan-400 dark:to-purple-500 bg-clip-text text-transparent">
-                InvestFuture
-              </div>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50 md:flex hidden"
-            >
-              {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-            </Button>
-            {isMobile && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSidebarOpen(false)}
-                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
-              >
-                <X size={18} />
-              </Button>
-            )}
-          </div>
-
-          <div className="flex-1 py-4 overflow-y-auto">
-            <SidebarNav collapsed={sidebarCollapsed && !isMobile} isMobile={isMobile} activePath="/settings" />
-          </div>
-        </div>
+       <Sidebaar />
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -592,7 +544,7 @@ export default function SettingsComponent() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setSidebarOpen(true)}
+                  onClick={() => dispatch(setSidebarOpen(true))}
                   className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white md:hidden"
                 >
                   <Menu size={20} />
