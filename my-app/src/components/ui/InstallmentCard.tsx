@@ -6,33 +6,49 @@ import { Progress } from "./progress";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { useSelector } from "react-redux";
 
-interface Installment {
+interface Guarantor {
+  id: number;
   name: string;
-  customer: {
-    name: string;
-    email: string;
-    image?: string;
-  };
-  investors: {
-    id: string;
-    name: string;
-    image?: string;
-    percentage: number;
-    contribution: number;
-  }[];
-  payments: {
-    month: number;
-    status: "paid" | "due" | "pending";
-    date: string;
-    amount: number;
-  }[];
+  image: string;
+  role: string;
+}
+
+interface Investor {
+  id: number;
+  name: string;
+  image: string;
+  contribution: number;
+  percentage: number;
+}
+
+interface InstallmentDetail {
+  month: number;
+  date: string;
+  amount: number;
+  status: "paid" | "due" | "pending" | "late";
+}
+
+interface Installment {
+  id: number;
+  itemName: string;
+  itemImage: string;
+  customerName: string;
+  customerImage: string;
+  investorName: string;
+  investorImage: string;
+  date: string;
+  rate: number;
+  status: "active" | "inactive" | "completed" | "defaulted";
+  guarantors: Guarantor[];
+  investors: Investor[];
   totalAmount: number;
   currency: string;
-  duration: number;
-  completedMonths: number;
-  startDate: string;
-  endDate: string;
+  description: string;
+  installments: InstallmentDetail[];
+  completedPayments: number;
+  totalPayments: number;
 }
+
 
 export default function InstallmentCard({ installment }: { installment: Installment }) {
   const [expanded, setExpanded] = useState(false);
@@ -83,17 +99,17 @@ export default function InstallmentCard({ installment }: { installment: Installm
 
   // Calculate progress percentage
   const progressPercentage = Math.round(
-    (installment.completedMonths / installment.duration) * 100
+    (installment.completedPayments / installment.totalPayments) * 100
   );
 
   // Count payments by status
-  const paidPayments = installment.payments.filter(
+  const paidPayments = installment.installments.filter(
     (p: any) => p.status === "paid"
   ).length;
-  const duePayments = installment.payments.filter(
+  const duePayments = installment.installments.filter(
     (p: any) => p.status === "due"
   ).length;
-  const pendingPayments = installment.payments.filter(
+  const pendingPayments = installment.installments.filter(
     (p: any) => p.status === "pending"
   ).length;
 
@@ -106,8 +122,8 @@ export default function InstallmentCard({ installment }: { installment: Installm
             <div className="relative">
               <Avatar className="h-12 w-12 md:h-14 md:w-14  rounded-xl border border-slate-300 dark:border-slate-600">
                 <img
-                  src={installment.customer.image || "/placeholder.svg"}
-                  alt={installment.customer.name}
+                  src={installment.customerImage || "/placeholder.svg"}
+                  alt={installment.customerName}
                   className="object-cover h-12 w-12 md:h-14 md:w-14 rounded-xl border border-slate-300 dark:border-slate-600"
                 />
               </Avatar>
@@ -117,14 +133,14 @@ export default function InstallmentCard({ installment }: { installment: Installm
             </div>
             <div>
               <h3 className="font-medium text-lg text-slate-900 dark:text-white">
-                {installment.name}
+                {installment.itemName}
               </h3>
               <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                <span>{installment.customer.name}</span>
+                <span>{installment.customerName}</span>
                 {!isMobile && (
                   <>
                     <span>•</span>
-                    <span>{installment.customer.email}</span>
+                    <span>{installment.customerName}</span>
                   </>
                 )}
               </div>
@@ -135,16 +151,9 @@ export default function InstallmentCard({ installment }: { installment: Installm
               {formatCurrency(installment.totalAmount, installment.currency)}
             </Badge>
             <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 px-2.5 py-0.5">
-              {installment.duration} months
+              {installment.totalPayments} months
             </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setExpanded(!expanded)}
-              className="ml-auto text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-            >
-              {expanded ? "Hide Details" : "Show Details"}
-            </Button>
+            
           </div>
         </div>
 
@@ -152,7 +161,7 @@ export default function InstallmentCard({ installment }: { installment: Installm
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-1">
             <span className="text-slate-600 dark:text-slate-300">
-              Progress: {paidPayments} of {installment.duration} payments
+              Progress: {paidPayments} of {installment.totalPayments} payments
             </span>
             <span className="font-medium text-cyan-600 dark:text-cyan-400">
               {progressPercentage}%
@@ -215,129 +224,7 @@ export default function InstallmentCard({ installment }: { installment: Installm
           </div>
         </div>
 
-        {/* Expanded Details */}
-        {expanded && (
-          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-              Payment Schedule
-            </h4>
-            <div className="space-y-2">
-              {installment.payments.map((payment: any) => (
-                <div
-                  key={payment.month}
-                  className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-700/30 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      className={`${getStatusColor(
-                        payment.status
-                      )} flex items-center gap-1 px-2 py-0.5`}
-                    >
-                      {getStatusIcon(payment.status)}
-                      <span className="capitalize">{payment.status}</span>
-                    </Badge>
-                    <span className="text-sm">Month {payment.month}</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                      {formatDate(payment.date)}
-                    </span>
-                    <span className="font-medium">
-                      {formatCurrency(payment.amount, installment.currency)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Investor Details
-                </h4>
-                <div className="space-y-2">
-                  {installment.investors.map((investor: any) => (
-                    <div
-                      key={investor.id}
-                      className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/30 rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <img
-                            src={investor.image || "/placeholder.svg"}
-                            alt={investor.name}
-                          />
-                        </Avatar>
-                        <div>
-                          <div className="font-medium text-sm">
-                            {investor.name}
-                          </div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {investor.percentage}% ownership
-                          </div>
-                        </div>
-                      </div>
-                      <div className="font-medium text-cyan-600 dark:text-cyan-400">
-                        {formatCurrency(
-                          investor.contribution,
-                          installment.currency
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Installment Details
-                </h4>
-                <div className="bg-slate-50 dark:bg-slate-700/30 rounded-lg p-3 space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                      Start Date
-                    </span>
-                    <span className="text-sm font-medium">
-                      {formatDate(installment.startDate)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                      End Date
-                    </span>
-                    <span className="text-sm font-medium">
-                      {formatDate(installment.endDate)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                      Total Amount
-                    </span>
-                    <span className="text-sm font-medium">
-                      {formatCurrency(
-                        installment.totalAmount,
-                        installment.currency
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                      Monthly Payment
-                    </span>
-                    <span className="text-sm font-medium">
-                      {formatCurrency(
-                        Math.round(
-                          installment.totalAmount / installment.duration
-                        ),
-                        installment.currency
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      
       </div>
     </div>
   );

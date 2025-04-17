@@ -28,7 +28,7 @@ import {
   setSidebarCollapsed,
   setSidebarOpen,
 } from "@/redux/appSlice";
-import { installmentsData, userData } from "./api/installments";
+import { installmentsData, sellItemsData, userData } from "./api/installments";
 
 // Sample data - in a real app, this would come from an API
 
@@ -90,18 +90,18 @@ export default function Installments() {
   };
 
   // Filter installments based on active tab and search query
-  const filteredInstallments = installmentsData.filter((item) => {
+  const filteredInstallments = sellItemsData.filter((item) => {
     const matchesTab =
       activeTab === "all" ||
       (activeTab === "active" && item.status === "active") ||
       (activeTab === "completed" && item.status === "completed") ||
       (activeTab === "overdue" &&
-        item.payments.some((p) => p.status === "due"));
+        item.installments.some((p) => p.status === "due"));
 
     const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
+      item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) 
+      // item.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesTab && matchesSearch;
   });
