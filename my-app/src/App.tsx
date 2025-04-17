@@ -4,7 +4,7 @@ import InvestmentDashboard from "./components/investment-dashboard";
 import InvestorsPage from "./components/investors-page";
 import { ThemeProvider } from "./components/theme/theme-provider";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import CreateCompanyPage from "./components/CreateCompany";
+import { RegistrationForm } from "./components/add-customer";
 import Profile from "./components/Profile";
 import Installments from "./components/Installments";
 import Settings from "./components/Settings";
@@ -46,10 +46,10 @@ export default function App() {
             }
           />
           <Route
-            path="/create-company"
+            path="/add-customer"
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <CreateCompanyPage />
+                <RegistrationForm/>
               </ProtectedRoute>
             }
           />

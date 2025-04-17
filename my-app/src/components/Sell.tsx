@@ -300,7 +300,7 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
 
   return (
     <Card
-      className="bg-white/50 dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 overflow-hidden hover:border-cyan-500/50 transition-all duration-300 cursor-pointer group"
+      className="bg-white/50 p-0 dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 overflow-hidden hover:border-cyan-500/50 transition-all duration-300 cursor-pointer group"
       onClick={onClick}
     >
       <CardContent className="p-0">
@@ -317,6 +317,7 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
           >
             {item.status === "active" ? "Active" : "Completed"}
           </Badge>
+          <br></br>
 
           {/* Item Header */}
           <div className="p-4 border-b border-slate-200 dark:border-slate-700/50">

@@ -207,7 +207,7 @@ function SidebarNav({ collapsed = false, isMobile = false, activePath }: any) {
     },
     {
       name: "Create Company",
-      href: "/create-company",
+      href: "/add-customer",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
