@@ -25,8 +25,6 @@ import { useNavigate } from "react-router-dom"
 import { Avatar } from "./ui/avatar"
 import { supabase } from "@/lib/supabaseClient"
 
-
-
 // Create a dynamic schema based on user type
 const createFormSchema = (userType: string) => {
   // Base schema with common fields
@@ -64,17 +62,20 @@ const createFormSchema = (userType: string) => {
 }
 
 export function RegistrationForm() {
-  const [userType, setUserType] = useState<string>("customer")
+  // Update the state to track image URLs
   const [profilePreview, setProfilePreview] = useState<string | null>(null)
   const [profileUrl, setProfileUrl] = useState<string | null>(null)
   const [cnicFrontPreview, setCnicFrontPreview] = useState<string | null>(null)
+  const [cnicFrontUrl, setCnicFrontUrl] = useState<string | null>(null)
   const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null)
+  const [cnicBackUrl, setCnicBackUrl] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const isMobile = useSelector((state: any) => state.app.isMobile)
   const sidebarOpen = useSelector((state: any) => state.app.sideBarOpen)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [userType, setUserType] = useState("customer")
 
   // Initialize form with default schema
   const form = useForm<any>({
@@ -94,70 +95,93 @@ export function RegistrationForm() {
     form.clearErrors()
   }, [userType, form])
 
-  // Handle image upload and preview
+  // Replace the handleImageUpload function with this enhanced version
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: string,
-    setPreview: (val: string | null) => void,
+    setPreview: (value: string | null) => void,
+    setUrl: (value: string | null) => void,
   ) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // 1) Preview locally
+    // Set form value
+    form.setValue(fieldName, file)
+
+    // Create local preview
     const reader = new FileReader()
-    reader.onload = () => setPreview(reader.result as string)
+    reader.onload = (event) => {
+      setPreview(event.target?.result as string)
+    }
     reader.readAsDataURL(file)
 
-    // 2) Upload to Supabase
-    const filePath = `${fieldName}_${Date.now()}.${file.name.split(".").pop()}`
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("restaurant-images") // ← your real bucket name
-      .upload(filePath, file, {
-        contentType: file.type,
-        upsert: true,
-      })
+    try {
+      // Upload to Supabase
+      const fileName = `${fieldName}_${Date.now()}.${file.name.split(".").pop()}`
+      const { data, error } = await supabase.storage
+        .from("restaurant-images") // Replace with your bucket name
+        .upload(fileName, file, {
+          contentType: file.type,
+          upsert: true,
+        })
 
-    if (uploadError) {
-      console.error("Upload failed:", uploadError.message)
-      return
+      if (error) {
+        console.error("Upload error:", error.message)
+        return
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage.from("restaurant-images").getPublicUrl(fileName)
+
+      // Store URL in state
+      const publicUrl = urlData.publicUrl
+      setUrl(publicUrl)
+      console.log(`${fieldName} uploaded successfully:`, publicUrl)
+    } catch (error) {
+      console.error("Error in upload process:", error)
     }
-
-    // 3) Generate public URL
-    const { data: urlData, error: urlError } = supabase.storage.from("restaurant-images").getPublicUrl(filePath)
-
-    if (urlError) {
-      console.error("URL retrieval failed:", urlError.message)
-      return
-    }
-
-    // 4) Update React state
-    console.log("File uploaded successfully:", urlData.publicUrl)
-    setProfileUrl(urlData.publicUrl) // <-- update this state
-
-    // 5) (Optional) Persist to localStorage
-    // localStorage.setItem(`${fieldName}Url`, urlData.publicUrl);
   }
 
-  // Form submission handler
+  // Update the onSubmit function to include image URLs in localStorage
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      // Create a data object with form values and image URLs
+      const userData = {
+        ...data,
+        profilePicture: profileUrl,
+        cnicFrontImage: cnicFrontUrl,
+        cnicBackImage: cnicBackUrl,
+        userType: userType,
+      }
 
-    console.log("Form submitted:", data)
-    setIsSubmitting(false)
-    setIsSuccess(true)
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // Reset form after success message
-    setTimeout(() => {
-      form.reset()
-      setProfilePreview(null)
-      setCnicFrontPreview(null)
-      setCnicBackPreview(null)
-      setIsSuccess(false)
-      localStorage.setItem("userData", JSON.stringify(data))
-    }, 3000)
+      console.log("Form submitted:", userData)
+
+      // Store in localStorage with image URLs
+      localStorage.setItem("userData", JSON.stringify(userData))
+
+      setIsSubmitting(false)
+      setIsSuccess(true)
+
+      // Reset form after success message
+      setTimeout(() => {
+        form.reset()
+        setProfilePreview(null)
+        setProfileUrl(null)
+        setCnicFrontPreview(null)
+        setCnicFrontUrl(null)
+        setCnicBackPreview(null)
+        setCnicBackUrl(null)
+        setIsSuccess(false)
+      }, 3000)
+    } catch (error) {
+      console.error("Error submitting form:", error)
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -245,8 +269,7 @@ export function RegistrationForm() {
                   <Card className="overflow-hidden p-0 border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm">
                     <CardContent className="p-0">
                       <Form {...form}>
-                        <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(onSubmit)(); console.log("Form submitted:", form.getValues()); }
-                        } className="space-y-6">
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                           {/* User Type Selection */}
                           <div className="flex overflow-hidden rounded-t-lg">
                             <button
@@ -312,16 +335,15 @@ export function RegistrationForm() {
                                       <Upload className="mr-2 h-4 w-4" />
                                       Upload Photo
                                     </Label>
+                                    {/* Update the profile picture upload call */}
                                     <Input
                                       id="profile-image"
                                       type="file"
                                       accept="image/*"
                                       className="hidden"
-                                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                      handleImageUpload(e, "profilePicture", setProfilePreview);
-                                      console.log("Profile picture uploaded:", e.target.files?.[0]);
-                                      }}
-                                      
+                                      onChange={(e) =>
+                                        handleImageUpload(e, "profilePicture", setProfilePreview, setProfileUrl)
+                                      }
                                       {...field}
                                     />
                                     <FormMessage />
@@ -475,13 +497,19 @@ export function RegistrationForm() {
                                             <Upload className="mr-2 h-4 w-4" />
                                             Upload Front
                                           </Label>
+                                          {/* Update the CNIC front image upload call */}
                                           <Input
                                             id="cnic-front"
                                             type="file"
                                             accept="image/*"
                                             className="hidden"
                                             onChange={(e) =>
-                                              handleImageUpload(e, "cnicFrontImage", setCnicFrontPreview)
+                                              handleImageUpload(
+                                                e,
+                                                "cnicFrontImage",
+                                                setCnicFrontPreview,
+                                                setCnicFrontUrl,
+                                              )
                                             }
                                             {...field}
                                           />
@@ -529,12 +557,15 @@ export function RegistrationForm() {
                                             <Upload className="mr-2 h-4 w-4" />
                                             Upload Back
                                           </Label>
+                                          {/* Update the CNIC back image upload call */}
                                           <Input
                                             id="cnic-back"
                                             type="file"
                                             accept="image/*"
                                             className="hidden"
-                                            onChange={(e) => handleImageUpload(e, "cnicBackImage", setCnicBackPreview)}
+                                            onChange={(e) =>
+                                              handleImageUpload(e, "cnicBackImage", setCnicBackPreview, setCnicBackUrl)
+                                            }
                                             {...field}
                                           />
                                         </div>
