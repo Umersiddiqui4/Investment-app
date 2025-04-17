@@ -34,11 +34,11 @@ import { setIsMobile, setSidebarOpen } from "@/redux/appSlice"
 export default function SettingsComponent() {
   const isMobile = useSelector((state: any) => state.app.isMobile);
   const sidebarOpen = useSelector((state: any) => state.app.sideBarOpen);
+  const dispatch = useDispatch();
   const [activeSection, setActiveSection] = useState("appearance")
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
   const { theme, setTheme } = useTheme()
-  const dispatch = useDispatch();
 
   // Settings state
   const [settings, setSettings] = useState({
