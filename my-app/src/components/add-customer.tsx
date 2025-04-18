@@ -145,8 +145,10 @@ export function RegistrationForm() {
   // Update the onSubmit function to include image URLs in localStorage
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
-
+  
     try {
+      const activeSince = new Date().toISOString() // current time in ISO format
+  
       // Create a data object with form values and image URLs
       const userData = {
         ...data,
@@ -154,19 +156,21 @@ export function RegistrationForm() {
         cnicFrontImage: cnicFrontUrl,
         cnicBackImage: cnicBackUrl,
         userType: userType,
+        activeSince: activeSince, // 👈 add this line
+        status: "Inactive", // 👈 add this line
       }
-
+  
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000))
-
+  
       console.log("Form submitted:", userData)
-
+  
       // Store in localStorage with image URLs
       localStorage.setItem("userData", JSON.stringify(userData))
-
+  
       setIsSubmitting(false)
       setIsSuccess(true)
-
+  
       // Reset form after success message
       setTimeout(() => {
         form.reset()
@@ -183,7 +187,7 @@ export function RegistrationForm() {
       setIsSubmitting(false)
     }
   }
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
