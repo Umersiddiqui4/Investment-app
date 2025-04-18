@@ -43,14 +43,8 @@ export default function InvestorsPage() {
   const investorsPerPage = 10;
 
   // Check if we're on mobile
-  useEffect(() => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      setIvestorsData(parsedData);
-      console.log("User data from localStorage:", parsedData);
-    }
-  }, []);
+  
+
   useEffect(() => {
     const checkIfMobile = () => {
       dispatch(setIsMobile(window.innerWidth < 768));
@@ -113,6 +107,20 @@ export default function InvestorsPage() {
   const handlePageChange = (page: any) => {
     setCurrentPage(page);
   };
+
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+  
+      // ✅ Filter only those with userType 'investor'
+      const onlyInvestors = parsedData.filter((user: any) => user.userType === "investor");
+  
+      setIvestorsData(onlyInvestors);
+      console.log("Filtered Investors:", onlyInvestors);
+    }
+  }, [selectedInvestorId]);
+  
 
   if (!investorsData) {
     return (

@@ -7,6 +7,7 @@ const initialState = {
   selectedCategory: "",
   isAuthenticated: false,
   sideBarOpen: false,
+  IsShowCreateInstallment: false,
 };
 
 const appSlice = createSlice({
@@ -28,8 +29,11 @@ const appSlice = createSlice({
     setIsAuthenticated: (state, action) => {
       state.isAuthenticated = action.payload;
     },
+    setIsShowCreateInstallment: (state, action) => {
+      state.IsShowCreateInstallment = action.payload;
+    },
   },
 });
 
-export const { setSidebarOpen, setSidebarCollapsed, setIsMobile, setSelectedCategory, setIsAuthenticated } = appSlice.actions;
+export const { setSidebarOpen, setSidebarCollapsed, setIsMobile, setSelectedCategory, setIsAuthenticated, setIsShowCreateInstallment } = appSlice.actions;
 export default appSlice.reducer;
