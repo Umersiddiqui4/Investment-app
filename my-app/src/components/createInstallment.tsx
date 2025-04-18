@@ -386,6 +386,7 @@ export function CreateInstallmentForm() {
       ...data,
       investors: data.investorIds.map((id) => localInvestors.find((inv: any) => inv.id.toString() === id)),
       customer: localCustomers.find((cust: any) => cust.id.toString() === data.customerId),
+      activeSince: new Date(),
     }
     existingInstallments.push(newInstallment)
     localStorage.setItem("installments", JSON.stringify(existingInstallments))
@@ -408,6 +409,7 @@ export function CreateInstallmentForm() {
       setItemImagePreview(null)
       setGuarantorCnicFrontPreviews([null, null])
       setGuarantorCnicBackPreviews([null, null])
+      dispatch(setIsShowCreateInstallment(false))
     }, 2000)
   }
 
