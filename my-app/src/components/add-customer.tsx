@@ -147,26 +147,31 @@ export function RegistrationForm() {
     setIsSubmitting(true)
   
     try {
-      const activeSince = new Date().toISOString() // current time in ISO format
+      const activeSince = new Date()
   
-      // Create a data object with form values and image URLs
       const userData = {
         ...data,
         profilePicture: profileUrl,
         cnicFrontImage: cnicFrontUrl,
         cnicBackImage: cnicBackUrl,
         userType: userType,
-        activeSince: activeSince, // 👈 add this line
-        status: "Inactive", // 👈 add this line
+        activeSince: activeSince,
+        status: "Inactive",
       }
+  
+      // ⬇️ Get existing users from localStorage
+      const existingUsers = JSON.parse(localStorage.getItem("userData") || "[]")
+  
+      // ⬇️ Add the new user to the array
+      const updatedUsers = [...existingUsers, userData]
+  
+      // ⬇️ Save the updated array back to localStorage
+      localStorage.setItem("userData", JSON.stringify(updatedUsers))
   
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000))
   
       console.log("Form submitted:", userData)
-  
-      // Store in localStorage with image URLs
-      localStorage.setItem("userData", JSON.stringify(userData))
   
       setIsSubmitting(false)
       setIsSuccess(true)
@@ -187,6 +192,7 @@ export function RegistrationForm() {
       setIsSubmitting(false)
     }
   }
+  
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">

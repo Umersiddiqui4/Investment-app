@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
@@ -18,21 +18,19 @@ import {
 import { ThemeToggle } from "./theme/theme-toggle";
 import InvestorDetail from "./investor-detail";
 import Sidebaar from "./Sidebaar";
-import { investorsData } from "./api/installments";
+// import { investorsData } from "./api/installments";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setIsMobile,
-  setSidebarOpen,
-} from "@/redux/appSlice";
+import { setIsMobile, setSidebarOpen } from "@/redux/appSlice";
+import { set } from "zod";
 
 // Update the InvestorsPage component to include pagination and investor detail view
 export default function InvestorsPage() {
   const isMobile = useSelector((state: any) => state.app.isMobile);
   const sidebarOpen = useSelector((state: any) => state.app.sideBarOpen);
-  
 
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
+  const [investorsData, setIvestorsData] = useState<any | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedInvestors, setSelectedInvestors] = useState<
     typeof investorsData
@@ -43,9 +41,16 @@ export default function InvestorsPage() {
   );
 
   const investorsPerPage = 10;
-  const totalPages = Math.ceil(investorsData.length / investorsPerPage);
 
   // Check if we're on mobile
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      setIvestorsData(parsedData);
+      console.log("User data from localStorage:", parsedData);
+    }
+  }, []);
   useEffect(() => {
     const checkIfMobile = () => {
       dispatch(setIsMobile(window.innerWidth < 768));
@@ -65,13 +70,17 @@ export default function InvestorsPage() {
   }, []);
 
   // Filter investors based on search query
-  const filteredInvestors = investorsData.filter(
-    (investor) =>
-      investor.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !selectedInvestors.some((selected) => selected.id === investor.id)
-  );
+  const filteredInvestors = useMemo(() => {
+    if (!investorsData) return [];
 
-  // Get current investors for pagination
+    return investorsData.filter(
+      (investor: any) =>
+        investor.username.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !selectedInvestors.some((selected: any) => selected.id === investor.id)
+    );
+  }, [investorsData, searchQuery, selectedInvestors]);
+
+  const totalPages = Math.ceil(filteredInvestors.length / investorsPerPage);
   const indexOfLastInvestor = currentPage * investorsPerPage;
   const indexOfFirstInvestor = indexOfLastInvestor - investorsPerPage;
   const currentInvestors = filteredInvestors.slice(
@@ -87,12 +96,11 @@ export default function InvestorsPage() {
 
   const handleRemoveInvestor = (investorId: any) => {
     setSelectedInvestors(
-      selectedInvestors.filter((investor) => investor.id !== investorId)
+      selectedInvestors.filter((investor: any) => investor.id !== investorId)
     );
   };
 
-  const handleCreateCompany = () => {
-  };
+  const handleCreateCompany = () => {};
 
   const handleViewInvestor = (investor: any) => {
     setSelectedInvestorId(investor);
@@ -105,6 +113,23 @@ export default function InvestorsPage() {
   const handlePageChange = (page: any) => {
     setCurrentPage(page);
   };
+
+  if (!investorsData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-slate-500 dark:text-slate-400">Loading...</p>
+      </div>
+    );
+  }
+  if (investorsData && investorsData.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-slate-500 dark:text-slate-400">
+          No investors found.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -202,7 +227,7 @@ export default function InvestorsPage() {
             <div className="max-w-4xl mx-auto space-y-6">
               {selectedInvestorId ? (
                 <InvestorDetail
-                investorData={selectedInvestorId}
+                  investorData={selectedInvestorId}
                   onBack={handleBackToInvestors}
                 />
               ) : (
@@ -216,7 +241,7 @@ export default function InvestorsPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {currentInvestors.map((investor) => (
+                        {currentInvestors.map((investor: any) => (
                           <div
                             key={investor.id}
                             className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-700/30 hover:border-cyan-500/50 dark:hover:border-cyan-500/30 transition-all duration-200 cursor-pointer"
@@ -225,18 +250,22 @@ export default function InvestorsPage() {
                             <div className="flex items-center gap-3">
                               <Avatar className="h-12 w-12 bg-cyan-100/50 dark:bg-cyan-200/20 border border-cyan-200/50 dark:border-cyan-300/30">
                                 <img
-                                  src={investor.image || "/placeholder.svg"}
-                                  alt={investor.name}
+                                  src={
+                                    investor.profilePicture ||
+                                    "/placeholder.svg"
+                                  }
+                                  alt={investor.username}
                                   className="object-cover"
                                 />
                               </Avatar>
                               <div>
                                 <h3 className="font-medium text-slate-900 dark:text-white">
-                                  {investor.name}
+                                  {investor.username}
                                 </h3>
                                 <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
                                   <span>
-                                    Active since: {investor.activeSince}
+                                    Active since:{" "}
+                                    {investor.activeSince.split("T")[0]}
                                   </span>
                                 </div>
                               </div>
@@ -247,7 +276,7 @@ export default function InvestorsPage() {
                                   className={`h-2.5 w-2.5 rounded-full ${
                                     investor.status === "Active"
                                       ? "bg-green-500"
-                                      : "bg-amber-500"
+                                      : "bg-orange-600"
                                   }`}
                                 ></span>
                                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -392,4 +421,3 @@ export default function InvestorsPage() {
     </div>
   );
 }
-
