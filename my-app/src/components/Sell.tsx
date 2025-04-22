@@ -244,8 +244,7 @@ export default function Sell() {
                         className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
                       >
                         <Plus size={16} />
-
-                        {!isMobile && "Create Installment"}
+                        {!isMobile && " Create Sale"}
                       </Button>
                     </div>
                   </div>
