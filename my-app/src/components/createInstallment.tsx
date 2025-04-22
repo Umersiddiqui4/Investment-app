@@ -40,6 +40,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { setIsShowCreateInstallment } from "@/redux/appSlice"
 import { useDispatch } from "react-redux"
 import { supabase } from "@/lib/supabaseClient"
+import { sellItemsData } from "./api/installments"
 
 // Sample data for investors and customers
 const investors = [
@@ -66,8 +67,8 @@ const customers = [
 
 export interface User {
     id: number;
-    username: string;
-    profilePicture: string;
+    name: string;
+    image: string;
     userType: string;
     status: string;
     activeSince: Date;
@@ -81,8 +82,8 @@ const installmentFormSchema = z.object({
   itemName: z.string().min(3, { message: "Item name must be at least 3 characters" }),
   costPrice: z.string().min(1, { message: "Cost price is required" }),
   sellPrice: z.string().min(1, { message: "Sell price is required" }),
-  interestRate: z.string().min(1, { message: "Interest rate is required" }),
-  timePeriod: z.string().min(1, { message: "Time period is required" }),
+  rate: z.string().min(1, { message: "Interest rate is required" }),
+  totalPayments: z.string().min(1, { message: "Time period is required" }),
   guarantors: z
     .array(
       z.object({
@@ -99,21 +100,21 @@ const installmentFormSchema = z.object({
 })
 
 const investorFormSchema = z.object({
-  username: z.string().min(3, { message: "Name must be at least 3 characters" }),
+  name: z.string().min(3, { message: "Name must be at least 3 characters" }),
   contact: z.string().min(10, { message: "Please enter a valid contact number" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   cnicNumber: z.string().min(13, { message: "CNIC number must be 13 digits" }).max(13),
   address: z.string().min(5, { message: "Address must be at least 5 characters" }),
-  profilePicture: z.string(),
+  image: z.string(),
 })
 
 const customerFormSchema = z.object({
-  username: z.string().min(3, { message: "Name must be at least 3 characters" }),
+  name: z.string().min(3, { message: "Name must be at least 3 characters" }),
   contact: z.string().min(10, { message: "Please enter a valid contact number" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   cnicNumber: z.string().min(13, { message: "CNIC number must be 13 digits" }).max(13),
   address: z.string().min(5, { message: "Address must be at least 5 characters" }),
-  profilePicture: z.string(),
+  image: z.string(),
 })
 
 type InstallmentFormValues = z.infer<typeof installmentFormSchema>
@@ -157,8 +158,8 @@ export function CreateInstallmentForm() {
       itemName: "",
       costPrice: "",
       sellPrice: "",
-      interestRate: "10", // Default interest rate
-      timePeriod: "12", // Default time period (12 months)
+      rate: "10", // Default interest rate
+      totalPayments: "12", // Default time period (12 months)
       guarantors: [{ name: "", contact: "", cnicNumber: "", cnicFront: undefined, cnicBack: undefined }],
       itemImage: undefined,
     },
@@ -168,12 +169,12 @@ export function CreateInstallmentForm() {
   const investorForm = useForm<InvestorFormValues>({
     resolver: zodResolver(investorFormSchema),
     defaultValues: {
-      username: "",
+      name: "",
       contact: "",
       email: "",
       cnicNumber: "",
       address: "",
-      profilePicture: "",
+      image: "",
     },
   })
 
@@ -181,19 +182,19 @@ export function CreateInstallmentForm() {
   const customerForm = useForm<CustomerFormValues>({
     resolver: zodResolver(customerFormSchema),
     defaultValues: {
-      username: "",
+      name: "",
       contact: "",
       email: "",
       cnicNumber: "",
       address: "",
-      profilePicture: undefined,
+      image: undefined,
     },
   })
 
   const watchCostPrice = form.watch("costPrice")
   const watchSellPrice = form.watch("sellPrice")
-  const watchInterestRate = form.watch("interestRate")
-  const watchTimePeriod = form.watch("timePeriod")
+  const watchInterestRate = form.watch("rate")
+  const watchTimePeriod = form.watch("totalPayments")
 
   // Calculate sell price or interest rate based on inputs
   useEffect(() => {
@@ -214,7 +215,7 @@ export function CreateInstallmentForm() {
         const totalInterest = sellPrice - costPrice
         const calculatedRate = (totalInterest * 100 * 12) / (costPrice * timePeriod)
 
-        form.setValue("interestRate", calculatedRate.toFixed(2), { shouldValidate: true })
+        form.setValue("rate", calculatedRate.toFixed(2), { shouldValidate: true })
       }
     }
   }, [watchCostPrice, watchSellPrice, watchInterestRate, watchTimePeriod, isCalculatingFromRate, form])
@@ -323,10 +324,10 @@ export function CreateInstallmentForm() {
   
         // Set image URL in form
         if (type === "investor") {
-          investorForm.setValue("profilePicture", publicUrl);
+          investorForm.setValue("image", publicUrl);
           setInvestorImagePreview(publicUrl);
         } else {
-          customerForm.setValue("profilePicture", publicUrl);
+          customerForm.setValue("image", publicUrl);
           setCustomerImagePreview(publicUrl);
         }
   
@@ -365,6 +366,25 @@ export function CreateInstallmentForm() {
     }
   }
 
+  const createInstallments = (sellPrice, totalPayments, startDate) => {
+    const amount = parseFloat(sellPrice) / parseInt(totalPayments);
+    const installments = [];
+  
+    for (let i = 0; i < totalPayments; i++) {
+      const date = new Date(startDate);
+      date.setMonth(date.getMonth() + i);
+  
+      installments.push({
+        month: i + 1,
+        date: date.toISOString().split("T")[0], // Format: YYYY-MM-DD
+        amount: parseFloat(amount.toFixed(2)),
+        status: "pending",
+      });
+    }
+  
+    return installments;
+  };
+  
   // Handle main form submission
   const onSubmit = async (data: InstallmentFormValues) => {
     setIsSubmitting(true)
@@ -386,10 +406,18 @@ export function CreateInstallmentForm() {
       ...data,
       investors: data.investorIds.map((id) => localInvestors.find((inv: any) => inv.id.toString() === id)),
       customer: localCustomers.find((cust: any) => cust.id.toString() === data.customerId),
-      activeSince: new Date(),
+      date: new Date(),
+      completedPayments: 0,
+      status: "active",
     }
     existingInstallments.push(newInstallment)
-    localStorage.setItem("installments", JSON.stringify(existingInstallments))
+    if (Array.isArray(sellItemsData)) {
+      newInstallment.installments = createInstallments(newInstallment.sellPrice, newInstallment.totalPayments, newInstallment.date);
+      sellItemsData.push(newInstallment);
+    }
+    console.log(sellItemsData, "sellItemsData");
+    
+
 
 
     setIsSubmitting(false)
@@ -421,8 +449,8 @@ export function CreateInstallmentForm() {
     // Create new investor
     const newInvestor = {
       id: Math.max(...localInvestors.map((inv: any) => inv.id)) + 1,
-      username: data.username,
-      profilePicture: investorImagePreview || "/placeholder.svg?height=40&width=40",
+      name: data.name,
+      image: investorImagePreview || "/placeholder.svg?height=40&width=40",
       userType: "investor",
       status: "Inactive",
       activeSince: activeSince,
@@ -450,7 +478,7 @@ export function CreateInstallmentForm() {
     
     toast({
       title: "Investor Added",
-      description: `${data.username} has been added successfully.`,
+      description: `${data.name} has been added successfully.`,
       variant: "default",
     })
   }
@@ -463,9 +491,9 @@ export function CreateInstallmentForm() {
     // Create new customer
     const newCustomer = {
       id: Math.max(...localCustomers.map((cust: any) => cust.id)) + 1,
-      username: data.username,
+      name: data.name,
       email: data.email,
-      profilePicture: customerImagePreview || "/placeholder.svg?height=40&width=40",
+      image: customerImagePreview || "/placeholder.svg?height=40&width=40",
       userType: "customer",
       status: "Inactive",
       activeSince: activeSince,
@@ -494,7 +522,7 @@ console.log("Customer added:", data);
 
     toast({
       title: "Customer Added",
-      description: `${data.username} has been added successfully.`,
+      description: `${data.name} has been added successfully.`,
       variant: "default",
     })
   }
@@ -618,7 +646,7 @@ console.log("Customer added:", data);
                                         {localInvestors.map((investor: any) => (
                                           <CommandItem
                                             key={investor.id}
-                                            value={investor.username}
+                                            value={investor.name}
                                             onSelect={() => {
                                               const currentIds = [...field.value]
                                               const investorId = investor.id.toString()
@@ -635,9 +663,9 @@ console.log("Customer added:", data);
                                           >
                                             <div className="flex items-center gap-2">
                                               <Avatar className="h-8 w-8">
-                                                <img src={investor.profilePicture || "/placeholder.svg"} alt={investor.username} />
+                                                <img src={investor.image || "/placeholder.svg"} alt={investor.name} />
                                               </Avatar>
-                                              <span>{investor.username}</span>
+                                              <span>{investor.name}</span>
                                             </div>
                                             <CheckCircle2
                                               className={cn(
@@ -672,9 +700,9 @@ console.log("Customer added:", data);
                                           className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-2 rounded-md border border-violet-200 dark:border-violet-800"
                                         >
                                           <Avatar className="h-6 w-6">
-                                            <img src={investor.profilePicture || "/placeholder.svg"} alt={investor.username} />
+                                            <img src={investor.image || "/placeholder.svg"} alt={investor.name} />
                                           </Avatar>
-                                          <span className="text-sm">{investor.username}</span>
+                                          <span className="text-sm">{investor.name}</span>
                                           <Button
                                             type="button"
                                             variant="ghost"
@@ -741,7 +769,7 @@ console.log("Customer added:", data);
                                     )}
                                   >
                                     {field.value
-                                      ? localCustomers.find((customer: any) => customer.id.toString() === field.value)?.username
+                                      ? localCustomers.find((customer: any) => customer.id.toString() === field.value)?.name
                                       : "Select customer"}
                                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
@@ -775,7 +803,7 @@ console.log("Customer added:", data);
                                       {localCustomers.map((customer: any) => (
                                         <CommandItem
                                           key={customer.id}
-                                          value={customer.username}
+                                          value={customer.name}
                                            
                                           onSelect={() => {
                                             form.setValue("customerId", customer.id.toString())
@@ -784,10 +812,10 @@ console.log("Customer added:", data);
                                         >
                                           <div className="flex items-center gap-2">
                                             <Avatar className="h-8 w-8">
-                                              <img src={customer.profilePicture || "/placeholder.svg"} alt={customer.username} />
+                                              <img src={customer.image || "/placeholder.svg"} alt={customer.name} />
                                             </Avatar>
                                             <div className="flex flex-col">
-                                              <span>{customer.username}</span>
+                                              <span>{customer.name}</span>
                                               <span className="text-xs text-slate-500 dark:text-slate-400">
                                                 {customer.email}
                                               </span>
@@ -1135,7 +1163,7 @@ console.log("Customer added:", data);
 
                         <FormField
                           control={form.control}
-                          name="interestRate"
+                          name="rate"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Interest Rate (%)</FormLabel>
@@ -1162,7 +1190,7 @@ console.log("Customer added:", data);
 
                         <FormField
                           control={form.control}
-                          name="timePeriod"
+                          name="totalPayments"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Time Period (Months)</FormLabel>
@@ -1296,9 +1324,9 @@ console.log("Customer added:", data);
                               className="flex items-center gap-2 p-2 bg-violet-50 dark:bg-violet-900/20 rounded-md"
                             >
                               <Avatar className="h-6 w-6">
-                                <img src={investor.profilePicture || "/placeholder.svg"} alt={investor.username} />
+                                <img src={investor.image || "/placeholder.svg"} alt={investor.name} />
                               </Avatar>
-                              <span className="text-sm">{investor.username}</span>
+                              <span className="text-sm">{investor.name}</span>
                             </div>
                           )
                         })
@@ -1315,7 +1343,7 @@ console.log("Customer added:", data);
                         <Avatar className="h-6 w-6">
                           <img
                             src={
-                              localCustomers.find((c: any) => c.id.toString() === form.getValues("customerId"))?.profilePicture ||
+                              localCustomers.find((c: any) => c.id.toString() === form.getValues("customerId"))?.image ||
                               "/placeholder.svg" ||
                               "/placeholder.svg"
                             }
@@ -1324,7 +1352,7 @@ console.log("Customer added:", data);
                         </Avatar>
                         <div className="flex flex-col">
                           <span className="text-sm">
-                            {localCustomers.find((c: any) => c.id.toString() === form.getValues("customerId"))?.username}
+                            {localCustomers.find((c: any) => c.id.toString() === form.getValues("customerId"))?.name}
                           </span>
                           <span className="text-xs text-slate-500 dark:text-slate-400">
                             {localCustomers.find((c: any) => c.id.toString() === form.getValues("customerId"))?.email}
@@ -1401,7 +1429,7 @@ console.log("Customer added:", data);
 
                     <FormField
                       control={investorForm.control}
-                      name="username"
+                      name="name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Full Name</FormLabel>
@@ -1558,7 +1586,7 @@ console.log("Customer added:", data);
 
                     <FormField
                       control={customerForm.control}
-                      name="username"
+                      name="name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Full Name</FormLabel>

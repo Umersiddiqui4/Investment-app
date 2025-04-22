@@ -43,6 +43,7 @@ export default function Sell() {
   const dispatch = useDispatch();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isShowCreateInstallment = useSelector((state: any) => state.app.IsShowCreateInstallment);
+  const [installments, setInstallments] = useState([]);
   // Check if we're on mobile
   useEffect(() => {
     const checkIfMobile = () => {
@@ -51,6 +52,8 @@ export default function Sell() {
         dispatch(setSidebarOpen(false));
       }
     };
+
+    
 
     // Initial check
     checkIfMobile();
@@ -62,6 +65,18 @@ export default function Sell() {
     return () => window.removeEventListener("resize", checkIfMobile);
   }, [dispatch]);
 
+  console.log(filteredItems, "filteredItems");
+  
+
+  useEffect(() => {
+    const localData = localStorage.getItem("installments");
+    if (localData) {
+      const parsedData = JSON.parse(localData);
+      setInstallments(parsedData);
+    }
+  }, []);
+  console.log("installments", installments);
+  
   // Filter items based on search query
   useEffect(() => {
     if (searchQuery) {
@@ -69,16 +84,16 @@ export default function Sell() {
 
       const filtered = sellItemsData.filter(
         (item) =>
-          item.itemName.toLowerCase().includes(lowercaseQuery) ||
-          item.customerName.toLowerCase().includes(lowercaseQuery) ||
-          item.investorName.toLowerCase().includes(lowercaseQuery)
+          item?.itemName.toLowerCase().includes(lowercaseQuery) ||
+          item?.customerName.toLowerCase().includes(lowercaseQuery) ||
+          item?.investorName.toLowerCase().includes(lowercaseQuery)
       );
 
       const filteredMy = mySellItemsData.filter(
         (item) =>
-          item.itemName.toLowerCase().includes(lowercaseQuery) ||
-          item.customerName.toLowerCase().includes(lowercaseQuery) ||
-          item.investorName.toLowerCase().includes(lowercaseQuery)
+          item?.itemName.toLowerCase().includes(lowercaseQuery) ||
+          item?.customerName.toLowerCase().includes(lowercaseQuery) ||
+          item?.investorName.toLowerCase().includes(lowercaseQuery)
       );
 
       setFilteredItems(filtered);
@@ -267,7 +282,7 @@ export default function Sell() {
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredItems.map((item) => (
                               <SellItemCard
-                                key={item.id}
+                                key={item?.id}
                                 item={item}
                                 onClick={() => handleItemClick(item)}
                                 formatDate={formatDate}
@@ -279,7 +294,7 @@ export default function Sell() {
                           <div className="space-y-3">
                             {filteredItems.map((item) => (
                               <SellItemListView
-                                key={item.id}
+                                key={item?.id}
                                 item={item}
                                 onClick={() => handleItemClick(item)}
                                 formatDate={formatDate}
@@ -301,9 +316,9 @@ export default function Sell() {
                       <>
                         {viewMode === "grid" ? (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filteredMyItems.map((item) => (
+                            {installments.length > 0  && installments.map((item) => (
                               <SellItemCard
-                                key={item.id}
+                                key={item?.id}
                                 item={item}
                                 onClick={() => handleItemClick(item)}
                                 formatDate={formatDate}
@@ -315,7 +330,7 @@ export default function Sell() {
                           <div className="space-y-3">
                             {filteredMyItems.map((item) => (
                               <SellItemListView
-                                key={item.id}
+                                key={item?.id}
                                 item={item}
                                 onClick={() => handleItemClick(item)}
                                 formatDate={formatDate}
@@ -340,8 +355,11 @@ export default function Sell() {
 function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
   // Calculate progress percentage
   const progressPercentage = Math.round(
-    (item.completedPayments / item.totalPayments) * 100
+    (item?.completedPayments / item?.totalPayments) * 100
   );
+
+  console.log(sellItemsData, "sellItemsData");
+  
 
   return (
     <Card
@@ -355,12 +373,12 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
           {/* Status Badge */}
           <Badge
             className={`absolute top-3 right-3 z-10 ${
-              item.status === "active"
+              item?.status === "active"
                 ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
                 : "bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30"
             }`}
           >
-            {item.status === "active" ? "Active" : "Completed"}
+            {item?.status === "active" ? "Active" : "Completed"}
           </Badge>
           <br></br>
 
@@ -369,18 +387,18 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50">
                 <img
-                  src={item.itemImage || "/placeholder.svg"}
-                  alt={item.itemName}
+                  src={item?.itemImage || "/placeholder.svg"}
+                  alt={item?.itemName}
                   className="h-full w-full object-cover"
                 />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-lg text-slate-900 dark:text-white truncate group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">
-                  {item.itemName}
+                  {item?.itemName}
                 </h3>
                 <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
                   <Calendar className="h-3 w-3 mr-1" />
-                  <span>{formatDate(item.date)}</span>
+                  <span>{formatDate(item?.date)}</span>
                 </div>
               </div>
             </div>
@@ -392,8 +410,8 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-600/50">
                   <img
-                    src={item.customerImage || "/placeholder.svg"}
-                    alt={item.customerName}
+                    src={item?.customer?.image || "/placeholder.svg"}
+                    alt={item?.customerName}
                   />
                 </Avatar>
                 <div>
@@ -401,7 +419,7 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
                     Customer
                   </div>
                   <div className="text-sm font-medium text-slate-900 dark:text-white">
-                    {item.customerName}
+                    {item?.customer?.username}
                   </div>
                 </div>
               </div>
@@ -411,16 +429,28 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
                   <div className="text-xs text-slate-500 dark:text-slate-400">
                     Investor
                   </div>
-                  <div className="text-sm font-medium text-slate-900 dark:text-white">
-                    {item.investorName}
+                    <div className="text-sm font-medium text-slate-900 dark:text-white">
+                    {item?.investors?.map((investor: any, index: number) => (
+                      <span key={index}>
+                      {/* {investor.name} */}
+                      {/* {index < item.investors.length - 1 && ", "} */}
+                      </span>
+                    ))}
+                    </div>
                   </div>
-                </div>
-                <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-600/50">
-                  <img
-                    src={item.investorImage || "/placeholder.svg"}
-                    alt={item.investorName}
-                  />
-                </Avatar>
+                  <div className="flex -space-x-2">
+                    {item?.investors?.map((investor: any, index: number) => (
+                    <Avatar
+                      key={index}
+                      className="h-8 w-8 border border-slate-200 dark:border-slate-600/50"
+                    >
+                      <img
+                      src={investor.image || "/placeholder.svg"}
+                      alt={investor.name}
+                      />
+                    </Avatar>
+                    ))}
+                  </div>
               </div>
             </div>
 
@@ -434,7 +464,7 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
               </div>
               <div className="mt-1 flex justify-between text-xs">
                 <span className="text-slate-500 dark:text-slate-400">
-                  {item.completedPayments} of {item.totalPayments} payments
+                  {item?.completedPayments} of {item?.totalPayments} payments
                 </span>
                 <span className="text-cyan-600 dark:text-cyan-400">
                   {progressPercentage}%
@@ -445,9 +475,9 @@ function SellItemCard({ item, onClick, formatDate, formatCurrency }: any) {
             {/* Rate */}
             <div className="flex justify-between items-center mt-3">
               <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md">
-                <Percent className="h-3.5 w-3.5 text-cyan-500" />
+                {/* <Percent className="h-3.5 w-3.5 text-cyan-500" /> */}
                 <span className="text-sm font-medium text-cyan-600 dark:text-cyan-300">
-                  {item.rate}% Rate
+                  {item?.rate}% Rate
                 </span>
               </div>
 

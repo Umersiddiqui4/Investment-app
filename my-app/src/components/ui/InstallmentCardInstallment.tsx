@@ -86,8 +86,8 @@ export default function InstallmentCard({ installment }: { installment: Installm
             <div className="relative">
               <Avatar className="h-12 w-12 md:h-14 md:w-14  rounded-xl border border-slate-300 dark:border-slate-600">
                 <img
-                  src={installment.customerImage || "/placeholder.svg"}
-                  alt={installment.customerName}
+                  src={installment.customer.image || "/placeholder.svg"}
+                  alt={installment.customer.name}
                   className="object-cover h-12 w-12 md:h-14 md:w-14 rounded-xl border border-slate-300 dark:border-slate-600"
                 />
               </Avatar>
@@ -100,11 +100,11 @@ export default function InstallmentCard({ installment }: { installment: Installm
                 {installment.itemName}
               </h3>
               <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                <span>{installment.customerName}</span>
+                <span>{installment.customer.name}</span>
                 {!isMobile && (
                   <>
                     <span>•</span>
-                    <span>{installment.customerName}</span>
+                    <span>{installment.customer.name}</span>
                   </>
                 )}
               </div>
@@ -112,7 +112,7 @@ export default function InstallmentCard({ installment }: { installment: Installm
           </div>
           <div className="flex flex-wrap items-center gap-2 md:gap-4">
             <Badge className="bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200 px-2.5 py-0.5">
-              {formatCurrency(installment.totalAmount, installment.currency)}
+              {formatCurrency(installment.sellPrice)}
             </Badge>
             <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 px-2.5 py-0.5">
               {installment.totalPayments} months

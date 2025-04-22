@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ArrowLeft,
   Calendar,
@@ -21,59 +21,269 @@ import {
   Clock3,
   CheckCircle2,
   AlertCircle,
-} from "lucide-react"
+} from "lucide-react";
+import { stat } from "fs";
+import { sellItemsData } from "./api/installments";
 
 export function SellItemDetails({ item, onBack }: any) {
-  const [activeTab, setActiveTab] = useState("overview")
-  const [editingInstallmentIndex, setEditingInstallmentIndex] = useState(null)
-  const [paidAmount, setPaidAmount] = useState<Record<number, number>>({})
-  const [paymentOption, setPaymentOption] = useState<Record<number, string>>({})
+  const [activeTab, setActiveTab] = useState("overview");
+  const [editingInstallmentIndex, setEditingInstallmentIndex] = useState(null);
+  const [paidAmount, setPaidAmount] = useState<Record<number, number>>({});
+  const [paymentOption, setPaymentOption] = useState<Record<number, string>>(
+    {}
+  );
+  const [installments, setInstallments] = useState(item.installments || []);
+  const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
+
+  console.log(paymentOption, "paymentOption");
+
+  useEffect(() => {
+    if (
+      paymentOption?.type === "distribute" &&
+      typeof paymentOption.id === "number"
+    ) {
+      distributeRemainingAmountToSellItem(paymentOption.id);
+      console.log("Distribute logic triggered via paymentOption");
+    }
+    if (
+      paymentOption?.type === "next" &&
+      typeof paymentOption.id === "number"
+    ) {
+      distributeToNextInstallmentOnly(paymentOption.id);
+      console.log("Distribute logic triggered via paymentOption");
+    }
+  }, [paymentOption]); // ✅ correct dependency
+
+  const distributeRemainingAmountToSellItem = (index: number) => {
+    const updated = [...installments];
+    const expectedMonthly = updated[index]?.amount || 5000;
+    const received = paidAmount[index];
+
+    if (received === undefined || !updated[index]) {
+      console.warn(
+        `Invalid installment index or no paidAmount found for index ${index}`
+      );
+      return;
+    }
+
+    const remaining = expectedMonthly - received;
+
+    // Step 1: mark this one paid
+    updated[index] = {
+      ...updated[index],
+      amount: received,
+      status: "paid",
+    };
+
+    // Step 2: distribute remaining
+    if (remaining > 0) {
+      const futureUnpaid = updated.filter(
+        (_, i) => i > index && updated[i].status !== "paid"
+      );
+
+      if (futureUnpaid.length === 0) {
+        console.warn(
+          "No future unpaid installments to distribute the remaining amount"
+        );
+      } else {
+        const per = Math.floor(remaining / futureUnpaid.length);
+        const leftover = remaining % futureUnpaid.length;
+
+        let applied = 0;
+        for (let i = index + 1; i < updated.length; i++) {
+          if (updated[i].status !== "paid") {
+            const extra = applied === 0 ? leftover : 0;
+            updated[i].amount =
+              (updated[i].amount || expectedMonthly) + per + extra;
+            applied++;
+          }
+        }
+      }
+    }
+
+    setInstallments(updated);
+
+    // Manual update to sellItemsData
+    const targetIndex = sellItemsData.findIndex((s) => s.id === item.id);
+    if (targetIndex !== -1) {
+      sellItemsData[targetIndex].installments = updated;
+    }
+
+    setEditingInstallmentIndex(null);
+    console.log("Installment update + distribute complete");
+  };
+
+  const distributeToNextInstallmentOnly = (index: number) => {
+    const updated = [...installments];
+    const expectedMonthly = updated[index]?.amount || 5000;
+    const received = paidAmount[index];
+
+    if (received === undefined || !updated[index]) {
+      console.warn(
+        `Invalid installment index or no paidAmount found at index ${index}`
+      );
+      return;
+    }
+
+    const remaining = expectedMonthly - received;
+
+    // Step 1: Mark current as paid
+    updated[index] = {
+      ...updated[index],
+      amount: received,
+      status: "paid",
+    };
+
+    // Step 2: Add remaining to just the next unpaid installment
+    if (remaining > 0) {
+      const nextIndex = updated.findIndex(
+        (inst, i) => i > index && inst.status !== "paid"
+      );
+
+      if (nextIndex !== -1) {
+        updated[nextIndex].amount =
+          (updated[nextIndex].amount || expectedMonthly) + remaining;
+      } else {
+        console.warn(
+          "No next unpaid installment found to distribute remaining"
+        );
+      }
+    }
+
+    setInstallments(updated);
+
+    // Update in sellItemsData (non-state variable)
+    const targetIndex = sellItemsData.findIndex((s) => s.id === item.id);
+    if (targetIndex !== -1) {
+      sellItemsData[targetIndex].installments = updated;
+    }
+
+    setEditingInstallmentIndex(null);
+    console.log("Updated: paid + remaining shifted to next unpaid installment");
+  };
+
+  const distributeManually = (index: number, selectedMonths: number[]) => {
+    const updated = [...installments];
+    const expected = updated[index]?.amount || 5000;
+    const paid = paidAmount[index];
+
+    if (paid === undefined || !updated[index]) {
+      console.warn("Missing paid amount or invalid index");
+      return;
+    }
+
+    const remaining = expected - paid;
+    if (remaining <= 0 || selectedMonths.length === 0) {
+      console.warn("Nothing to distribute or no months selected");
+      return;
+    }
+
+    // Mark current installment as paid
+    updated[index] = {
+      ...updated[index],
+      amount: paid,
+      status: "paid",
+    };
+
+    const evenAmount = Math.floor(remaining / selectedMonths.length);
+    const extra = remaining % selectedMonths.length;
+
+    selectedMonths.forEach((monthIndex, i) => {
+      if (updated[monthIndex]) {
+        const addAmount = evenAmount + (i === 0 ? extra : 0);
+        updated[monthIndex].amount =
+          (updated[monthIndex].amount || expected) + addAmount;
+      }
+    });
+
+    setInstallments(updated);
+
+    const targetIndex = sellItemsData.findIndex((s) => s.id === item.id);
+    if (targetIndex !== -1) {
+      sellItemsData[targetIndex].installments = updated;
+    }
+
+    setEditingInstallmentIndex(null);
+    console.log("Manual distribution complete across selected months");
+  };
+
+  const toggleMonth = (monthIndex: number) => {
+    setSelectedMonths((prev) =>
+      prev.includes(monthIndex)
+        ? prev.filter((m) => m !== monthIndex)
+        : [...prev, monthIndex]
+    );
+  };
+
+  const handleInstallmentUpdate = (index: number) => {
+    const updated = [...installments];
+
+    if (paidAmount[index] !== undefined) {
+      updated[index] = {
+        ...updated[index],
+        status: "paid",
+      };
+
+      setInstallments(updated);
+
+      const itemIndex = sellItemsData.findIndex((i) => i.id === item.id);
+      if (itemIndex !== -1) {
+        sellItemsData[itemIndex].installments = updated;
+      }
+
+      console.log(`Installment ${index} updated in raw variable`);
+    }
+
+    setEditingInstallmentIndex(null);
+  };
 
   const formatDate = (dateString: any) => {
     const options = {
       year: "numeric" as const,
       month: "short" as const,
       day: "numeric" as const,
-    }
-    return new Date(dateString).toLocaleDateString("en-US", options)
-  }
+    };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
 
   const formatCurrency = (amount: any, currency = "USD") => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: currency,
       minimumFractionDigits: 0,
-    }).format(amount)
-  }
+    }).format(amount);
+  };
 
   // Calculate progress percentage
-  const progressPercentage = Math.round((item.completedPayments / item.totalPayments) * 100)
+  const progressPercentage = Math.round(
+    (item.completedPayments / item.totalPayments) * 100
+  );
 
   const getStatusColor = (status: any) => {
     switch (status) {
       case "paid":
-        return "bg-emerald-500 text-white"
+        return "bg-emerald-500 text-white";
       case "due":
-        return "bg-amber-500 text-white"
+        return "bg-amber-500 text-white";
       case "pending":
-        return "bg-slate-400 text-white dark:bg-slate-600"
+        return "bg-slate-400 text-white dark:bg-slate-600";
       default:
-        return "bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200"
+        return "bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200";
     }
-  }
+  };
 
   const getStatusIcon = (status: any) => {
     switch (status) {
       case "paid":
-        return <CheckCircle2 className="h-4 w-4" />
+        return <CheckCircle2 className="h-4 w-4" />;
       case "due":
-        return <Clock className="h-4 w-4" />
+        return <Clock className="h-4 w-4" />;
       case "pending":
-        return <AlertCircle className="h-4 w-4" />
+        return <AlertCircle className="h-4 w-4" />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300 p-4">
@@ -125,7 +335,9 @@ export function SellItemDetails({ item, onBack }: any) {
                 />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{item.itemName}</h2>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                  {item.itemName}
+                </h2>
                 <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
                   <Calendar className="h-4 w-4 mr-1" />
                   <span>Created on {formatDate(item.date)}</span>
@@ -134,7 +346,11 @@ export function SellItemDetails({ item, onBack }: any) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
+            <Tabs
+              defaultValue="overview"
+              className="w-full"
+              onValueChange={setActiveTab}
+            >
               <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
                 <TabsList className="grid grid-cols-4 w-full min-w-[500px] md:min-w-0 bg-slate-100 dark:bg-slate-700/30 p-1 mb-4">
                   <TabsTrigger
@@ -166,16 +382,24 @@ export function SellItemDetails({ item, onBack }: any) {
 
               <TabsContent value="overview" className="space-y-4">
                 <div className="bg-slate-50/80 dark:bg-slate-700/30 rounded-lg p-4 border border-slate-200 dark:border-slate-600/50">
-                  <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">Description</h3>
-                  <p className="text-slate-700 dark:text-slate-300">{item.description}</p>
+                  <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+                    Description
+                  </h3>
+                  <p className="text-slate-700 dark:text-slate-300">
+                    {item.description}
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-slate-50/80 dark:bg-slate-700/30 rounded-lg p-4 border border-slate-200 dark:border-slate-600/50">
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">Sale Information</h3>
+                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">
+                      Sale Information
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-slate-700 dark:text-slate-300">Status</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          Status
+                        </span>
                         <Badge
                           className={`${
                             item.status === "active"
@@ -187,39 +411,63 @@ export function SellItemDetails({ item, onBack }: any) {
                         </Badge>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-700 dark:text-slate-300">Created Date</span>
-                        <span className="text-slate-900 dark:text-white">{formatDate(item.date)}</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          Created Date
+                        </span>
+                        <span className="text-slate-900 dark:text-white">
+                          {formatDate(item.date)}
+                        </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-700 dark:text-slate-300">Investment Rate</span>
-                        <span className="text-cyan-600 dark:text-cyan-300 font-medium">{item.rate}%</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          Investment Rate
+                        </span>
+                        <span className="text-cyan-600 dark:text-cyan-300 font-medium">
+                          {item.rate}%
+                        </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-700 dark:text-slate-300">Total Amount</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          Total Amount
+                        </span>
                         <span className="text-slate-900 dark:text-white font-medium">
-                          {formatCurrency(item.totalAmount, item.currency)}
+                          {formatCurrency(item.sellPrice)}
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="bg-slate-50/80 dark:bg-slate-700/30 rounded-lg p-4 border border-slate-200 dark:border-slate-600/50">
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">Participants</h3>
+                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">
+                      Participants
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-blue-400" />
-                        <span className="text-slate-700 dark:text-slate-300">Customer:</span>
-                        <span className="text-slate-900 dark:text-white">{item.customerName}</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          Customer:
+                        </span>
+                        <span className="text-slate-900 dark:text-white">
+                          {item?.customer?.name}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="h-4 w-4 text-cyan-400" />
-                        <span className="text-slate-700 dark:text-slate-300">Investors:</span>
-                        <span className="text-slate-900 dark:text-white">{item.investors.length}</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          Investors:
+                        </span>
+                        <span className="text-slate-900 dark:text-white">
+                          {item.investors.length}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Shield className="h-4 w-4 text-purple-400" />
-                        <span className="text-slate-700 dark:text-slate-300">Guarantors:</span>
-                        <span className="text-slate-900 dark:text-white">{item.guarantors.length}</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          Guarantors:
+                        </span>
+                        <span className="text-slate-900 dark:text-white">
+                          {item.guarantors.length}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -235,30 +483,51 @@ export function SellItemDetails({ item, onBack }: any) {
                   <div className="mb-4">
                     <div className="flex justify-between text-sm mb-2">
                       <span className="text-slate-700 dark:text-slate-300">
-                        Completed: {item.completedPayments} of {item.totalPayments} payments
+                        Completed: {item.completedPayments} of{" "}
+                        {item.totalPayments} payments
                       </span>
-                      <span className="font-medium text-cyan-600 dark:text-cyan-300">{progressPercentage}%</span>
+                      <span className="font-medium text-cyan-600 dark:text-cyan-300">
+                        {progressPercentage}%
+                      </span>
                     </div>
                     <Progress value={progressPercentage} className="h-2" />
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg text-center border border-emerald-200 dark:border-emerald-800/30">
-                      <div className="text-xs text-slate-600 dark:text-slate-300 mb-1">Paid</div>
+                      <div className="text-xs text-slate-600 dark:text-slate-300 mb-1">
+                        Paid
+                      </div>
                       <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                        {item.installments.filter((i: any) => i.status === "paid").length}
+                        {
+                          item.installments.filter(
+                            (i: any) => i.status === "paid"
+                          ).length
+                        }
                       </div>
                     </div>
                     <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg text-center border border-amber-200 dark:border-amber-800/30">
-                      <div className="text-xs text-slate-600 dark:text-slate-300 mb-1">Due</div>
+                      <div className="text-xs text-slate-600 dark:text-slate-300 mb-1">
+                        Due
+                      </div>
                       <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
-                        {item.installments.filter((i: any) => i.status === "due").length}
+                        {
+                          item.installments.filter(
+                            (i: any) => i.status === "due"
+                          ).length
+                        }
                       </div>
                     </div>
                     <div className="bg-slate-100 dark:bg-slate-700/50 p-3 rounded-lg text-center border border-slate-200 dark:border-slate-600/50">
-                      <div className="text-xs text-slate-600 dark:text-slate-300 mb-1">Pending</div>
+                      <div className="text-xs text-slate-600 dark:text-slate-300 mb-1">
+                        Pending
+                      </div>
                       <div className="text-xl font-bold text-slate-600 dark:text-slate-300">
-                        {item.installments.filter((i: any) => i.status === "pending").length}
+                        {
+                          item.installments.filter(
+                            (i: any) => i.status === "pending"
+                          ).length
+                        }
                       </div>
                     </div>
                   </div>
@@ -274,11 +543,18 @@ export function SellItemDetails({ item, onBack }: any) {
                   </h3>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12 border-2 border-blue-500/30">
-                      <img src={item.customerImage || "/placeholder.svg"} alt={item.customerName} />
+                      <img
+                        src={item?.customer?.image || "/placeholder.svg"}
+                        alt={item?.customer?.name}
+                      />
                     </Avatar>
                     <div>
-                      <div className="font-medium text-slate-900 dark:text-white">{item.customerName}</div>
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Primary Buyer</div>
+                      <div className="font-medium text-slate-900 dark:text-white">
+                        {item?.customerName}
+                      </div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
+                        Primary Buyer
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -296,11 +572,18 @@ export function SellItemDetails({ item, onBack }: any) {
                         className="flex items-center gap-3 bg-white dark:bg-slate-800/50 p-3 rounded-lg"
                       >
                         <Avatar className="h-10 w-10 border-2 border-purple-500/30">
-                          <img src={guarantor.image || "/placeholder.svg"} alt={guarantor.name} />
+                          <img
+                            src={guarantor.image || "/placeholder.svg"}
+                            alt={guarantor.name}
+                          />
                         </Avatar>
                         <div>
-                          <div className="font-medium text-slate-900 dark:text-white">{guarantor.name}</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">{guarantor.role}</div>
+                          <div className="font-medium text-slate-900 dark:text-white">
+                            {guarantor.name}
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
+                            {guarantor.role}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -321,20 +604,32 @@ export function SellItemDetails({ item, onBack }: any) {
                       >
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10 border-2 border-cyan-500/30">
-                            <img src={investor.image || "/placeholder.svg"} alt={investor.name} />
+                            <img
+                              src={investor.image || "/placeholder.svg"}
+                              alt={investor.name}
+                            />
                           </Avatar>
                           <div>
-                            <div className="font-medium text-slate-900 dark:text-white">{investor.name}</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">Investor</div>
+                            <div className="font-medium text-slate-900 dark:text-white">
+                              {investor.name}
+                            </div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                              Investor
+                            </div>
                           </div>
                         </div>
                         <div className="flex flex-col items-end">
                           <div className="flex items-center gap-1.5">
                             <Percent className="h-3.5 w-3.5 text-cyan-400" />
-                            <span className="text-cyan-600 dark:text-cyan-300 font-medium">{investor.percentage}%</span>
+                            <span className="text-cyan-600 dark:text-cyan-300 font-medium">
+                              {investor.percentage}%
+                            </span>
                           </div>
                           <div className="text-sm text-slate-700 dark:text-slate-300">
-                            {formatCurrency(investor.contribution, item.currency)}
+                            {formatCurrency(
+                              investor.contribution,
+                              item.currency
+                            )}
                           </div>
                         </div>
                       </div>
@@ -354,9 +649,12 @@ export function SellItemDetails({ item, onBack }: any) {
                   <div className="mb-4">
                     <div className="flex justify-between text-sm mb-2">
                       <span className="text-slate-700 dark:text-slate-300">
-                        Completed: {item.completedPayments} of {item.totalPayments} payments
+                        Completed: {item.completedPayments} of{" "}
+                        {item.totalPayments} payments
                       </span>
-                      <span className="font-medium text-cyan-600 dark:text-cyan-300">{progressPercentage}%</span>
+                      <span className="font-medium text-cyan-600 dark:text-cyan-300">
+                        {progressPercentage}%
+                      </span>
                     </div>
                     <Progress value={progressPercentage} className="h-2" />
                   </div>
@@ -364,7 +662,8 @@ export function SellItemDetails({ item, onBack }: any) {
                   {/* Installment List */}
                   <div className="space-y-3 mt-4">
                     {item.installments.map((installment: any, index: any) => {
-                      const isEditing = editingInstallmentIndex === index
+                      const isEditing = editingInstallmentIndex === index;
+                      console.log(editingInstallmentIndex);
 
                       return (
                         <div
@@ -374,19 +673,28 @@ export function SellItemDetails({ item, onBack }: any) {
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                             <div className="flex items-center gap-3">
                               <Badge
-                                className={`${getStatusColor(installment.status)} flex items-center gap-1 px-2 py-0.5`}
+                                className={`${getStatusColor(
+                                  installment.status
+                                )} flex items-center gap-1 px-2 py-0.5`}
                               >
                                 {getStatusIcon(installment.status)}
-                                <span className="capitalize">{installment.status}</span>
+                                <span className="capitalize">
+                                  {installment.status}
+                                </span>
                               </Badge>
-                              <span className="text-slate-900 dark:text-white">Month {installment.month}</span>
+                              <span className="text-slate-900 dark:text-white">
+                                Month {installment.month}
+                              </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                               <span className="text-sm text-slate-500 dark:text-slate-400">
                                 {formatDate(installment.date)}
                               </span>
                               <span className="font-medium text-slate-900 dark:text-white">
-                                {formatCurrency(installment.amount, item.currency)}
+                                {formatCurrency(
+                                  installment.amount,
+                                  item.currency
+                                )}
                               </span>
                               {installment.status !== "paid" && (
                                 <Button
@@ -395,17 +703,18 @@ export function SellItemDetails({ item, onBack }: any) {
                                   className="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                                   onClick={() => {
                                     if (isEditing) {
-                                      setEditingInstallmentIndex(null)
+                                      setEditingInstallmentIndex(null);
                                     } else {
-                                      setEditingInstallmentIndex(index)
+                                      setEditingInstallmentIndex(index);
                                       setPaidAmount((prev) => ({
                                         ...prev,
                                         [index]: installment.amount,
-                                      }))
+                                      }));
                                       setPaymentOption((prev) => ({
                                         ...prev,
-                                        [index]: "next",
-                                      }))
+                                        id: index,
+                                        type: "",
+                                      }));
                                     }
                                   }}
                                 >
@@ -418,7 +727,9 @@ export function SellItemDetails({ item, onBack }: any) {
                           {isEditing && (
                             <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-600/50 space-y-3">
                               <div className="flex flex-col space-y-2">
-                                <label className="text-sm text-slate-700 dark:text-slate-300">Payment Amount</label>
+                                <label className="text-sm text-slate-700 dark:text-slate-300">
+                                  Payment Amount
+                                </label>
                                 <div className="flex flex-wrap items-center gap-2">
                                   <input
                                     type="number"
@@ -433,16 +744,25 @@ export function SellItemDetails({ item, onBack }: any) {
                                     max={installment.amount}
                                   />
                                   <span className="text-slate-500 dark:text-slate-400">
-                                    of {formatCurrency(installment.amount, item.currency)}
+                                    of{" "}
+                                    {formatCurrency(
+                                      installment.amount,
+                                      item.currency
+                                    )}
                                   </span>
                                 </div>
                               </div>
 
-                              {(paidAmount[index] || 0) < installment.amount && (
+                              {(paidAmount[index] || 0) <
+                                installment.amount && (
                                 <div className="flex flex-col space-y-2">
                                   <label className="text-sm text-slate-700 dark:text-slate-300">
                                     Remaining Amount:{" "}
-                                    {formatCurrency(installment.amount - (paidAmount[index] || 0), item.currency)}
+                                    {formatCurrency(
+                                      installment.amount -
+                                        (paidAmount[index] || 0),
+                                      item.currency
+                                    )}
                                   </label>
                                   <div className="flex flex-col gap-2">
                                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -451,12 +771,20 @@ export function SellItemDetails({ item, onBack }: any) {
                                           type="radio"
                                           id={`distribute-${index}`}
                                           name={`payment-option-${index}`}
-                                          checked={paymentOption[index] === "distribute"}
+                                          checked={
+                                            paymentOption[index] ===
+                                            "distribute"
+                                          }
                                           onChange={() =>
-                                            setPaymentOption((prev: Record<number, string>) => ({
-                                              ...prev,
-                                              [index]: "distribute",
-                                            }))
+                                            setPaymentOption(
+                                              (
+                                                prev: Record<number, string>
+                                              ) => ({
+                                                ...prev,
+                                                id: index,
+                                                type: "distribute",
+                                              })
+                                            )
                                           }
                                           className="text-cyan-500"
                                         />
@@ -472,11 +800,14 @@ export function SellItemDetails({ item, onBack }: any) {
                                           type="radio"
                                           id={`next-${index}`}
                                           name={`payment-option-${index}`}
-                                          checked={paymentOption[index] === "next"}
+                                          checked={
+                                            paymentOption[index] === "next"
+                                          }
                                           onChange={() =>
                                             setPaymentOption((prev) => ({
                                               ...prev,
-                                              [index]: "next",
+                                              id: index,
+                                              type: "next",
                                             }))
                                           }
                                           className="text-cyan-500"
@@ -495,11 +826,14 @@ export function SellItemDetails({ item, onBack }: any) {
                                         type="radio"
                                         id={`manual-${index}`}
                                         name={`payment-option-${index}`}
-                                        checked={paymentOption[index] === "manual"}
+                                        checked={
+                                          paymentOption[index] === "manual"
+                                        }
                                         onChange={() =>
                                           setPaymentOption((prev) => ({
                                             ...prev,
-                                            [index]: "manual",
+                                            id: index,
+                                            type: "manual",
                                           }))
                                         }
                                         className="text-cyan-500"
@@ -512,14 +846,14 @@ export function SellItemDetails({ item, onBack }: any) {
                                       </label>
                                     </div>
 
-                                    {paymentOption[index] === "manual" && (
+                                    {paymentOption.type === "manual" && (
                                       <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600/50">
                                         <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-2">
                                           Manual Distribution
                                         </h4>
 
                                         {/* Quick distribution option */}
-                                        <div className="mb-3 pb-3 border-b border-slate-200 dark:border-slate-600/30">
+                                        {/* <div className="mb-3 pb-3 border-b border-slate-200 dark:border-slate-600/30">
                                           <label className="text-xs text-slate-600 dark:text-slate-300 mb-1 block">
                                             Quick Distribution
                                           </label>
@@ -532,10 +866,18 @@ export function SellItemDetails({ item, onBack }: any) {
                                               defaultValue="2"
                                             >
                                               <option value="1">1 month</option>
-                                              <option value="2">2 months</option>
-                                              <option value="3">3 months</option>
-                                              <option value="4">4 months</option>
-                                              <option value="all">All remaining</option>
+                                              <option value="2">
+                                                2 months
+                                              </option>
+                                              <option value="3">
+                                                3 months
+                                              </option>
+                                              <option value="4">
+                                                4 months
+                                              </option>
+                                              <option value="all">
+                                                All remaining
+                                              </option>
                                             </select>
                                             <Button
                                               size="sm"
@@ -545,50 +887,90 @@ export function SellItemDetails({ item, onBack }: any) {
                                               Apply
                                             </Button>
                                           </div>
-                                        </div>
+                                        </div> */}
 
                                         <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2">
                                           {item.installments
-                                            .filter((_: any, i: any) => i > index && i < item.installments.length)
-                                            .map((futureInstallment: any, futureIndex: number) => {
-                                              const actualIndex = index + futureIndex + 1
-                                              return (
-                                                <div key={actualIndex} className="flex items-center justify-between">
-                                                  <div className="flex items-center gap-2">
-                                                    <input
-                                                      type="checkbox"
-                                                      id={`month-${actualIndex}`}
-                                                      className="text-cyan-500 rounded"
-                                                    />
-                                                    <label
-                                                      htmlFor={`month-${actualIndex}`}
-                                                      className="text-sm text-slate-700 dark:text-slate-300"
-                                                    >
-                                                      Month {futureInstallment.month} (
-                                                      {formatDate(futureInstallment.date)})
-                                                    </label>
+                                            .filter(
+                                              (_: any, i: any) =>
+                                                i > index &&
+                                                i < item.installments.length
+                                            )
+                                            .map(
+                                              (
+                                                futureInstallment: any,
+                                                futureIndex: number
+                                              ) => {
+                                                const actualIndex =
+                                                  index + futureIndex + 1;
+                                                console.log(
+                                                  actualIndex,
+                                                  "indexes"
+                                                );
+
+                                                return (
+                                                  <div
+                                                    key={actualIndex}
+                                                    className="flex items-center justify-between"
+                                                  >
+                                                    <div className="flex items-center gap-2">
+                                                      <input
+                                                        type="checkbox"
+                                                        id={`month-${actualIndex}`}
+                                                        checked={selectedMonths.includes(
+                                                          actualIndex
+                                                        )}
+                                                        onChange={() =>
+                                                          toggleMonth(
+                                                            actualIndex
+                                                          )
+                                                        }
+                                                      />
+
+                                                      <label
+                                                        htmlFor={`month-${actualIndex}`}
+                                                        className="text-sm text-slate-700 dark:text-slate-300"
+                                                      >
+                                                        Month{" "}
+                                                        {
+                                                          futureInstallment.month
+                                                        }{" "}
+                                                        (
+                                                        {formatDate(
+                                                          futureInstallment.date
+                                                        )}
+                                                        )
+                                                      </label>
+                                                    </div>
+                                                    {/* <input
+                                                      type="number"
+                                                      placeholder="Amount"
+                                                      className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-900 dark:text-white w-[100px] text-sm"
+                                                    /> */}
                                                   </div>
-                                                  <input
-                                                    type="number"
-                                                    placeholder="Amount"
-                                                    className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-900 dark:text-white w-[100px] text-sm"
-                                                  />
-                                                </div>
-                                              )
-                                            })}
+                                                );
+                                              }
+                                            )}
                                         </div>
                                         <div className="mt-3 flex justify-between items-center">
                                           <span className="text-xs text-slate-500 dark:text-slate-400">
                                             Remaining:{" "}
                                             {formatCurrency(
-                                              installment.amount - (paidAmount[index] || 0),
-                                              item.currency,
+                                              installment.amount -
+                                                (paidAmount[index] || 0),
+                                              item.currency
                                             )}
                                           </span>
                                           <Button
                                             size="sm"
                                             variant="outline"
                                             className="text-xs border-cyan-500/50 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-500/10"
+                                            onClick={() =>
+                                              distributeManually(
+                                                index,
+                                                selectedMonths
+                                              )
+                                            }
                                           >
                                             Distribute Evenly
                                           </Button>
@@ -604,43 +986,52 @@ export function SellItemDetails({ item, onBack }: any) {
                                   variant="outline"
                                   size="sm"
                                   className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                                  onClick={() => setEditingInstallmentIndex(null)}
+                                  onClick={() => {
+                                    setEditingInstallmentIndex(null);
+                                    setPaymentOption({});
+                                  }}
                                 >
                                   Cancel
                                 </Button>
-                                <Button
-                                  size="sm"
-                                  className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
-                                  onClick={() => {
-                                    // Here would be the logic to update the payment status
-                                    // and handle the remaining amount based on paymentOption
-                                    setEditingInstallmentIndex(null)
-                                  }}
-                                >
-                                  Mark as Paid
-                                </Button>
+                                {paymentOption?.type !== "manual" && (
+
+                                  <Button
+                                    size="sm"
+                                    className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+                                    onClick={() =>
+                                      handleInstallmentUpdate(index)
+                                    }
+                                  >
+                                    Mark as Paid
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           )}
                         </div>
-                      )
+                      );
                     })}
                   </div>
 
                   {/* Payment Summary */}
                   <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-600/50">
                     <div className="flex justify-between items-center mb-3">
-                      <span className="text-slate-700 dark:text-slate-300">Monthly Payment</span>
+                      <span className="text-slate-700 dark:text-slate-300">
+                        Monthly Payment
+                      </span>
                       <span className="text-slate-900 dark:text-white font-medium">
-                        {formatCurrency(item.totalAmount / item.totalPayments, item.currency)}
+                        {formatCurrency(item.sellPrice / item.totalPayments)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-700 dark:text-slate-300">Total Remaining</span>
+                      <span className="text-slate-700 dark:text-slate-300">
+                        Total Remaining
+                      </span>
                       <span className="text-slate-900 dark:text-white font-medium">
                         {formatCurrency(
-                          item.totalAmount - (item.totalAmount / item.totalPayments) * item.completedPayments,
-                          item.currency,
+                          item.sellPrice -
+                            (item.sellPrice / item.totalPayments) *
+                              item.completedPayments
                         )}
                       </span>
                     </div>
@@ -656,14 +1047,20 @@ export function SellItemDetails({ item, onBack }: any) {
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-white dark:bg-slate-800/50 p-3 rounded-lg">
-                      <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">Total Investment</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                        Total Investment
+                      </div>
                       <div className="text-xl font-bold text-slate-900 dark:text-white">
-                        {formatCurrency(item.totalAmount, item.currency)}
+                        {formatCurrency(item.sellPrice)}
                       </div>
                     </div>
                     <div className="bg-white dark:bg-slate-800/50 p-3 rounded-lg">
-                      <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">Investment Rate</div>
-                      <div className="text-xl font-bold text-cyan-600 dark:text-cyan-300">{item.rate}%</div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                        Investment Rate
+                      </div>
+                      <div className="text-xl font-bold text-cyan-600 dark:text-cyan-300">
+                        {item.rate}%
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -681,19 +1078,31 @@ export function SellItemDetails({ item, onBack }: any) {
                       >
                         <div className="flex items-center gap-2">
                           <Avatar className="h-8 w-8">
-                            <img src={investor.image || "/placeholder.svg"} alt={investor.name} />
+                            <img
+                              src={investor.image || "/placeholder.svg"}
+                              alt={investor.name}
+                            />
                           </Avatar>
-                          <span className="font-medium text-slate-900 dark:text-white">{investor.name}</span>
+                          <span className="font-medium text-slate-900 dark:text-white">
+                            {investor.name}
+                          </span>
                         </div>
                         <div className="flex flex-row justify-between sm:justify-end items-center gap-4">
                           <div className="text-left sm:text-right">
-                            <div className="text-xs text-slate-500 dark:text-slate-400">Contribution</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                              Contribution
+                            </div>
                             <div className="text-sm font-medium text-slate-900 dark:text-white">
-                              {formatCurrency(investor.contribution, item.currency)}
+                              {formatCurrency(
+                                investor.contribution,
+                                item.currency
+                              )}
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-xs text-slate-500 dark:text-slate-400">Percentage</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                              Percentage
+                            </div>
                             <div className="text-sm font-medium text-cyan-600 dark:text-cyan-300">
                               {investor.percentage}%
                             </div>
@@ -715,7 +1124,9 @@ export function SellItemDetails({ item, onBack }: any) {
                       <div className="text-sm text-slate-900 dark:text-white font-medium truncate">
                         {formatDate(item.date)}
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">Investment initiated</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        Investment initiated
+                      </div>
                     </div>
                     {item.installments.map((installment: any, index: any) => (
                       <div key={index} className="relative">
@@ -724,25 +1135,28 @@ export function SellItemDetails({ item, onBack }: any) {
                             installment.status === "paid"
                               ? "bg-emerald-500"
                               : installment.status === "due"
-                                ? "bg-amber-500"
-                                : "bg-slate-400 dark:bg-slate-600"
+                              ? "bg-amber-500"
+                              : "bg-slate-400 dark:bg-slate-600"
                           }`}
                         ></div>
                         <div className="text-sm text-slate-900 dark:text-white font-medium truncate">
                           {formatDate(installment.date)}
                         </div>
                         <div className="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap">
-                          <span className="mr-1">Payment {installment.month} -</span>
+                          <span className="mr-1">
+                            Payment {installment.month} -
+                          </span>
                           <span
                             className={
                               installment.status === "paid"
                                 ? "text-emerald-600 dark:text-emerald-400"
                                 : installment.status === "due"
-                                  ? "text-amber-600 dark:text-amber-400"
-                                  : "text-slate-500 dark:text-slate-400"
+                                ? "text-amber-600 dark:text-amber-400"
+                                : "text-slate-500 dark:text-slate-400"
                             }
                           >
-                            {installment.status.charAt(0).toUpperCase() + installment.status.slice(1)}
+                            {installment.status.charAt(0).toUpperCase() +
+                              installment.status.slice(1)}
                           </span>
                         </div>
                       </div>
@@ -760,18 +1174,25 @@ export function SellItemDetails({ item, onBack }: any) {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Users className="h-5 w-5 text-cyan-400" />
-                Participants Summary
+                Sale Summary
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Customer */}
               <div className="flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50">
                 <Avatar className="h-10 w-10 border-2 border-blue-500/30">
-                  <img src={item.customerImage || "/placeholder.svg"} alt={item.customerName} />
+                  <img
+                    src={item?.customer?.image || "/placeholder.svg"}
+                    alt={item?.customer?.name}
+                  />
                 </Avatar>
                 <div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">Customer</div>
-                  <div className="font-medium text-slate-900 dark:text-white">{item.customerName}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    Customer
+                  </div>
+                  <div className="font-medium text-slate-900 dark:text-white">
+                    {item?.customer.name}
+                  </div>
                 </div>
               </div>
 
@@ -782,12 +1203,21 @@ export function SellItemDetails({ item, onBack }: any) {
                   className="flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
                 >
                   <Avatar className="h-10 w-10 border-2 border-purple-500/30">
-                    <img src={guarantor.image || "/placeholder.svg"} alt={guarantor.name} />
+                    <img
+                      src={guarantor.image || "/placeholder.svg"}
+                      alt={guarantor.name}
+                    />
                   </Avatar>
                   <div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Guarantor</div>
-                    <div className="font-medium text-slate-900 dark:text-white">{guarantor.name}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">{guarantor.role}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      Guarantor
+                    </div>
+                    <div className="font-medium text-slate-900 dark:text-white">
+                      {guarantor.name}
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      {guarantor.role}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -800,11 +1230,18 @@ export function SellItemDetails({ item, onBack }: any) {
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border-2 border-cyan-500/30">
-                      <img src={investor.image || "/placeholder.svg"} alt={investor.name} />
+                      <img
+                        src={investor.image || "/placeholder.svg"}
+                        alt={investor.name}
+                      />
                     </Avatar>
                     <div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">Investor</div>
-                      <div className="font-medium text-slate-900 dark:text-white">{investor.name}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        Investor
+                      </div>
+                      <div className="font-medium text-slate-900 dark:text-white">
+                        {investor.name}
+                      </div>
                     </div>
                   </div>
                   <Badge className="bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 border-cyan-500/30">
@@ -825,17 +1262,25 @@ export function SellItemDetails({ item, onBack }: any) {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500 dark:text-slate-400">Total Amount:</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Total Amount:
+                  </span>
                   <span className="text-lg font-bold text-slate-900 dark:text-white">
-                    {formatCurrency(item.totalAmount, item.currency)}
+                    {formatCurrency(item.sellPrice)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500 dark:text-slate-400">Investment Rate:</span>
-                  <span className="text-lg font-bold text-cyan-600 dark:text-cyan-300">{item.rate}%</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Investment Rate:
+                  </span>
+                  <span className="text-lg font-bold text-cyan-600 dark:text-cyan-300">
+                    {item.rate}%
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500 dark:text-slate-400">Status:</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Status:
+                  </span>
                   <Badge
                     className={`${
                       item.status === "active"
@@ -847,19 +1292,27 @@ export function SellItemDetails({ item, onBack }: any) {
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500 dark:text-slate-400">Created:</span>
-                  <span className="text-slate-900 dark:text-white">{formatDate(item.date)}</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Created:
+                  </span>
+                  <span className="text-slate-900 dark:text-white">
+                    {formatDate(item.date)}
+                  </span>
                 </div>
                 <div className="pt-3 border-t border-slate-200 dark:border-slate-700/50 mt-3">
                   <div className="mb-2">
-                    <span className="text-slate-500 dark:text-slate-400">Payment Progress:</span>
+                    <span className="text-slate-500 dark:text-slate-400">
+                      Payment Progress:
+                    </span>
                   </div>
                   <Progress value={progressPercentage} className="h-2 mb-2" />
                   <div className="flex justify-between text-xs">
                     <span className="text-slate-500 dark:text-slate-400">
                       {item.completedPayments} of {item.totalPayments} payments
                     </span>
-                    <span className="text-cyan-600 dark:text-cyan-400">{progressPercentage}% Complete</span>
+                    <span className="text-cyan-600 dark:text-cyan-400">
+                      {progressPercentage}% Complete
+                    </span>
                   </div>
                 </div>
               </div>
@@ -868,5 +1321,5 @@ export function SellItemDetails({ item, onBack }: any) {
         </div>
       </div>
     </div>
-  )
+  );
 }

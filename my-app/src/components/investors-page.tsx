@@ -69,7 +69,7 @@ export default function InvestorsPage() {
 
     return investorsData.filter(
       (investor: any) =>
-        investor.username.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        investor.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !selectedInvestors.some((selected: any) => selected.id === investor.id)
     );
   }, [investorsData, searchQuery, selectedInvestors]);
@@ -259,16 +259,16 @@ export default function InvestorsPage() {
                               <Avatar className="h-12 w-12 bg-cyan-100/50 dark:bg-cyan-200/20 border border-cyan-200/50 dark:border-cyan-300/30">
                                 <img
                                   src={
-                                    investor.profilePicture ||
+                                    investor.image ||
                                     "/placeholder.svg"
                                   }
-                                  alt={investor.username}
+                                  alt={investor.name}
                                   className="object-cover"
                                 />
                               </Avatar>
                               <div>
                                 <h3 className="font-medium text-slate-900 dark:text-white">
-                                  {investor.username}
+                                  {investor.name}
                                 </h3>
                                 <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
                                   <span>

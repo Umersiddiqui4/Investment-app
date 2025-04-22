@@ -55,21 +55,21 @@ function SellItemListView({ item, onClick, formatDate, formatCurrency }: any) {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-600/50">
-                <img src={item.customerImage || "/placeholder.svg"} alt={item.customerName} />
+                <img src={item.customer.image || "/placeholder.svg"} alt={item.customer.name} />
               </Avatar>
               <div>
                 <div className="text-xs text-slate-500 dark:text-slate-400">Customer</div>
-                <div className="text-sm font-medium text-slate-900 dark:text-white">{item.customerName}</div>
+                <div className="text-sm font-medium text-slate-900 dark:text-white">{item.customer.name}</div>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <div className="text-right">
                 <div className="text-xs text-slate-500 dark:text-slate-400">Investor</div>
-                <div className="text-sm font-medium text-slate-900 dark:text-white">{item.investorName}</div>
+                <div className="text-sm font-medium text-slate-900 dark:text-white">{item.investors[0].name}</div>
               </div>
               <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-600/50">
-                <img src={item.investorImage || "/placeholder.svg"} alt={item.investorName} />
+                <img src={item.investors[0].image || "/placeholder.svg"} alt={item.investors[0].name} />
               </Avatar>
             </div>
           </div>

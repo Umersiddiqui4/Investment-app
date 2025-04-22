@@ -70,11 +70,14 @@ export default function Installments() {
 
     const matchesSearch =
       item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.customerName.toLowerCase().includes(searchQuery.toLowerCase()) 
+      item.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) 
       // item.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesTab && matchesSearch;
   });
+
+  console.log(selectedItem, "selectedItem");
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">

@@ -134,15 +134,15 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
               <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
                 <Avatar className="h-24 w-24 bg-cyan-100/50 dark:bg-cyan-200/20 border-2 border-cyan-200/50 dark:border-cyan-300/30">
                   <img
-                    src={investorData.profilePicture || "/placeholder.svg"}
-                    alt={investorData.username}
+                    src={investorData.image || "/placeholder.svg"}
+                    alt={investorData.name}
                     className="object-cover"
                   />
                 </Avatar>
 
                 <div className="flex-1 space-y-4 text-center md:text-left">
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{investorData.username}</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{investorData.name}</h2>
                     <div className="flex flex-col md:flex-row gap-2 md:gap-6 mt-2 text-slate-500 dark:text-slate-400">
                       <div className="flex items-center gap-1 justify-center md:justify-start">
                         <span className="text-sm">Active since: {investorData.activeSince.split("T")[0]}</span>
@@ -188,7 +188,7 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
                             />
                           </div>
                         ) : (
-                          formatCurrency(investorData.totalInvestment)
+                          formatCurrency(investorData.totalInvestment ? investorData.totalInvestment : 0)
                         )}
                       </div>
                     </div>
@@ -199,7 +199,7 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
                         <span className="text-sm font-medium">Account Balance</span>
                       </div>
                       <div className="text-xl font-bold text-slate-900 dark:text-white">
-                        {formatCurrency(investorData.accountBalance)}
+                        {formatCurrency(investorData.accountBalance ? investorData.accountBalance : 0)}
                       </div>
                     </div>
 

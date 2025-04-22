@@ -452,378 +452,380 @@ export const userData =  {
   profile: "https://laqpnneqguatxachbvsw.supabase.co/storage/v1/object/public/restaurant-images/images/WhatsApp%20Image%202025-04-16%20at%2011.33.20.jpeg",
 }
 
-export const sellItemsData = [
-  {
-    id: 1,
-    itemName: "Quantum Computing Server",
-    itemImage: "/placeholder.svg?height=100&width=100",
-    customerName: "Alex Johnson",
-    customerImage: "/placeholder.svg?height=60&width=60",
-    investorName: "Sarah Williams",
-    investorImage: "/placeholder.svg?height=60&width=60",
-    date: "2025-04-10",
-    rate: 12.5,
-    status: "active",
-    guarantors: [
-      {
-        id: 3,
-        name: "Michael Chen",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Primary Guarantor",
-      },
-      {
-        id: 102,
-        name: "Emma Davis",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Secondary Guarantor",
-      },
-    ],
-    investors: [
-      {
-        id: 1,
-        name: "Sarah Williams",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 150000,
-        percentage: 60,
-      },
-      {
-        id: 5,
-        name: "David Brown",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 100000,
-        percentage: 40,
-      },
-    ],
-    totalAmount: 250000,
-    currency: "USD",
-    description:
-      "Next-generation quantum computing server with advanced cooling system and quantum bit stabilization.",
-    installments: [
-      {
-        month: 1,
-        date: "2025-01-10",
-        amount: 62500,
-        status: "paid",
-      },
-      {
-        month: 2,
-        date: "2025-02-10",
-        amount: 62500,
-        status: "paid",
-      },
-      {
-        month: 3,
-        date: "2025-03-10",
-        amount: 62500,
-        status: "late",
-      },
-      {
-        month: 4,
-        date: "2025-04-10",
-        amount: 62500,
-        status: "late",
-      },
-    ],
-    completedPayments: 2,
-    totalPayments: 4,
-  },
-  {
-    id: 2,
-    itemName: "Neural Interface Headset",
-    itemImage: "/placeholder.svg?height=100&width=100",
-    customerName: "Maria Garcia",
-    customerImage: "/placeholder.svg?height=60&width=60",
-    investorName: "Robert Taylor",
-    investorImage: "/placeholder.svg?height=60&width=60",
-    date: "2025-03-22",
-    rate: 15.8,
-    status: "active",
-    guarantors: [
-      {
-        id: 103,
-        name: "James Wilson",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Primary Guarantor",
-      },
-      {
-        id: 104,
-        name: "Sophia Lee",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Secondary Guarantor",
-      },
-    ],
-    investors: [
-      {
-        id: 203,
-        name: "Robert Taylor",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 200000,
-        percentage: 70,
-      },
-      {
-        id: 204,
-        name: "Jennifer Martinez",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 85000,
-        percentage: 30,
-      },
-    ],
-    totalAmount: 285000,
-    currency: "USD",
-    description:
-      "Advanced neural interface headset for direct brain-computer interaction with haptic feedback.",
-    installments: [
-      {
-        month: 1,
-        date: "2025-04-22",
-        amount: 71250,
-        status: "paid",
-      },
-      {
-        month: 2,
-        date: "2025-05-22",
-        amount: 71250,
-        status: "due",
-      },
-      {
-        month: 3,
-        date: "2025-06-22",
-        amount: 71250,
-        status: "pending",
-      },
-      {
-        month: 4,
-        date: "2025-07-22",
-        amount: 71250,
-        status: "pending",
-      },
-    ],
-    completedPayments: 1,
-    totalPayments: 4,
-  },
-  {
-    id: 3,
-    itemName: "Fusion Energy Reactor",
-    itemImage: "/placeholder.svg?height=100&width=100",
-    customerName: "Daniel Kim",
-    customerImage: "/placeholder.svg?height=60&width=60",
-    investorName: "Lisa Garcia",
-    investorImage: "/placeholder.svg?height=60&width=60",
-    date: "2025-02-15",
-    rate: 18.2,
-    status: "completed",
-    guarantors: [
-      {
-        id: 105,
-        name: "Thomas Anderson",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Primary Guarantor",
-      },
-      {
-        id: 106,
-        name: "Olivia Smith",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Secondary Guarantor",
-      },
-    ],
-    investors: [
-      {
-        id: 6,
-        name: "Lisa Garcia",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 300000,
-        percentage: 50,
-      },
-      {
-        id: 206,
-        name: "William Johnson",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 300000,
-        percentage: 50,
-      },
-    ],
-    totalAmount: 600000,
-    currency: "USD",
-    description:
-      "Compact fusion energy reactor with sustainable plasma containment and efficient energy conversion.",
-      installments: [
-        {
-          month: 1,
-          date: "2025-04-01", // 👈 late
-          amount: 62500,
-          status: "paid",
-        },
-        {
-          month: 2,
-          date: "2025-06-05",
-          amount: 62500,
-          status: "paid",
-        },
-        {
-          month: 3,
-          date: "2025-07-05",
-          amount: 62500,
-          status: "paid",
-        },
-        {
-          month: 4,
-          date: "2025-08-05",
-          amount: 62500,
-          status: "paid",
-        },
-      ],
-    completedPayments: 2,
-    totalPayments: 6,
-  },
-  {
-    id: 4,
-    itemName: "Autonomous Drone Fleet",
-    itemImage: "/placeholder.svg?height=100&width=100",
-    customerName: "Emily Wilson",
-    customerImage: "/placeholder.svg?height=60&width=60",
-    investorName: "Michael Chen",
-    investorImage: "/placeholder.svg?height=60&width=60",
-    date: "2025-04-05",
-    rate: 14.3,
-    status: "active",
-    guarantors: [
-      {
-        id: 107,
-        name: "Ryan Park",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Primary Guarantor",
-      },
-      {
-        id: 108,
-        name: "Ava Thompson",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Secondary Guarantor",
-      },
-    ],
-    investors: [
-      {
-        id: 3,
-        name: "Michael Chen",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 175000,
-        percentage: 70,
-      },
-      {
-        id: 208,
-        name: "Samantha Lee",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 75000,
-        percentage: 30,
-      },
-    ],
-    totalAmount: 250000,
-    currency: "USD",
-    description:
-      "Fleet of autonomous drones with advanced AI for coordinated operations and real-time data processing.",
-    installments: [
-      {
-        month: 1,
-        date: "2025-05-05",
-        amount: 62500,
-        status: "paid",
-      },
-      {
-        month: 2,
-        date: "2025-06-05",
-        amount: 62500,
-        status: "due",
-      },
-      {
-        month: 3,
-        date: "2025-07-05",
-        amount: 62500,
-        status: "pending",
-      },
-      {
-        month: 4,
-        date: "2025-08-05",
-        amount: 62500,
-        status: "pending",
-      },
-    ],
-    completedPayments: 1,
-    totalPayments: 4,
-  },
-  {
-    id: 5,
-    itemName: "Bioprinting System",
-    itemImage: "/placeholder.svg?height=100&width=100",
-    customerName: "James Thompson",
-    customerImage: "/placeholder.svg?height=60&width=60",
-    investorName: "Emma Williams",
-    investorImage: "/placeholder.svg?height=60&width=60",
-    date: "2025-03-18",
-    rate: 16.7,
-    status: "completed",
-    guarantors: [
-      {
-        id: 109,
-        name: "Noah Garcia",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Primary Guarantor",
-      },
-      {
-        id: 110,
-        name: "Isabella Kim",
-        image: "/placeholder.svg?height=60&width=60",
-        role: "Secondary Guarantor",
-      },
-    ],
-    investors: [
-      {
-        id: 4,
-        name: "Emma Williams",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 220000,
-        percentage: 55,
-      },
-      {
-        id: 210,
-        name: "Jacob Martinez",
-        image: "/placeholder.svg?height=60&width=60",
-        contribution: 180000,
-        percentage: 45,
-      },
-    ],
-    totalAmount: 400000,
-    currency: "USD",
-    description:
-      "Advanced bioprinting system for tissue and organ fabrication with integrated bioreactor and monitoring.",
-    installments: [
-      {
-        month: 1,
-        date: "2025-04-18",
-        amount: 100000,
-        status: "paid",
-      },
-      {
-        month: 2,
-        date: "2025-05-18",
-        amount: 100000,
-        status: "paid",
-      },
-      {
-        month: 3,
-        date: "2025-06-18",
-        amount: 100000,
-        status: "paid",
-      },
-      {
-        month: 4,
-        date: "2025-07-18",
-        amount: 100000,
-        status: "paid",
-      },
-    ],
-    completedPayments: 4,
-    totalPayments: 4,
-  },
-];
+// export const sellItemsData = [
+ 
+  
+//   {
+//     id: 1,
+//     itemName: "Quantum Computing Server",
+//     itemImage: "/placeholder.svg?height=100&width=100",
+//     customerName: "Alex Johnson",
+//     customerImage: "/placeholder.svg?height=60&width=60",
+//     investorName: "Sarah Williams",
+//     investorImage: "/placeholder.svg?height=60&width=60",
+//     date: "2025-04-10",
+//     rate: 12.5,
+//     status: "active",
+//     guarantors: [
+//       {
+//         id: 3,
+//         name: "Michael Chen",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Primary Guarantor",
+//       },
+//       {
+//         id: 102,
+//         name: "Emma Davis",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Secondary Guarantor",
+//       },
+//     ],
+//     investors: [
+//       {
+//         id: 1,
+//         name: "Sarah Williams",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 150000,
+//         percentage: 60,
+//       },
+//       {
+//         id: 5,
+//         name: "David Brown",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 100000,
+//         percentage: 40,
+//       },
+//     ],
+//     totalAmount: 250000,
+//     currency: "USD",
+//     description:
+//       "Next-generation quantum computing server with advanced cooling system and quantum bit stabilization.",
+//     installments: [
+//       {
+//         month: 1,
+//         date: "2025-01-10",
+//         amount: 62500,
+//         status: "paid",
+//       },
+//       {
+//         month: 2,
+//         date: "2025-02-10",
+//         amount: 62500,
+//         status: "paid",
+//       },
+//       {
+//         month: 3,
+//         date: "2025-03-10",
+//         amount: 62500,
+//         status: "late",
+//       },
+//       {
+//         month: 4,
+//         date: "2025-04-10",
+//         amount: 62500,
+//         status: "late",
+//       },
+//     ],
+//     completedPayments: 2,
+//     totalPayments: 4,
+//   },
+//   {
+//     id: 2,
+//     itemName: "Neural Interface Headset",
+//     itemImage: "/placeholder.svg?height=100&width=100",
+//     customerName: "Maria Garcia",
+//     customerImage: "/placeholder.svg?height=60&width=60",
+//     investorName: "Robert Taylor",
+//     investorImage: "/placeholder.svg?height=60&width=60",
+//     date: "2025-03-22",
+//     rate: 15.8,
+//     status: "active",
+//     guarantors: [
+//       {
+//         id: 103,
+//         name: "James Wilson",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Primary Guarantor",
+//       },
+//       {
+//         id: 104,
+//         name: "Sophia Lee",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Secondary Guarantor",
+//       },
+//     ],
+//     investors: [
+//       {
+//         id: 203,
+//         name: "Robert Taylor",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 200000,
+//         percentage: 70,
+//       },
+//       {
+//         id: 204,
+//         name: "Jennifer Martinez",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 85000,
+//         percentage: 30,
+//       },
+//     ],
+//     totalAmount: 285000,
+//     currency: "USD",
+//     description:
+//       "Advanced neural interface headset for direct brain-computer interaction with haptic feedback.",
+//     installments: [
+//       {
+//         month: 1,
+//         date: "2025-04-22",
+//         amount: 71250,
+//         status: "paid",
+//       },
+//       {
+//         month: 2,
+//         date: "2025-05-22",
+//         amount: 71250,
+//         status: "due",
+//       },
+//       {
+//         month: 3,
+//         date: "2025-06-22",
+//         amount: 71250,
+//         status: "pending",
+//       },
+//       {
+//         month: 4,
+//         date: "2025-07-22",
+//         amount: 71250,
+//         status: "pending",
+//       },
+//     ],
+//     completedPayments: 1,
+//     totalPayments: 4,
+//   },
+//   {
+//     id: 3,
+//     itemName: "Fusion Energy Reactor",
+//     itemImage: "/placeholder.svg?height=100&width=100",
+//     customerName: "Daniel Kim",
+//     customerImage: "/placeholder.svg?height=60&width=60",
+//     investorName: "Lisa Garcia",
+//     investorImage: "/placeholder.svg?height=60&width=60",
+//     date: "2025-02-15",
+//     rate: 18.2,
+//     status: "completed",
+//     guarantors: [
+//       {
+//         id: 105,
+//         name: "Thomas Anderson",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Primary Guarantor",
+//       },
+//       {
+//         id: 106,
+//         name: "Olivia Smith",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Secondary Guarantor",
+//       },
+//     ],
+//     investors: [
+//       {
+//         id: 6,
+//         name: "Lisa Garcia",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 300000,
+//         percentage: 50,
+//       },
+//       {
+//         id: 206,
+//         name: "William Johnson",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 300000,
+//         percentage: 50,
+//       },
+//     ],
+//     totalAmount: 600000,
+//     currency: "USD",
+//     description:
+//       "Compact fusion energy reactor with sustainable plasma containment and efficient energy conversion.",
+//       installments: [
+//         {
+//           month: 1,
+//           date: "2025-04-01", // 👈 late
+//           amount: 62500,
+//           status: "paid",
+//         },
+//         {
+//           month: 2,
+//           date: "2025-06-05",
+//           amount: 62500,
+//           status: "paid",
+//         },
+//         {
+//           month: 3,
+//           date: "2025-07-05",
+//           amount: 62500,
+//           status: "paid",
+//         },
+//         {
+//           month: 4,
+//           date: "2025-08-05",
+//           amount: 62500,
+//           status: "paid",
+//         },
+//       ],
+//     completedPayments: 2,
+//     totalPayments: 6,
+//   },
+//   {
+//     id: 4,
+//     itemName: "Autonomous Drone Fleet",
+//     itemImage: "/placeholder.svg?height=100&width=100",
+//     customerName: "Emily Wilson",
+//     customerImage: "/placeholder.svg?height=60&width=60",
+//     investorName: "Michael Chen",
+//     investorImage: "/placeholder.svg?height=60&width=60",
+//     date: "2025-04-05",
+//     rate: 14.3,
+//     status: "active",
+//     guarantors: [
+//       {
+//         id: 107,
+//         name: "Ryan Park",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Primary Guarantor",
+//       },
+//       {
+//         id: 108,
+//         name: "Ava Thompson",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Secondary Guarantor",
+//       },
+//     ],
+//     investors: [
+//       {
+//         id: 3,
+//         name: "Michael Chen",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 175000,
+//         percentage: 70,
+//       },
+//       {
+//         id: 208,
+//         name: "Samantha Lee",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 75000,
+//         percentage: 30,
+//       },
+//     ],
+//     totalAmount: 250000,
+//     currency: "USD",
+//     description:
+//       "Fleet of autonomous drones with advanced AI for coordinated operations and real-time data processing.",
+//     installments: [
+//       {
+//         month: 1,
+//         date: "2025-05-05",
+//         amount: 62500,
+//         status: "paid",
+//       },
+//       {
+//         month: 2,
+//         date: "2025-06-05",
+//         amount: 62500,
+//         status: "due",
+//       },
+//       {
+//         month: 3,
+//         date: "2025-07-05",
+//         amount: 62500,
+//         status: "pending",
+//       },
+//       {
+//         month: 4,
+//         date: "2025-08-05",
+//         amount: 62500,
+//         status: "pending",
+//       },
+//     ],
+//     completedPayments: 1,
+//     totalPayments: 4,
+//   },
+//   {
+//     id: 5,
+//     itemName: "Bioprinting System",
+//     itemImage: "/placeholder.svg?height=100&width=100",
+//     customerName: "James Thompson",
+//     customerImage: "/placeholder.svg?height=60&width=60",
+//     investorName: "Emma Williams",
+//     investorImage: "/placeholder.svg?height=60&width=60",
+//     date: "2025-03-18",
+//     rate: 16.7,
+//     status: "completed",
+//     guarantors: [
+//       {
+//         id: 109,
+//         name: "Noah Garcia",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Primary Guarantor",
+//       },
+//       {
+//         id: 110,
+//         name: "Isabella Kim",
+//         image: "/placeholder.svg?height=60&width=60",
+//         role: "Secondary Guarantor",
+//       },
+//     ],
+//     investors: [
+//       {
+//         id: 4,
+//         name: "Emma Williams",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 220000,
+//         percentage: 55,
+//       },
+//       {
+//         id: 210,
+//         name: "Jacob Martinez",
+//         image: "/placeholder.svg?height=60&width=60",
+//         contribution: 180000,
+//         percentage: 45,
+//       },
+//     ],
+//     totalAmount: 400000,
+//     currency: "USD",
+//     description:
+//       "Advanced bioprinting system for tissue and organ fabrication with integrated bioreactor and monitoring.",
+//     installments: [
+//       {
+//         month: 1,
+//         date: "2025-04-18",
+//         amount: 100000,
+//         status: "paid",
+//       },
+//       {
+//         month: 2,
+//         date: "2025-05-18",
+//         amount: 100000,
+//         status: "paid",
+//       },
+//       {
+//         month: 3,
+//         date: "2025-06-18",
+//         amount: 100000,
+//         status: "paid",
+//       },
+//       {
+//         month: 4,
+//         date: "2025-07-18",
+//         amount: 100000,
+//         status: "paid",
+//       },
+//     ],
+//     completedPayments: 4,
+//     totalPayments: 4,
+//   },
+// ];
 
 export const investorsData = [
   {
@@ -1045,6 +1047,124 @@ export const investorsData = [
     accountBalance: 85000,
     totalSales: 6200,
     revenueGenerated: 455000,
+  },
+];
+
+const createInstallments = (sellPrice, totalPayments, startDate) => {
+  const amount = parseFloat(sellPrice) / parseInt(totalPayments);
+  const installments = [];
+
+  for (let i = 0; i < totalPayments; i++) {
+    const date = new Date(startDate);
+    date.setMonth(date.getMonth() + i);
+
+    installments.push({
+      month: i + 1,
+      date: date.toISOString().split("T")[0], // Format: YYYY-MM-DD
+      amount: parseFloat(amount.toFixed(2)),
+      status: "pending",
+    });
+  }
+
+  return installments;
+};
+
+export const sellItemsData = [
+  {
+    id: 1,
+    itemName: "Laptop",
+    itemImage: "https://www.asus.com/media/Odin/Websites/global/Series/9.png",
+    costPrice: "50000",
+    sellPrice: "60000",
+    rate: "20.00",
+    totalPayments: "12",
+    completedPayments: 0,
+    status: "active",
+    date: new Date(),
+    customerId: "109",
+    customer: {
+      id: 109,
+      name: "Ali Khan",
+      email: "ali@example.com",
+      image: "https://img.freepik.com/premium-vector/thoughtful-man-with-neutral-expression-colorful-portrait-illustration-modern-graphic-design_1057260-12351.jpg",
+      userType: "customer",
+    },
+    investors: [
+      {
+        id: 9,
+        name: "Umer Siddiqui",
+        image: "https://i.pinimg.com/736x/7d/99/3b/7d993b9bbbe74fff3fb249af486e0a34.jpg",
+        userType: "investor",
+        status: "active",
+      },
+    ],
+    investorIds: ["9"],
+    guarantors: [{ name: "Zaid", cnic: "12345-6789012-3" }],
+    installments: createInstallments(60000, 12, 0),
+  },
+  {
+    id: 2,
+    itemName: "Mobile Phone",
+    itemImage: "https://sparx.pk/cdn/shop/files/NeoxBlue.jpg?v=1710401240&width=416",
+    costPrice: "30000",
+    sellPrice: "40000",
+    rate: "25.00",
+    totalPayments: "8",
+    completedPayments: 2,
+    status: "active",
+    date: new Date(),
+    customerId: "110",
+    customer: {
+      id: 110,
+      name: "Sara Ahmed",
+      email: "sara@example.com",
+      image: "https://www.creativehatti.com/wp-content/uploads/2020/08/Akshay-Kumar-Bollywood-Actor-Celebrity-Vector-Illustration-Medium-1.jpg",
+      userType: "customer",
+    },
+    investors: [
+      {
+        id: 10,
+        name: "Rajab Raza",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc89uCvBLwwqPmpvHyS6J0t0XTAyi-ePmmXJcitZ5h8UtdkjinnXFA3i5CuYx2Sn9VITY&usqp=CAU",
+        userType: "investor",
+        status: "active",
+      },
+    ],
+    investorIds: ["10"],
+    guarantors: [{ name: "Usman", cnic: "45678-1234567-8" }],
+    installments: createInstallments(40000, 8, 2),
+  },
+  {
+    id: 3,
+    itemName: "TV",
+    itemImage: "https://ledshop.pk/wp-content/uploads/2023/09/x75k-2.png",
+    costPrice: "45000",
+    sellPrice: "55000",
+    rate: "15.00",
+    totalPayments: "10",
+    completedPayments: 4,
+    status: "active",
+    date: new Date(),
+    customerId: "111",
+    customer: {
+      id: 111,
+      name: "Talha Malik",
+      email: "talha@example.com",
+      image: "https://img.freepik.com/premium-vector/man-with-glasses-beard-is-wearing-brown-sweater-white-shirt_905719-6813.jpg",
+      userType: "customer",
+    },
+    investors: [
+      {
+        id: 11,
+        name: "Zara Iqbal",
+        image: "https://img.freepik.com/premium-vector/digital-painting-girl-anime-style-vector-illustration_147933-3878.jpg",
+        userType: "investor",
+        status: "Active",
+      },
+    ],
+    investorIds: ["11"],
+    guarantors: [{ name: "Hassan", cnic: "78901-2345678-9" }],
+    installments: createInstallments(55000, 10, 4),
   },
 ];
 
