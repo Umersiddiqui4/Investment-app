@@ -20,6 +20,7 @@ import {
 } from "@/redux/appSlice";
 import { sellItemsData, userData } from "./api/installments";
 import { SellItemDetails } from "./SellDetail";
+import SellItemListView from "./ui/SellItemListView";
 
 // Sample data - in a real app, this would come from an API
 
@@ -57,6 +58,23 @@ export default function Installments() {
   const handleItemClick = (item: any) => {
     setSelectedItem(item)
   }
+
+  const formatDate = (dateString: any) => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  const formatCurrency = (amount: any, currency = "USD") => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency,
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
  
 
   // Filter installments based on active tab and search query
@@ -202,13 +220,16 @@ export default function Installments() {
                             No installments found matching your criteria
                           </div>
                         ) : (
-                          filteredInstallments.map((installment: any) => (
-                            <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
-                            <InstallmentCard
-                              key={installment.id}
-                              installment={installment}
+                          filteredInstallments.map((item: any) => (
+                            <div className="space-y-3">
+                            <SellItemListView
+                              key={item.id}
+                              item={item}
+                              onClick={() => handleItemClick(item)}
+                              formatDate={formatDate}
+                              formatCurrency={formatCurrency}
                             />
-                            </div>
+                          </div>
                           ))
                         )}
                       </div>
@@ -221,13 +242,16 @@ export default function Installments() {
                             No active installments found
                           </div>
                         ) : (
-                          filteredInstallments.map((installment: any) => (
-                            <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
-                            <InstallmentCard
-                              key={installment.id}
-                              installment={installment}
+                          filteredInstallments.map((item: any) => (
+                            <div className="space-y-3">
+                            <SellItemListView
+                              key={item.id}
+                              item={item}
+                              onClick={() => handleItemClick(item)}
+                              formatDate={formatDate}
+                              formatCurrency={formatCurrency}
                             />
-                            </div>
+                          </div>
                           ))
                         )}
                       </div>
@@ -240,12 +264,15 @@ export default function Installments() {
                             No overdue installments found
                           </div>
                         ) : (
-                          filteredInstallments.map((installment: any) => (
-                            <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
-                            <InstallmentCard
-                              key={installment.id}
-                              installment={installment}
-                            />
+                          filteredInstallments.map((item: any) => (
+                            <div className="space-y-3">
+                              <SellItemListView
+                                key={item.id}
+                                item={item}
+                                onClick={() => handleItemClick(item)}
+                                formatDate={formatDate}
+                                formatCurrency={formatCurrency}
+                              />
                             </div>
                           ))
                         )}
@@ -259,12 +286,15 @@ export default function Installments() {
                             No completed installments found
                           </div>
                         ) : (
-                          filteredInstallments.map((installment: any) => (
-                            <div className="cursor-pointer"  onClick={() => handleItemClick(installment)}>
-                            <InstallmentCard
-                              key={installment.id}
-                              installment={installment}
-                            />
+                          filteredInstallments.map((item: any) => (
+                            <div className="space-y-3">
+                              <SellItemListView
+                                key={item.id}
+                                item={item}
+                                onClick={() => handleItemClick(item)}
+                                formatDate={formatDate}
+                                formatCurrency={formatCurrency}
+                              />
                             </div>
                           ))
                         )}
