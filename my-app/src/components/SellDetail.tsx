@@ -21,11 +21,33 @@ import {
   Clock3,
   CheckCircle2,
   AlertCircle,
+  X,
+  MapPin,
+  CreditCard,
 } from "lucide-react";
 import { stat } from "fs";
 import { sellItemsData } from "./api/installments";
+import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import { ThemeProvider } from "./theme/theme-provider";
 
 export function SellItemDetails({ item, onBack }: any) {
+
+  const profile = {
+    name: "Sarah Johnson",
+    email: "sarah.johnson@example.com",
+    contact: "+92 300 1234567",
+    cnicNumber: "61101-1234567-8",
+    address: "123 Tech Avenue, Innovation District, Islamabad, Pakistan",
+    activeSince: "January 15, 2022",
+    profilePicture: "/placeholder.svg?height=200&width=200",
+    cnicFrontImage: "/placeholder.svg?height=300&width=500",
+    cnicBackImage: "/placeholder.svg?height=300&width=500",
+  }
+
+
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedProfile, setSelectedProfile] = useState<any>()
   const [activeTab, setActiveTab] = useState("overview");
   const [editingInstallmentIndex, setEditingInstallmentIndex] = useState(null);
   const [paidAmount, setPaidAmount] = useState<Record<number, number>>({});
@@ -285,6 +307,15 @@ export function SellItemDetails({ item, onBack }: any) {
     }
   };
 
+  function openProfile(data: any){
+    setSelectedProfile(data);
+    setIsOpen(true);
+
+  }
+  console.log(isOpen, "isopen");
+  console.log(selectedProfile, " selectedprofile");
+  
+  
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300 p-4">
       {/* Header */}
@@ -1179,7 +1210,7 @@ export function SellItemDetails({ item, onBack }: any) {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Customer */}
-              <div className="flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50">
+              <div onClick={() => openProfile(item.customer)} className="cursor-pointer flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50">
                 <Avatar className="h-10 w-10 border-2 border-blue-500/30">
                   <img
                     src={item?.customer?.image || "/placeholder.svg"}
@@ -1187,7 +1218,7 @@ export function SellItemDetails({ item, onBack }: any) {
                   />
                 </Avatar>
                 <div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                  <div  className="text-xs text-slate-500 dark:text-slate-400">
                     Customer
                   </div>
                   <div className="font-medium text-slate-900 dark:text-white">
@@ -1199,8 +1230,9 @@ export function SellItemDetails({ item, onBack }: any) {
               {/* Guarantors */}
               {item.guarantors.map((guarantor: any) => (
                 <div
+                onClick={() => openProfile(guarantor)}
                   key={guarantor.id}
-                  className="flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
+                  className="cursor-pointer flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
                 >
                   {/* <Avatar className="h-10 w-10 border-2 border-purple-500/30">
                     <img
@@ -1224,9 +1256,9 @@ export function SellItemDetails({ item, onBack }: any) {
 
               {/* Investors */}
               {item.investors.map((investor: any) => (
-                <div
+                <div onClick={() => openProfile(investor)}
                   key={investor.id}
-                  className="flex items-center justify-between p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
+                  className="cursor-pointer flex items-center justify-between p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border-2 border-cyan-500/30">
@@ -1320,6 +1352,131 @@ export function SellItemDetails({ item, onBack }: any) {
           </Card>
         </div>
       </div>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <ThemeProvider />
+          <Card className="relative w-full max-w-4xl overflow-hidden border-0 shadow-2xl  dark:bg-indigo-500/20 rounded-2xl bg-background/80 backdrop-blur-md">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4 z-10"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Left sidebar with profile picture and basic info */}
+              <div className="p-6 flex flex-col items-center space-y-4 border-r border-border/50">
+                <div className="relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-full blur opacity-70"></div>
+                  <Avatar className="h-32 w-32 border-4 border-background relative">
+                    <AvatarImage src={selectedProfile.image || "/placeholder.svg"} alt={profile.name} />
+                    <AvatarFallback className="text-4xl">{selectedProfile.name}</AvatarFallback>
+                  </Avatar>
+                </div>
+
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl font-bold">{selectedProfile.name}</h2>
+                  <Badge variant="outline" className="px-3 py-1 bg-violet-500/10 text-violet-500 border-violet-500/20">
+                    Active
+                  </Badge>
+                </div>
+
+                <div className="w-full space-y-3 mt-4">
+                  {/* <div className="flex items-center gap-2 text-sm">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">ID:</span>
+                    <span className="ml-auto">{profile.cnicNumber}</span>
+                  </div> */}
+
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">Active Since:</span>
+                    <span className="ml-auto">{new Date(selectedProfile.activeSince).toLocaleDateString()}</span>
+                  </div>
+
+                  {/* <Button variant="outline" size="sm" className="w-full mt-4" onClick={toggleTheme}>
+                    Toggle {theme === "dark" ? "Light" : "Dark"} Mode
+                  </Button> */}
+                </div>
+              </div>
+
+              {/* Main content area */}
+              <div className="col-span-2 p-6 space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedProfile?.email && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">Email</p>
+                      <p className="font-medium">{selectedProfile.email}</p>
+                    </div>)}
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">Phone</p>
+                      <p className="font-medium">{selectedProfile.contactNumber}</p>
+                    </div>
+                    {selectedProfile?.address && (
+                    <div className="space-y-2 md:col-span-2">
+                      <p className="text-sm text-muted-foreground">Address</p>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                        <p className="font-medium">{selectedProfile.address}</p>
+                      </div>
+                    </div>)}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">CNIC Information</h3>
+                  {selectedProfile?.cnic && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">CNIC Number</p>
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                        <p className="font-medium">{selectedProfile.cnic}</p>
+                      </div>
+                    </div>
+                  </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    {selectedProfile?.cnicFrontImage && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">CNIC Front</p>
+                      <div className="relative group overflow-hidden rounded-lg border border-border/50">
+                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <img
+                          src={selectedProfile.cnicFrontImage || "/placeholder.svg"}
+                          alt="CNIC Front"
+                          className="w-full h-auto object-cover"
+                        />
+                      </div>
+                    </div>
+                      )}
+                      {selectedProfile?.cnicBackImage && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">CNIC Back</p>
+                      <div className="relative group overflow-hidden rounded-lg border border-border/50">
+                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <img
+                          src={selectedProfile.cnicBackImage || "/placeholder.svg"}
+                          alt="CNIC Back"
+                          className="w-full h-auto object-cover"
+                        />
+                      </div>
+                    </div>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
