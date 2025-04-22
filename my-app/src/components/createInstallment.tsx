@@ -627,6 +627,8 @@ console.log("localInvestors", localInvestors);
       userType: "investor",
       status: "Inactive",
       activeSince: activeSince,
+      address: data.address || "",
+      cnic: data.cnicNumber || ""
     }
 
     // Add to local investors
@@ -670,6 +672,8 @@ console.log("localInvestors", localInvestors);
       userType: "customer",
       status: "Inactive",
       activeSince: activeSince,
+      address: data.address || "",
+      cnic: data.cnicNumber || ""
     }
 
     const existingUsers = JSON.parse(localStorage.getItem("userData") || "[]")
