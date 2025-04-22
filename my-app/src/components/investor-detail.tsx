@@ -162,14 +162,15 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                     {/* Editable Total Investment Card */}
                     <div
-                      className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/20 dark:to-blue-500/20 p-4 rounded-lg border border-cyan-200/50 dark:border-cyan-500/30 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-cyan-300 dark:hover:border-cyan-400/50"
+                      className="flex gap-6 flex-col bg-gradient-to-br from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/20 dark:to-blue-500/20 p-4 rounded-lg border border-cyan-200/50 dark:border-cyan-500/30 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-cyan-300 dark:hover:border-cyan-400/50"
                       onClick={handleTotalInvestmentClick}
                     >
                       <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 mb-2">
                         <DollarSign size={18} />
                         <span className="text-sm font-medium">Total Investment</span>
                       </div>
-                      <div className="text-xl font-bold text-slate-900 dark:text-white">
+                    
+                      <div className="text-xl font-bold  text-start text-slate-900 dark:text-white">
                         {editingTotalInvestment ? (
                           <div className="relative">
                             <DollarSign
@@ -193,17 +194,17 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 p-4 rounded-lg border border-purple-200/50 dark:border-purple-500/30">
+                    <div className="flex gap-1 flex-col bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 p-4 rounded-lg border border-purple-200/50 dark:border-purple-500/30">
                       <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 mb-2">
                         <Wallet size={18} />
                         <span className="text-sm font-medium">Account Balance</span>
                       </div>
-                      <div className="text-xl font-bold text-slate-900 dark:text-white">
+                      <div className="text-xl font-bold text-justify text-slate-900 dark:text-white">
                         {formatCurrency(investorData.accountBalance ? investorData.accountBalance : 0)}
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 p-4 rounded-lg border border-amber-200/50 dark:border-amber-500/30">
+                    <div className="flex gap-6 flex-col bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 p-4 rounded-lg border border-amber-200/50 dark:border-amber-500/30">
                       <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-2">
                         <BarChart3 size={18} />
                         <span className="text-sm font-medium">Total Sales</span>
@@ -213,7 +214,7 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20 p-4 rounded-lg border border-green-200/50 dark:border-green-500/30">
+                    <div className="flex gap-1 flex-col bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20 p-4 rounded-lg border border-green-200/50 dark:border-green-500/30">
                       <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mb-2">
                         <TrendingUp size={18} />
                         <span className="text-sm font-medium">Revenue Generated</span>
