@@ -83,14 +83,14 @@ export default function Sell() {
       const lowercaseQuery = searchQuery.toLowerCase();
 
       const filtered = sellItemsData.filter(
-        (item) =>
+        (item: any) =>
           item?.itemName.toLowerCase().includes(lowercaseQuery) ||
           item?.customerName.toLowerCase().includes(lowercaseQuery) ||
           item?.investorName.toLowerCase().includes(lowercaseQuery)
       );
 
       const filteredMy = mySellItemsData.filter(
-        (item) =>
+        (item:any) =>
           item?.itemName.toLowerCase().includes(lowercaseQuery) ||
           item?.customerName.toLowerCase().includes(lowercaseQuery) ||
           item?.investorName.toLowerCase().includes(lowercaseQuery)
@@ -316,7 +316,7 @@ export default function Sell() {
                       <>
                         {viewMode === "grid" ? (
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {installments.length > 0  && installments.map((item) => (
+                            {installments.length > 0  && installments.map((item: any) => (
                               <SellItemCard
                                 key={item?.id}
                                 item={item}
