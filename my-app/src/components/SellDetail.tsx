@@ -29,7 +29,7 @@ export function SellItemDetails({ item, onBack }: any) {
   const [activeTab, setActiveTab] = useState("overview");
   const [editingInstallmentIndex, setEditingInstallmentIndex] = useState(null);
   const [paidAmount, setPaidAmount] = useState<Record<number, number>>({});
-  const [paymentOption, setPaymentOption] = useState<Record<number, string>>(
+  const [paymentOption, setPaymentOption] = useState<any>(
     {}
   );
   const [installments, setInstallments] = useState(item.installments || []);
@@ -710,7 +710,7 @@ export function SellItemDetails({ item, onBack }: any) {
                                         ...prev,
                                         [index]: installment.amount,
                                       }));
-                                      setPaymentOption((prev) => ({
+                                      setPaymentOption((prev: any) => ({
                                         ...prev,
                                         id: index,
                                         type: "",
@@ -804,7 +804,7 @@ export function SellItemDetails({ item, onBack }: any) {
                                             paymentOption[index] === "next"
                                           }
                                           onChange={() =>
-                                            setPaymentOption((prev) => ({
+                                            setPaymentOption((prev: any) => ({
                                               ...prev,
                                               id: index,
                                               type: "next",
@@ -830,7 +830,7 @@ export function SellItemDetails({ item, onBack }: any) {
                                           paymentOption[index] === "manual"
                                         }
                                         onChange={() =>
-                                          setPaymentOption((prev) => ({
+                                          setPaymentOption((prev: any) => ({
                                             ...prev,
                                             id: index,
                                             type: "manual",
@@ -1202,12 +1202,12 @@ export function SellItemDetails({ item, onBack }: any) {
                   key={guarantor.id}
                   className="flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
                 >
-                  <Avatar className="h-10 w-10 border-2 border-purple-500/30">
+                  {/* <Avatar className="h-10 w-10 border-2 border-purple-500/30">
                     <img
                       src={guarantor.image || "/placeholder.svg"}
                       alt={guarantor.name}
                     />
-                  </Avatar>
+                  </Avatar> */}
                   <div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
                       Guarantor

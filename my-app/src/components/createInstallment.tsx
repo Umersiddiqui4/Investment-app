@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import * as z from "zod"
 import {
   X,
@@ -23,6 +23,8 @@ import {
   Plus,
   UserPlus,
   AtSign,
+  Trash2,
+  AlertCircle,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -41,9 +43,11 @@ import { setIsShowCreateInstallment } from "@/redux/appSlice"
 import { useDispatch } from "react-redux"
 import { supabase } from "@/lib/supabaseClient"
 import { sellItemsData } from "./api/installments"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Alert, AlertDescription } from "./ui/alert"
 
 // Sample data for investors and customers
-const investors = [
+const investor = [
   { id: 1, name: "John Smith", image: "/placeholder.svg?height=40&width=40" },
   { id: 2, name: "Sarah Johnson", image: "/placeholder.svg?height=40&width=40" },
   { id: 3, name: "Michael Chen", image: "/placeholder.svg?height=40&width=40" },
@@ -123,6 +127,7 @@ type CustomerFormValues = z.infer<typeof customerFormSchema>
 
 export function CreateInstallmentForm() {
   // State for form data and UI
+  const [localInvestors, setLocalInvestors] = useState<any>(investor)
   const [itemImagePreview, setItemImagePreview] = useState<string | null>(null)
   const [guarantorCnicFrontPreviews, setGuarantorCnicFrontPreviews] = useState<(string | null)[]>([null, null])
   const [guarantorCnicBackPreviews, setGuarantorCnicBackPreviews] = useState<(string | null)[]>([null, null])
@@ -130,13 +135,196 @@ export function CreateInstallmentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [showAddInvestor, setShowAddInvestor] = useState(false)
+  const [itemImageUrl, setItemImageUrl] = useState(null)
   const [showAddCustomer, setShowAddCustomer] = useState(false)
   const [investorImagePreview, setInvestorImagePreview] = useState<string | null>(null)
   const [customerImagePreview, setCustomerImagePreview] = useState<string | null>(null)
-  const [localInvestors, setLocalInvestors] = useState<any>(investors)
+  const [investors, setInvestors] = useState<any[]>(() => [])
+  const [contributionError, setContributionError] = useState<string | null>(null)
+
   const [localCustomers, setLocalCustomers] = useState<any>(customers)
   const dispatch = useDispatch()
   const { toast } = useToast()
+
+
+// Initialize main form
+const form = useForm<InstallmentFormValues>({
+  resolver: zodResolver(installmentFormSchema),
+  defaultValues: {
+    investorIds: [],
+    customerId: "",
+    itemName: "",
+    costPrice: "",
+    sellPrice: "",
+    rate: "10", // Default interest rate
+    totalPayments: "12", // Default time period (12 months)
+    guarantors: [{ name: "", contact: "", cnicNumber: "", cnicFront: undefined, cnicBack: undefined }],
+    itemImage: undefined,
+  },
+})
+
+const costPrice = form.watch("costPrice")
+const sellPrice = form.watch("sellPrice")
+const rate = form.watch("rate")
+ 
+
+useEffect(() => {
+  if (costPrice && !isNaN(Number.parseFloat(costPrice))) {
+    if (isCalculatingFromRate && rate && !isNaN(Number.parseFloat(rate))) {
+      // Calculate sell price based on cost price and rate
+      const calculatedSellPrice = (Number.parseFloat(costPrice) * (1 + Number.parseFloat(rate) / 100)).toFixed(2)
+      form.setValue("sellPrice", calculatedSellPrice)
+    } else if (!isCalculatingFromRate && sellPrice && !isNaN(Number.parseFloat(sellPrice))) {
+      // Calculate rate based on cost price and sell price
+      const calculatedRate = (
+        ((Number.parseFloat(sellPrice) - Number.parseFloat(costPrice)) / Number.parseFloat(costPrice)) *
+        100
+      ).toFixed(2)
+      form.setValue("rate", calculatedRate)
+    }
+  }
+}, [costPrice, sellPrice, rate, isCalculatingFromRate, form])
+
+// Validate investor contributions
+useEffect(() => {
+  if (costPrice && investors.length > 0) {
+    const totalContribution = investors.reduce(
+      (sum, investor) => sum + (Number.parseFloat(investor.contribution) || 0),
+      0
+    )
+
+    const costPriceValue = Number.parseFloat(costPrice)
+
+    if (Math.abs(totalContribution - costPriceValue) > 0.01) {
+      setContributionError(
+        `Total contributions (${totalContribution.toFixed(2)}) must equal the cost price (${costPriceValue.toFixed(2)})`
+      )
+    } else {
+      setContributionError(null)
+    }
+
+    if (costPriceValue > 0) {
+      const updated = investors.map((investor) => {
+        const contribution = Number.parseFloat(investor.contribution) || 0
+        const percentage = Number.parseFloat(((contribution / costPriceValue) * 100).toFixed(2))
+        return { ...investor, percentage }
+      })
+
+      // Only update if values have actually changed
+      const isChanged = updated.some((inv, i) => inv.percentage !== investors[i].percentage)
+      if (isChanged) {
+        setInvestors(updated)
+      }
+    }
+  }
+}, [costPrice, investors])
+
+// Handle image upload
+const handleImageUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>,
+  fieldName: string,
+  index?: number
+) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = async () => {
+    const result = reader.result as string
+
+    // 👇 Generate unique filename
+    const fileName = `${fieldName}_${Date.now()}.${file.name.split(".").pop()}`
+
+    // 👇 Upload to Supabase
+    const { data, error } = await supabase.storage
+      .from("restaurant-images") // your bucket name
+      .upload(fileName, file, {
+        contentType: file.type,
+        upsert: true,
+      })
+
+    if (error) {
+      console.error("Upload failed:", error.message)
+      return
+    }
+
+    // 👇 Get public URL
+    const { data: urlData } = supabase.storage.from("restaurant-images").getPublicUrl(fileName)
+    const publicUrl = urlData.publicUrl
+
+    // 👇 Handle different field types
+    if (fieldName === "itemImage") {
+      setItemImagePreview(result)
+      form.setValue("itemImage", publicUrl) // set URL, not file
+    } else if (fieldName === "cnicFront" && index !== undefined) {
+      const newPreviews = [...guarantorCnicFrontPreviews]
+      newPreviews[index] = result
+      setGuarantorCnicFrontPreviews(newPreviews)
+
+      const guarantors = form.getValues("guarantors")
+      guarantors[index].cnicFront = publicUrl // set URL
+      form.setValue("guarantors", guarantors)
+    } else if (fieldName === "cnicBack" && index !== undefined) {
+      const newPreviews = [...guarantorCnicBackPreviews]
+      newPreviews[index] = result
+      setGuarantorCnicBackPreviews(newPreviews)
+
+      const guarantors = form.getValues("guarantors")
+      guarantors[index].cnicBack = publicUrl // set URL
+      form.setValue("guarantors", guarantors)
+    }
+
+    console.log("Image uploaded to:", publicUrl)
+  }
+
+  reader.readAsDataURL(file)
+}
+
+
+// Add investor to the selected list
+const handleAddInvestor = (investorId: string) => {
+  const investor = localInvestors.find((inv: any) => inv.id === investorId)
+  if (!investor) return
+
+  // Check if investor is already selected
+  if (investors.some((inv) => inv.id === investorId)) return
+
+  // Add investor with empty contribution
+  setInvestors([...investors, { ...investor, contribution: "0", percentage: 0 }])
+}
+
+// Remove investor from the selected list
+const handleRemoveInvestor = (investorId: string) => {
+  setInvestors(investors.filter((inv) => inv.id !== investorId))
+}
+
+// Update investor contribution
+const handleContributionChange = (investorId: string, value: string) => {
+  // Only allow numbers and decimal point
+  const sanitizedValue = value.replace(/[^0-9.]/g, "")
+
+  setInvestors(
+    investors.map((investor) =>
+      investor.id === investorId ? { ...investor, contribution: sanitizedValue } : investor,
+    ),
+  )
+}
+
+// Distribute sell price equally among selected investors
+const distributeEqually = () => {
+  if (investors.length === 0 || !costPrice || isNaN(Number.parseFloat(costPrice))) return
+
+  const costPriceValue = Number.parseFloat(costPrice)
+  const equalShare = (costPriceValue / investors.length).toFixed(2)
+
+  setInvestors(
+    investors.map((investor) => ({
+      ...investor,
+      contribution: equalShare,
+      percentage: Number.parseFloat((100 / investors.length).toFixed(2)),
+    })),
+  )
+}
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
@@ -149,22 +337,7 @@ export function CreateInstallmentForm() {
     setLocalCustomers(onlyCustomers);
     }
   }, [])
-  // Initialize main form
-  const form = useForm<InstallmentFormValues>({
-    resolver: zodResolver(installmentFormSchema),
-    defaultValues: {
-      investorIds: [],
-      customerId: "",
-      itemName: "",
-      costPrice: "",
-      sellPrice: "",
-      rate: "10", // Default interest rate
-      totalPayments: "12", // Default time period (12 months)
-      guarantors: [{ name: "", contact: "", cnicNumber: "", cnicFront: undefined, cnicBack: undefined }],
-      itemImage: undefined,
-    },
-  })
-
+  
   // Initialize investor form
   const investorForm = useForm<InvestorFormValues>({
     resolver: zodResolver(investorFormSchema),
@@ -220,68 +393,41 @@ export function CreateInstallmentForm() {
     }
   }, [watchCostPrice, watchSellPrice, watchInterestRate, watchTimePeriod, isCalculatingFromRate, form])
 
-  // Handle image upload and preview for main form
-  const handleImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string,
-    index?: number
-  ) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+ 
+const investorIds = useWatch({
+  control: form.control,
+  name: "investorIds",
+})
+
+console.log(localInvestors, "localInvestors");
+
+useEffect(() => {
+  const updatedInvestors: any[] = []
+
+  investorIds.forEach((id: string) => {
+    const investor = localInvestors.find((inv: any) => inv.id.toString() === id)
+    if (investor) updatedInvestors.push(investor)
+  })
+
+  setInvestors(updatedInvestors)
+
+}, [investorIds, localInvestors])
+
+console.log(investors, "investors");
+
   
-    const reader = new FileReader()
-    reader.onload = async () => {
-      const result = reader.result as string
   
-      // 👇 Generate unique filename
-      const fileName = `${fieldName}_${Date.now()}.${file.name.split(".").pop()}`
-  
-      // 👇 Upload to Supabase
-      const { data, error } = await supabase.storage
-        .from("restaurant-images") // your bucket name
-        .upload(fileName, file, {
-          contentType: file.type,
-          upsert: true,
-        })
-  
-      if (error) {
-        console.error("Upload failed:", error.message)
-        return
-      }
-  
-      // 👇 Get public URL
-      const { data: urlData } = supabase.storage.from("restaurant-images").getPublicUrl(fileName)
-      const publicUrl = urlData.publicUrl
-  
-      // 👇 Handle different field types
-      if (fieldName === "itemImage") {
-        setItemImagePreview(result)
-        form.setValue("itemImage", publicUrl) // set URL, not file
-      } else if (fieldName === "cnicFront" && index !== undefined) {
-        const newPreviews = [...guarantorCnicFrontPreviews]
-        newPreviews[index] = result
-        setGuarantorCnicFrontPreviews(newPreviews)
-  
-        const guarantors = form.getValues("guarantors")
-        guarantors[index].cnicFront = publicUrl // set URL
-        form.setValue("guarantors", guarantors)
-      } else if (fieldName === "cnicBack" && index !== undefined) {
-        const newPreviews = [...guarantorCnicBackPreviews]
-        newPreviews[index] = result
-        setGuarantorCnicBackPreviews(newPreviews)
-  
-        const guarantors = form.getValues("guarantors")
-        guarantors[index].cnicBack = publicUrl // set URL
-        form.setValue("guarantors", guarantors)
-      }
-  
-      console.log("Image uploaded to:", publicUrl)
+  // Add guarantor
+  const addGuarantor = () => {
+    const currentGuarantors = form.getValues("guarantors")
+    if (currentGuarantors.length < 2) {
+      form.setValue("guarantors", [
+        ...currentGuarantors,
+        { name: "", contact: "", cnicNumber: "", cnicFront: "", cnicBack: "" },
+      ])
     }
-  
-    reader.readAsDataURL(file)
   }
-  
-  // Handle image upload for investor/customer forms
+
   const handleProfileImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "investor" | "customer"
@@ -338,17 +484,6 @@ export function CreateInstallmentForm() {
     reader.readAsDataURL(file);
   };
   
-  
-  // Add guarantor
-  const addGuarantor = () => {
-    const currentGuarantors = form.getValues("guarantors")
-    if (currentGuarantors.length < 2) {
-      form.setValue("guarantors", [
-        ...currentGuarantors,
-        { name: "", contact: "", cnicNumber: "", cnicFront: "", cnicBack: "" },
-      ])
-    }
-  }
 
   // Remove guarantor
   const removeGuarantor = (index: number) => {
@@ -366,7 +501,7 @@ export function CreateInstallmentForm() {
     }
   }
 
-  const createInstallments = (sellPrice, totalPayments, startDate) => {
+  const createInstallments = (sellPrice: any, totalPayments: any, startDate: any) => {
     const amount = parseFloat(sellPrice) / parseInt(totalPayments);
     const installments = [];
   
@@ -388,32 +523,68 @@ export function CreateInstallmentForm() {
   // Handle main form submission
   const onSubmit = async (data: InstallmentFormValues) => {
     setIsSubmitting(true)
+    if (investors.length > 0) {
+      const totalContribution = investors.reduce(
+        (sum, investor) => sum + (Number.parseFloat(investor.contribution) || 0),
+        0,
+      )
+
+      if (Math.abs(totalContribution - Number.parseFloat(data.costPrice)) > 0.01) {
+        setContributionError(`Total contributions must equal the cost price`)
+        return
+      }
+    }
+
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
     console.log("Form submitted:", {
       ...data,
-      investors: data.investorIds.map((id) => localInvestors.find((inv: any) => inv.id.toString() === id)),
+      investors: investors,
       customer: localCustomers.find((cust: any) => cust.id.toString() === data.customerId),
     })
 
 
     // Save to local storage or send to API
     const existingInstallments = JSON.parse(localStorage.getItem("installments") || "[]")
-    const newInstallment = {
+    const newInstallment: {
+      id: number;
+      investors: any[];
+      customer: any;
+      date: Date;
+      completedPayments: number;
+      status: string;
+      investorIds: string[];
+      customerId: string;
+      itemName: string;
+      costPrice: string;
+      sellPrice: string;
+      rate: string;
+      totalPayments: string;
+      guarantors: { name: string; cnic: string }[];
+      itemImage: string;
+      installments?: { month: number; date: string; amount: number; status: string }[];
+    } = {
       id: existingInstallments.length + 1,
       ...data,
-      investors: data.investorIds.map((id) => localInvestors.find((inv: any) => inv.id.toString() === id)),
+      investors: investors,
       customer: localCustomers.find((cust: any) => cust.id.toString() === data.customerId),
       date: new Date(),
       completedPayments: 0,
       status: "active",
+      guarantors: data.guarantors.map((guarantor) => ({
+        name: guarantor.name,
+        cnic: guarantor.cnicNumber,
+      })),
     }
     existingInstallments.push(newInstallment)
     if (Array.isArray(sellItemsData)) {
       newInstallment.installments = createInstallments(newInstallment.sellPrice, newInstallment.totalPayments, newInstallment.date);
-      sellItemsData.push(newInstallment);
+      sellItemsData.push({
+        ...newInstallment,
+        installments: newInstallment.installments || [], // Ensure installments is always defined
+      });
     }
     console.log(sellItemsData, "sellItemsData");
     
@@ -440,6 +611,8 @@ export function CreateInstallmentForm() {
       dispatch(setIsShowCreateInstallment(false))
     }, 2000)
   }
+console.log("localInvestors", localInvestors);
+  console.log("localCustomers", localCustomers);
 
   // Handle investor form submission
   const onInvestorSubmit = async (data: InvestorFormValues) => {
@@ -690,8 +863,11 @@ console.log("Customer added:", data);
                                     Selected Investors:
                                   </h4>
                                   <div className="flex flex-wrap gap-2">
-                                    {field.value.map((investorId) => {
-                                      const investor = localInvestors.find((inv: any) => inv.id.toString() === investorId)
+                                    {field.value.map((investorId: any) => {
+                                      // const investor = localInvestors.find((inv: any) => inv.id.toString() === investorId)
+                                      const investor = investors[investorId]
+                                   
+
                                       if (!investor) return null
 
                                       return (
@@ -1230,6 +1406,133 @@ console.log("Customer added:", data);
                     </CardContent>
                   </Card>
 
+                  <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-cyan-500" />
+                Investor Contributions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Add Investor */}
+                <div className="flex flex-col md:flex-row gap-3">
+                  <Select onValueChange={handleAddInvestor}>
+                    <SelectTrigger className="w-full md:w-[250px]">
+                      <SelectValue placeholder="Select investor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {localInvestors
+                        .filter((investor: any) => Array.isArray(investors) && !investors.some((selected: any) => selected.id === investor.id))
+                        .map((investor: any) => (
+                          <SelectItem
+                           key={investor.id} value={investor.id}>
+                            {investor.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={distributeEqually}
+                    disabled={investors.length === 0 || !sellPrice || isNaN(Number.parseFloat(sellPrice))}
+                    className="flex-shrink-0"
+                  >
+                    Distribute Equally
+                  </Button>
+                </div>
+
+                {/* Selected Investors */}
+                {investors.length > 0 ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-12 gap-4 text-sm font-medium text-slate-500 dark:text-slate-400 px-2">
+                      <div className="col-span-5 md:col-span-6">Investor</div>
+                      <div className="col-span-4 md:col-span-3">Contribution</div>
+                      <div className="col-span-2">Percentage</div>
+                      <div className="col-span-1">Action</div>
+                    </div>
+
+                    {investors.map((investor: any) => (
+                      <div
+                        key={investor.id}
+                        className="grid grid-cols-12 gap-4 items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg"
+                      >
+                        <div className="col-span-5 md:col-span-6 flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 flex-shrink-0">
+                            <img
+                              src={investor.image || "/placeholder.svg"}
+                              alt={investor.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <span className="font-medium text-slate-900 dark:text-slate-100 truncate">
+                            {investor.name}
+                          </span>
+                        </div>
+
+                        <div className="col-span-4 md:col-span-3">
+                          <div className="relative">
+                            <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
+                            <Input
+                              value={investor.contribution}
+                              onChange={(e) => handleContributionChange(investor.id, e.target.value)}
+                              className="pl-8 py-1 h-9"
+                              placeholder="0.00"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="col-span-2 text-cyan-600 dark:text-cyan-400 font-medium">
+                          {investor.percentage}%
+                        </div>
+
+                        <div className="col-span-1 flex justify-center">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveInvestor(investor.id)}
+                            className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Contribution Total */}
+                    <div className="flex justify-between items-center bg-slate-100 dark:bg-slate-800 p-3 rounded-lg">
+                      <span className="font-medium text-slate-900 dark:text-slate-100">Total Contribution:</span>
+                      <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">
+                        $
+                        {investors
+                          .reduce((sum: any, investor: any) => sum + (Number.parseFloat(investor.contribution) || 0), 0)
+                          .toFixed(2)}
+                      </span>
+                    </div>
+
+                    {/* Error Message */}
+                    {contributionError && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>{contributionError}</AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                    <Users className="h-10 w-10 mx-auto mb-2 text-slate-400 dark:text-slate-500" />
+                    <p>No investors selected yet</p>
+                    <p className="text-sm mt-1">Select investors to distribute the sell price</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+                          
                   <div className="flex justify-end gap-4">
                     <Button type="button" onClick={() => dispatch(setIsShowCreateInstallment(false))} variant="outline">
                       Cancel
@@ -1314,8 +1617,8 @@ console.log("Customer added:", data);
                     <h4 className="font-medium text-slate-900 dark:text-white mb-2">Selected Investors:</h4>
                     <div className="space-y-2">
                       {form.getValues("investorIds").length > 0 ? (
-                        form.getValues("investorIds").map((investorId) => {
-                          const investor = localInvestors.find((inv: any) => inv.id.toString() === investorId)
+                        form.getValues("investorIds").map((investorId: any) => {
+                          const investor = investors[investorId]
                           if (!investor) return null
 
                           return (
