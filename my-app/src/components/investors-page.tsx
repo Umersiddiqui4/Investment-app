@@ -185,7 +185,7 @@ export default function InvestorsPage() {
                 {showSuggestions && searchQuery && (
                   <div className="absolute z-10 mt-1 w-full bg-white dark:bg-slate-800 rounded-md shadow-lg border border-slate-200 dark:border-slate-700 max-h-60 overflow-auto">
                     {filteredInvestors.length > 0 ? (
-                      filteredInvestors.map((investor) => (
+                      filteredInvestors.map((investor: any) => (
                         <div
                           key={investor.id}
                           className="flex items-center gap-3 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition-colors"
@@ -368,7 +368,7 @@ export default function InvestorsPage() {
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
-                          {selectedInvestors.map((investor) => (
+                          {selectedInvestors.map((investor: any) => (
                             <div
                               key={investor.id}
                               className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-700/30"
