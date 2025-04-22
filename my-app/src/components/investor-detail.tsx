@@ -11,6 +11,7 @@ import { sellItemsData } from "./api/installments"
 import { useState, useRef, useEffect } from "react"
 import { SellItemDetails } from "./SellDetail"
 import { Input } from "@/components/ui/input"
+import SellItemListView from "./ui/SellItemListView"
 
 interface InvestorDetailProps {
   investorData: any
@@ -23,7 +24,15 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
   const [totalInvestmentValue, setTotalInvestmentValue] = useState(investorData.totalInvestment)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const investorInstallments = sellItemsData.filter((item) => item.investors.some((inv) => inv.id === investorData.id))
+  const investorSells = sellItemsData.filter((item) => item.investors.some((inv) => inv.id === investorData.id))
+  const investorInstallments = sellItemsData.filter((item) =>
+    item.investors.some(
+      (inv) => inv.id === investorData.id
+    ) &&
+       item.status === "active"
+    
+  )
+  
 
   console.log("Investor Installments:", totalInvestmentValue);
   
@@ -99,6 +108,9 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
       localStorage.setItem("userData", JSON.stringify(updatedData));
     }
   };
+  
+  console.log("Investor Data:", investorInstallments);
+  console.log("Investor sell:", investorSells);
   
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -253,40 +265,39 @@ export default function InvestorDetail({ investorData, onBack }: InvestorDetailP
                   No installments found matching your criteria
                 </div>
               ) : (
-                investorInstallments.map((installment: any) => (
-                  <div key={installment.id} className="cursor-pointer" onClick={() => handleItemClick(installment)}>
-                    <InstallmentCard installment={installment} />
-                  </div>
+                investorInstallments.map((item: any) => (
+                  <div className="space-y-3 my-4">
+                              <SellItemListView
+                                key={item.id}
+                                item={item}
+                                onClick={() => handleItemClick(item)}
+                                formatDate={formatDate}
+                                formatCurrency={formatCurrency}
+                              />
+                            </div>
                 ))
               )}
             </TabsContent>
 
             {/* Sales Tab Content */}
             <TabsContent value="sales" className="mt-4">
-              <Card className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700/50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-slate-900 dark:text-white text-lg">Sales History</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-slate-200 dark:border-slate-700">
-                          <th className="text-left py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">Date</th>
-                          <th className="text-left py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">
-                            Company
-                          </th>
-                          <th className="text-left py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">
-                            Product
-                          </th>
-                          <th className="text-left py-3 px-4 text-slate-500 dark:text-slate-400 font-medium">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>{/* Sales data would go here */}</tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
+            {investorSells.length === 0 ? (
+                <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                  No installments found matching your criteria
+                </div>
+              ) : (
+                investorSells.map((item: any) => (
+                  <div className="space-y-3 my-4">
+                              <SellItemListView
+                                key={item.id}
+                                item={item}
+                                onClick={() => handleItemClick(item)}
+                                formatDate={formatDate}
+                                formatCurrency={formatCurrency}
+                              />
+                            </div>
+                ))
+              )}
             </TabsContent>
           </Tabs>
         </div>

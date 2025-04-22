@@ -232,16 +232,16 @@ export default function InvestorsPage() {
 
           {/* Investors Page Content */}
           <main className="flex-1 overflow-auto p-4 md:p-6">
-            <div className="max-w-4xl mx-auto space-y-6">
               {selectedInvestorId ? (
                 <InvestorDetail
                   investorData={selectedInvestorId}
                   onBack={handleBackToInvestors}
                 />
               ) : (
-                <>
+                <div className="max-w-7xl mx-auto space-y-6">
                   {/* Investors List View */}
-                  <Card className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 overflow-hidden">
+                  <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 overflow-hidden">
+
                     <CardHeader className="pb-2">
                       <CardTitle className="text-slate-900 dark:text-white text-xl">
                         Investors
@@ -420,9 +420,8 @@ export default function InvestorsPage() {
                       </CardContent>
                     </Card>
                   )}
-                </>
+                </div>
               )}
-            </div>
           </main>
         </div>
       </div>

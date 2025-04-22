@@ -1050,7 +1050,7 @@ export const investorsData = [
   },
 ];
 
-const createInstallments = (sellPrice, totalPayments, startDate) => {
+const createInstallments = (sellPrice: any, totalPayments: any, startDate: any) => {
   const amount = parseFloat(sellPrice) / parseInt(totalPayments);
   const installments = [];
 
