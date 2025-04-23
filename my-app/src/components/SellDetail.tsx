@@ -130,6 +130,7 @@ export function SellItemDetails({ item, onBack }: any) {
     // Manual update to sellItemsData
     const targetIndex = sellItemsData.findIndex((s) => s.id === item.id);
     if (targetIndex !== -1) {
+      sellItemsData[targetIndex].completedPayments += 1;
       sellItemsData[targetIndex].installments = updated;
     }
 
@@ -180,6 +181,7 @@ export function SellItemDetails({ item, onBack }: any) {
     // Update in sellItemsData (non-state variable)
     const targetIndex = sellItemsData.findIndex((s) => s.id === item.id);
     if (targetIndex !== -1) {
+      sellItemsData[targetIndex].completedPayments += 1;
       sellItemsData[targetIndex].installments = updated;
     }
 
@@ -226,6 +228,7 @@ export function SellItemDetails({ item, onBack }: any) {
 
     const targetIndex = sellItemsData.findIndex((s) => s.id === item.id);
     if (targetIndex !== -1) {
+      sellItemsData[targetIndex].completedPayments += 1;
       sellItemsData[targetIndex].installments = updated;
     }
 
@@ -255,6 +258,9 @@ export function SellItemDetails({ item, onBack }: any) {
 
       const itemIndex = sellItemsData.findIndex((i) => i.id === item.id);
       if (itemIndex !== -1) {
+        console.log(itemIndex,"itemindex");
+        
+        sellItemsData[itemIndex].completedPayments += 1;
         sellItemsData[itemIndex].installments = updated;
       }
 
