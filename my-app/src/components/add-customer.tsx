@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { v4 as uuidv4 } from "uuid";
 import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -142,21 +142,17 @@ export function RegistrationForm() {
     }
   }
 
-  const generateRandomId = () => {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-  };
   // Update the onSubmit function to include image URLs in localStorage
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
     
-    const userId = generateRandomId();    
   
     try {
       const activeSince = new Date()
   
       const userData = {
         ...data,
-        id: userId,
+        id: uuidv4(),
         profilePicture: profileUrl,
         cnicFrontImage: cnicFrontUrl,
         cnicBackImage: cnicBackUrl,
