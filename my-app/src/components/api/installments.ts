@@ -1071,7 +1071,7 @@ const createInstallments = (sellPrice: any, totalPayments: any, startDate: any) 
 
 export const sellItemsData = [
   {
-    id: 1,
+    id: "1",
     itemName: "Laptop",
     itemImage: "https://www.asus.com/media/Odin/Websites/global/Series/9.png",
     costPrice: "50000",
@@ -1103,7 +1103,7 @@ export const sellItemsData = [
     installments: createInstallments(60000, 12, 0),
   },
   {
-    id: 2,
+    id: "2",
     itemName: "Mobile Phone",
     itemImage: "https://sparx.pk/cdn/shop/files/NeoxBlue.jpg?v=1710401240&width=416",
     costPrice: "30000",
@@ -1135,7 +1135,7 @@ export const sellItemsData = [
     installments: createInstallments(40000, 8, 2),
   },
   {
-    id: 3,
+    id: "3",
     itemName: "TV",
     itemImage: "https://ledshop.pk/wp-content/uploads/2023/09/x75k-2.png",
     costPrice: "45000",

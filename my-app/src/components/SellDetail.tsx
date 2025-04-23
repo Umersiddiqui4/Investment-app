@@ -243,6 +243,7 @@ export function SellItemDetails({ item, onBack }: any) {
         : [...prev, monthIndex]
     );
   };
+  
 
   const handleInstallmentUpdate = (index: number) => {
     const updated = [...installments];
@@ -1523,7 +1524,7 @@ export function SellItemDetails({ item, onBack }: any) {
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    {selectedProfile?.cnicFrontImage && (
+                    {selectedProfile?.cnicFront && (
                       <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">
                           CNIC Front
@@ -1532,7 +1533,7 @@ export function SellItemDetails({ item, onBack }: any) {
                           <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                           <img
                             src={
-                              selectedProfile.cnicFrontImage ||
+                              selectedProfile.cnicFront ||
                               "/placeholder.svg"
                             }
                             alt="CNIC Front"
@@ -1541,7 +1542,7 @@ export function SellItemDetails({ item, onBack }: any) {
                         </div>
                       </div>
                     )}
-                    {selectedProfile?.cnicBackImage && (
+                    {selectedProfile?.cnicBack && (
                       <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">
                           CNIC Back
@@ -1550,7 +1551,7 @@ export function SellItemDetails({ item, onBack }: any) {
                           <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                           <img
                             src={
-                              selectedProfile.cnicBackImage ||
+                              selectedProfile.cnicBack ||
                               "/placeholder.svg"
                             }
                             alt="CNIC Back"
