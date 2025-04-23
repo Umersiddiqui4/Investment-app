@@ -221,7 +221,6 @@ const customerFormSchema = z.object({
   image: z.string(),
   cnicFront: z.string(),
   cnicBack: z.string(),
-
 });
 
 type InstallmentFormValues = z.infer<typeof installmentFormSchema>;
@@ -233,7 +232,7 @@ export function CreateInstallmentForm() {
   const [localInvestors, setLocalInvestors] = useState<any>(investor);
   const [itemImagePreview, setItemImagePreview] = useState<string | null>(null);
   const [cnicFrontPreview, setCnicFrontPreview] = useState<string | null>(null);
-const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
+  const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
 
   const [guarantorCnicFrontPreviews, setGuarantorCnicFrontPreviews] = useState<
     (string | null)[]
@@ -389,14 +388,13 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
         const guarantors = form.getValues("guarantors");
         guarantors[index].cnicBack = publicUrl; // set URL
         form.setValue("guarantors", guarantors);
-      }else if (fieldName === "customerCnicFront") {
+      } else if (fieldName === "customerCnicFront") {
         setCnicFrontPreview(result);
         customerForm.setValue("cnicFront", publicUrl);
       } else if (fieldName === "customerCnicBack") {
         setCnicBackPreview(result);
         customerForm.setValue("cnicBack", publicUrl);
       }
-      
 
       console.log("Image uploaded to:", publicUrl);
     };
@@ -499,7 +497,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
       address: "",
       image: undefined,
       cnicFront: undefined,
-      cnicBack: undefined
+      cnicBack: undefined,
     },
   });
 
@@ -519,9 +517,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
     const updatedInvestors: any[] = [];
 
     investorIds.forEach((id: string) => {
-      const investor = localInvestors.find(
-        (inv: any) => inv.id === id
-      );
+      const investor = localInvestors.find((inv: any) => inv.id === id);
       if (investor) updatedInvestors.push(investor);
     });
 
@@ -673,9 +669,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
     console.log("Form submitted:", {
       ...data,
       investors: investors,
-      customer: localCustomers.find(
-        (cust: any) => cust.id === data.customerId
-      ),
+      customer: localCustomers.find((cust: any) => cust.id === data.customerId),
     });
 
     // Save to local storage or send to API
@@ -713,9 +707,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
       id: uuidv4(),
       ...data,
       investors: investors,
-      customer: localCustomers.find(
-        (cust: any) => cust.id === data.customerId
-      ),
+      customer: localCustomers.find((cust: any) => cust.id === data.customerId),
       date: new Date(),
       completedPayments: 0,
       status: "active",
@@ -824,7 +816,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
       address: data.address || "",
       cnic: data.cnicNumber || "",
       cnicFront: cnicFrontPreview || "",
-      cnicBack: cnicBackPreview || ""
+      cnicBack: cnicBackPreview || "",
     };
 
     const existingUsers = JSON.parse(localStorage.getItem("userData") || "[]");
@@ -878,7 +870,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
     const cost = parseFloat(costPrice);
     const sell = parseFloat(sellPrice);
     const interest = parseFloat(rate);
-  
+
     if (!isNaN(cost)) {
       if (isCalculatingFromRate && !isNaN(interest)) {
         const calculatedSellPrice = (cost * (1 + interest / 100)).toFixed(2);
@@ -889,7 +881,6 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
       }
     }
   }, [costPrice, sellPrice, rate, isCalculatingFromRate]);
-  
 
   return (
     <div className="container mx-auto py-6">
@@ -1007,8 +998,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                                               const currentIds = [
                                                 ...field.value,
                                               ];
-                                              const investorId =
-                                                investor.id;
+                                              const investorId = investor.id;
 
                                               if (
                                                 currentIds.includes(investorId)
@@ -1067,10 +1057,12 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                                   </h4>
                                   <div className="flex flex-wrap gap-2">
                                     {field.value.map((investorId: any) => {
-                                      const investor = localInvestors.find((inv: any) => inv.id === investorId)
+                                      const investor = localInvestors.find(
+                                        (inv: any) => inv.id === investorId
+                                      );
                                       // const investor = investors[investorId];
-                                      console.log(investorId," investor");
-                                      
+                                      console.log(investorId, " investor");
+
                                       if (!investor) return null;
 
                                       return (
@@ -1164,8 +1156,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                                     {field.value
                                       ? localCustomers.find(
                                           (customer: any) =>
-                                            customer.id ===
-                                            field.value
+                                            customer.id === field.value
                                         )?.name
                                       : "Select customer"}
                                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -1229,8 +1220,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                                           <CheckCircle2
                                             className={cn(
                                               "ml-auto h-4 w-4",
-                                              customer.id ===
-                                                field.value
+                                              customer.id === field.value
                                                 ? "opacity-100 text-cyan-500"
                                                 : "opacity-0"
                                             )}
@@ -1563,7 +1553,6 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                                       field.onChange(value);
                                       setIsCalculatingFromRate(true);
                                     }}
-                                    
                                   />
                                 </div>
                               </FormControl>
@@ -1975,7 +1964,9 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                     <div className="space-y-2">
                       {form.getValues("investorIds").length > 0 ? (
                         form.getValues("investorIds").map((investorId: any) => {
-                          const investor = localInvestors.find((inv: any) => inv.id === investorId)
+                          const investor = localInvestors.find(
+                            (inv: any) => inv.id === investorId
+                          );
                           if (!investor) return null;
 
                           return (
@@ -2012,8 +2003,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                             src={
                               localCustomers.find(
                                 (c: any) =>
-                                  c.id ===
-                                  form.getValues("customerId")
+                                  c.id === form.getValues("customerId")
                               )?.image ||
                               "/placeholder.svg" ||
                               "/placeholder.svg"
@@ -2026,8 +2016,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                             {
                               localCustomers.find(
                                 (c: any) =>
-                                  c.id ===
-                                  form.getValues("customerId")
+                                  c.id === form.getValues("customerId")
                               )?.name
                             }
                           </span>
@@ -2035,8 +2024,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                             {
                               localCustomers.find(
                                 (c: any) =>
-                                  c.id ===
-                                  form.getValues("customerId")
+                                  c.id === form.getValues("customerId")
                               )?.email
                             }
                           </span>
@@ -2415,64 +2403,88 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                         </FormItem>
                       )}
                     />
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  {/* CNIC Front */}
-  <div className="space-y-2">
-    <FormLabel>CNIC Front</FormLabel>
-    <div
-      className={cn(
-        "h-32 border-2 border-dashed rounded-md flex items-center justify-center overflow-hidden",
-        cnicFrontPreview ? "border-cyan-500" : "border-slate-300"
-      )}
-    >
-      {cnicFrontPreview ? (
-        <img src={cnicFrontPreview} alt="CNIC Front" className="w-full h-full object-contain p-2" />
-      ) : (
-        <div className="text-center text-slate-400 p-4">Upload front side</div>
-      )}
-    </div>
-    <Input
-      id="cnic-front"
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={(e) => handleImageUpload(e, "customerCnicFront")}
-    />
-    <Label htmlFor="cnic-front" className="cursor-pointer inline-flex items-center px-3 py-1 bg-cyan-600 text-white rounded text-sm">
-      <Upload className="mr-2 h-4 w-4" /> Upload Front
-    </Label>
-  </div>
+                      {/* CNIC Front */}
+                      <div className="space-y-2">
+                        <FormLabel>CNIC Front</FormLabel>
+                        <div
+                          className={cn(
+                            "h-32 border-2 border-dashed rounded-md flex items-center justify-center overflow-hidden",
+                            cnicFrontPreview
+                              ? "border-cyan-500"
+                              : "border-slate-300"
+                          )}
+                        >
+                          {cnicFrontPreview ? (
+                            <img
+                              src={cnicFrontPreview}
+                              alt="CNIC Front"
+                              className="w-full h-full object-contain p-2"
+                            />
+                          ) : (
+                            <div className="text-center text-slate-400 p-4">
+                              Upload front side
+                            </div>
+                          )}
+                        </div>
+                        <Input
+                          id="cnic-front"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) =>
+                            handleImageUpload(e, "customerCnicFront")
+                          }
+                        />
+                        <Label
+                          htmlFor="cnic-front"
+                          className="cursor-pointer inline-flex items-center px-3 py-1 bg-cyan-600 text-white rounded text-sm"
+                        >
+                          <Upload className="mr-2 h-4 w-4" /> Upload Front
+                        </Label>
+                      </div>
 
-  {/* CNIC Back */}
-  <div className="space-y-2">
-    <FormLabel>CNIC Back</FormLabel>
-    <div
-      className={cn(
-        "h-32 border-2 border-dashed rounded-md flex items-center justify-center overflow-hidden",
-        cnicBackPreview ? "border-cyan-500" : "border-slate-300"
-      )}
-    >
-      {cnicBackPreview ? (
-        <img src={cnicBackPreview} alt="CNIC Back" className="w-full h-full object-contain p-2" />
-      ) : (
-        <div className="text-center text-slate-400 p-4">Upload back side</div>
-      )}
-    </div>
-    <Input
-      id="cnic-back"
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={(e) => handleImageUpload(e, "customerCnicBack")}
-    />
-    <Label htmlFor="cnic-back" className="cursor-pointer inline-flex items-center px-3 py-1 bg-cyan-600 text-white rounded text-sm">
-      <Upload className="mr-2 h-4 w-4" /> Upload Back
-    </Label>
-  </div>
-</div>
-
-                    
+                      {/* CNIC Back */}
+                      <div className="space-y-2">
+                        <FormLabel>CNIC Back</FormLabel>
+                        <div
+                          className={cn(
+                            "h-32 border-2 border-dashed rounded-md flex items-center justify-center overflow-hidden",
+                            cnicBackPreview
+                              ? "border-cyan-500"
+                              : "border-slate-300"
+                          )}
+                        >
+                          {cnicBackPreview ? (
+                            <img
+                              src={cnicBackPreview}
+                              alt="CNIC Back"
+                              className="w-full h-full object-contain p-2"
+                            />
+                          ) : (
+                            <div className="text-center text-slate-400 p-4">
+                              Upload back side
+                            </div>
+                          )}
+                        </div>
+                        <Input
+                          id="cnic-back"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) =>
+                            handleImageUpload(e, "customerCnicBack")
+                          }
+                        />
+                        <Label
+                          htmlFor="cnic-back"
+                          className="cursor-pointer inline-flex items-center px-3 py-1 bg-cyan-600 text-white rounded text-sm"
+                        >
+                          <Upload className="mr-2 h-4 w-4" /> Upload Back
+                        </Label>
+                      </div>
+                    </div>
 
                     <div className="flex justify-end gap-4 pt-4">
                       <Button
