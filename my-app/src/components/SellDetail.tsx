@@ -75,7 +75,7 @@ export function SellItemDetails({ item, onBack }: any) {
       distributeToNextInstallmentOnly(paymentOption.id);
       console.log("Distribute logic triggered via paymentOption");
     }
-  }, [paymentOption]); 
+  }, [paymentOption]);
 
   const distributeRemainingAmountToSellItem = (index: number) => {
     const updated = [...installments];
@@ -96,7 +96,7 @@ export function SellItemDetails({ item, onBack }: any) {
       ...updated[index],
       amount: received,
       status: "paid",
-      paidDate: paymentDates
+      paidDate: paymentDates,
     };
 
     // Step 2: distribute remaining
@@ -157,7 +157,7 @@ export function SellItemDetails({ item, onBack }: any) {
       ...updated[index],
       amount: received,
       status: "paid",
-      paidDate: paymentDates
+      paidDate: paymentDates,
     };
 
     // Step 2: Add remaining to just the next unpaid installment
@@ -210,7 +210,7 @@ export function SellItemDetails({ item, onBack }: any) {
       ...updated[index],
       amount: paid,
       status: "paid",
-      paidDate: paymentDates
+      paidDate: paymentDates,
     };
 
     const evenAmount = Math.floor(remaining / selectedMonths.length);
@@ -258,8 +258,8 @@ export function SellItemDetails({ item, onBack }: any) {
 
       const itemIndex = sellItemsData.findIndex((i) => i.id === item.id);
       if (itemIndex !== -1) {
-        console.log(itemIndex,"itemindex");
-        
+        console.log(itemIndex, "itemindex");
+
         sellItemsData[itemIndex].completedPayments += 1;
         sellItemsData[itemIndex].installments = updated;
       }
@@ -731,7 +731,8 @@ export function SellItemDetails({ item, onBack }: any) {
                                 {formatDate(installment.date)}
                               </span>
                               <span className="text-blue-700 dark:text-green-400">
-                                {installment?.status === "paid" && formatDate(installment?.paidDate)}
+                                {installment?.status === "paid" &&
+                                  formatDate(installment?.paidDate)}
                               </span>
                               <span className="font-medium text-slate-900 dark:text-white">
                                 {formatCurrency(
@@ -1012,7 +1013,8 @@ export function SellItemDetails({ item, onBack }: any) {
                                 >
                                   Cancel
                                 </Button>
-                                {paymentOption?.type !== "manual" && (
+                                {(paymentOption?.type !== "manual" && (paidAmount[index] || 0) ==
+                                installment.amount) && (
                                   <Button
                                     size="sm"
                                     className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
@@ -1041,15 +1043,36 @@ export function SellItemDetails({ item, onBack }: any) {
                         {formatCurrency(item.sellPrice / item.totalPayments)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-slate-700 dark:text-slate-300">
+                        Total Received
+                      </span>
+                      <span className="text-green-400 dark:text-green-400 font-medium">
+                        {formatCurrency(
+                          item.installments
+                            .filter((inst: any) => inst.status === "paid")
+                            .reduce(
+                              (sum: number, inst: any) =>
+                                sum + Number(inst.amount || 0),
+                              0
+                            )
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center mb-3">
                       <span className="text-slate-700 dark:text-slate-300">
                         Total Remaining
                       </span>
-                      <span className="text-slate-900 dark:text-white font-medium">
+                      <span className="text-orange-400 dark:text-orange-400 font-medium">
                         {formatCurrency(
                           item.sellPrice -
-                            (item.sellPrice / item.totalPayments) *
-                              item.completedPayments
+                            item.installments
+                              .filter((inst: any) => inst.status === "paid")
+                              .reduce(
+                                (sum: number, inst: any) =>
+                                  sum + Number(inst.amount || 0),
+                                0
+                              )
                         )}
                       </span>
                     </div>
@@ -1158,8 +1181,13 @@ export function SellItemDetails({ item, onBack }: any) {
                           }`}
                         ></div>
                         <div className="text-sm text-slate-900 dark:text-white font-medium truncate">
-                          {formatDate(installment.date)}
+                          {formatDate(installment.date)}-
                         </div>
+                        {installment.status === "paid" && (
+                          <div className="text-sm text-green-400 dark:text-green-400 font-medium truncate">
+                          {formatDate(installment.paidDate)}
+                          </div>
+                        )}
                         <div className="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap">
                           <span className="mr-1">
                             Payment {installment.month} -
@@ -1292,6 +1320,41 @@ export function SellItemDetails({ item, onBack }: any) {
                     {formatCurrency(item.sellPrice)}
                   </span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-700 dark:text-slate-300">
+                    Total Received
+                  </span>
+                  <span className="text-lg font-bold text-green-400 dark:text-green-400">
+                    {formatCurrency(
+                      item.installments
+                        .filter((inst: any) => inst.status === "paid")
+                        .reduce(
+                          (sum: number, inst: any) =>
+                            sum + Number(inst.amount || 0),
+                          0
+                        )
+                    )}
+                  </span>
+                </div> 
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-700 dark:text-slate-300">
+                    Total Remaining
+                  </span>
+                  <span className="text-lg font-bold text-orange-400 dark:text-orange-400">
+                    {formatCurrency(
+                      item.sellPrice -
+                        item.installments
+                          .filter((inst: any) => inst.status === "paid")
+                          .reduce(
+                            (sum: number, inst: any) =>
+                              sum + Number(inst.amount || 0),
+                            0
+                          )
+                    )}
+                  </span>
+                </div>
+                
+
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 dark:text-slate-400">
                     Investment Rate:
