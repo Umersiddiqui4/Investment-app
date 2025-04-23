@@ -75,7 +75,7 @@ export function SellItemDetails({ item, onBack }: any) {
       distributeToNextInstallmentOnly(paymentOption.id);
       console.log("Distribute logic triggered via paymentOption");
     }
-  }, [paymentOption]); // ✅ correct dependency
+  }, [paymentOption]); 
 
   const distributeRemainingAmountToSellItem = (index: number) => {
     const updated = [...installments];
@@ -96,6 +96,7 @@ export function SellItemDetails({ item, onBack }: any) {
       ...updated[index],
       amount: received,
       status: "paid",
+      paidDate: paymentDates
     };
 
     // Step 2: distribute remaining
@@ -155,6 +156,7 @@ export function SellItemDetails({ item, onBack }: any) {
       ...updated[index],
       amount: received,
       status: "paid",
+      paidDate: paymentDates
     };
 
     // Step 2: Add remaining to just the next unpaid installment
@@ -206,6 +208,7 @@ export function SellItemDetails({ item, onBack }: any) {
       ...updated[index],
       amount: paid,
       status: "paid",
+      paidDate: paymentDates
     };
 
     const evenAmount = Math.floor(remaining / selectedMonths.length);
@@ -720,6 +723,9 @@ export function SellItemDetails({ item, onBack }: any) {
                             <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                               <span className="text-sm text-slate-500 dark:text-slate-400">
                                 {formatDate(installment.date)}
+                              </span>
+                              <span className="text-blue-700 dark:text-green-400">
+                                {installment?.status === "paid" && formatDate(installment?.paidDate)}
                               </span>
                               <span className="font-medium text-slate-900 dark:text-white">
                                 {formatCurrency(
