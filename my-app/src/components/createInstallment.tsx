@@ -266,7 +266,7 @@ export function CreateInstallmentForm() {
       itemName: "",
       costPrice: "",
       sellPrice: "",
-      rate: "20", // Default interest rate
+      rate: "25", // Default interest rate
       totalPayments: "12", // Default time period (12 months)
       guarantors: [
         {
@@ -1033,9 +1033,10 @@ export function CreateInstallmentForm() {
                                   </h4>
                                   <div className="flex flex-wrap gap-2">
                                     {field.value.map((investorId: any) => {
-                                      // const investor = localInvestors.find((inv: any) => inv.id.toString() === investorId)
-                                      const investor = investors[investorId];
-
+                                      const investor = localInvestors.find((inv: any) => inv.id.toString() === investorId)
+                                      // const investor = investors[investorId];
+                                      console.log(investorId," investor");
+                                      
                                       if (!investor) return null;
 
                                       return (
@@ -1937,7 +1938,7 @@ export function CreateInstallmentForm() {
                     <div className="space-y-2">
                       {form.getValues("investorIds").length > 0 ? (
                         form.getValues("investorIds").map((investorId: any) => {
-                          const investor = investors[investorId];
+                          const investor = localInvestors.find((inv: any) => inv.id.toString() === investorId)
                           if (!investor) return null;
 
                           return (
