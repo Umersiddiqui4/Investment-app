@@ -1362,7 +1362,7 @@ export function CreateInstallmentForm() {
                                     </div>
                                     <Label
                                       htmlFor={`cnic-front-${index}`}
-                                      className="cursor-pointer inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-md text-sm font-medium transition-colors"
+                                      className="cursor-pointer w-full justify-center inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-md text-sm font-medium transition-colors"
                                     >
                                       <Upload className="mr-2 h-4 w-4" />
                                       Upload Front
@@ -1410,7 +1410,7 @@ export function CreateInstallmentForm() {
                                     </div>
                                     <Label
                                       htmlFor={`cnic-back-${index}`}
-                                      className="cursor-pointer inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-md text-sm font-medium transition-colors"
+                                      className="cursor-pointer inline-flex w-full justify-center items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded-md text-sm font-medium transition-colors"
                                     >
                                       <Upload className="mr-2 h-4 w-4" />
                                       Upload Back
