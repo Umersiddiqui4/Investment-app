@@ -874,6 +874,23 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
     }).format(numValue);
   };
 
+  useEffect(() => {
+    const cost = parseFloat(costPrice);
+    const sell = parseFloat(sellPrice);
+    const interest = parseFloat(rate);
+  
+    if (!isNaN(cost)) {
+      if (isCalculatingFromRate && !isNaN(interest)) {
+        const calculatedSellPrice = (cost * (1 + interest / 100)).toFixed(2);
+        form.setValue("sellPrice", calculatedSellPrice);
+      } else if (!isCalculatingFromRate && !isNaN(sell)) {
+        const calculatedRate = (((sell - cost) / cost) * 100).toFixed(2);
+        form.setValue("rate", calculatedRate);
+      }
+    }
+  }, [costPrice, sellPrice, rate, isCalculatingFromRate]);
+  
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
@@ -1544,7 +1561,9 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                                         ""
                                       );
                                       field.onChange(value);
+                                      setIsCalculatingFromRate(true);
                                     }}
+                                    
                                   />
                                 </div>
                               </FormControl>
@@ -1603,6 +1622,7 @@ const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
                                       );
                                       field.onChange(value);
                                       setIsRateManual(true); // user ne manually rate set kiya
+                                      setIsCalculatingFromRate(true);
                                     }}
                                   />
                                 </div>
