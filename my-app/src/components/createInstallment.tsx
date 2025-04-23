@@ -141,6 +141,7 @@ export function CreateInstallmentForm() {
   const [customerImagePreview, setCustomerImagePreview] = useState<string | null>(null)
   const [investors, setInvestors] = useState<any[]>(() => [])
   const [contributionError, setContributionError] = useState<string | null>(null)
+  const [isRateManual, setIsRateManual] = useState(false);
 
   const [localCustomers, setLocalCustomers] = useState<any>(customers)
   const dispatch = useDispatch()
@@ -156,7 +157,7 @@ const form = useForm<InstallmentFormValues>({
     itemName: "",
     costPrice: "",
     sellPrice: "",
-    rate: "10", // Default interest rate
+    rate: "20", // Default interest rate
     totalPayments: "12", // Default time period (12 months)
     guarantors: [{ name: "", contact: "", cnicNumber: "", cnicFront: undefined, cnicBack: undefined }],
     itemImage: undefined,
@@ -484,6 +485,13 @@ console.log(investors, "investors");
     reader.readAsDataURL(file);
   };
   
+  const getAutoRate = (months: number) => {
+    if (months <= 4) return 10;
+    if (months <= 8) return 14;
+    if (months <= 12) return 20;
+    return 25; // default for more than 12 months
+  };
+  
 
   // Remove guarantor
   const removeGuarantor = (index: number) => {
@@ -566,7 +574,7 @@ console.log(investors, "investors");
       itemImage: string;
       installments?: { month: number; date: string; amount: number; status: string }[];
     } = {
-      id: existingInstallments.length + 1,
+      id: Math.max(...localInvestors.map((cust: any) => cust.id)) + 1,
       ...data,
       investors: investors,
       customer: localCustomers.find((cust: any) => cust.id.toString() === data.customerId),
@@ -1341,71 +1349,91 @@ console.log("Customer added:", data);
                           )}
                         />
 
-                        <FormField
-                          control={form.control}
-                          name="rate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Interest Rate (%)</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <Percent className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                                  <Input
-                                    placeholder="0.00"
-                                    className="pl-9"
-                                    {...field}
-                                    onChange={(e) => {
-                                      // Only allow numbers and decimal point
-                                      const value = e.target.value.replace(/[^0-9.]/g, "")
-                                      field.onChange(value)
-                                      setIsCalculatingFromRate(true)
-                                    }}
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+<FormField
+  control={form.control}
+  name="rate"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Interest Rate (%)</FormLabel>
+      <FormControl>
+        <div className="relative">
+          <Percent className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="0.00"
+            className="pl-9"
+            {...field}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9.]/g, "");
+              field.onChange(value);
+              setIsRateManual(true); // user ne manually rate set kiya
+            }}
+          />
+        </div>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
-                        <FormField
-                          control={form.control}
-                          name="totalPayments"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Time Period (Months)</FormLabel>
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-4">
-                                  <FormControl>
-                                    <div className="relative">
-                                      <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                                      <Input type="number" min="1" max="48" className="pl-9" {...field} />
-                                    </div>
-                                  </FormControl>
-                                  <span className="text-sm text-slate-500 dark:text-slate-400 w-10">
-                                    {field.value} {Number.parseInt(field.value) === 1 ? "month" : "months"}
-                                  </span>
-                                </div>
-                                <Slider
-                                  defaultValue={[Number.parseInt(field.value)]}
-                                  min={1}
-                                  max={48}
-                                  step={1}
-                                  onValueChange={(value) => {
-                                    field.onChange(value[0].toString())
-                                  }}
-                                  className="w-full"
-                                />
-                                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-                                  <span>1 month</span>
-                                  <span>24 months</span>
-                                  <span>48 months</span>
-                                </div>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+
+<FormField
+  control={form.control}
+  name="totalPayments"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Time Period (Months)</FormLabel>
+      <div className="space-y-2">
+        <div className="flex items-center gap-4">
+          <FormControl>
+            <div className="relative">
+              <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <Input
+                type="number"
+                min="1"
+                max="48"
+                className="pl-9"
+                {...field}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value);
+
+                  if (!isRateManual) {
+                    form.setValue("rate", getAutoRate(Number(value)).toString());
+                  }
+                }}
+              />
+            </div>
+          </FormControl>
+          <span className="text-sm text-slate-500 dark:text-slate-400 w-10">
+            {field.value} {Number.parseInt(field.value) === 1 ? "month" : "months"}
+          </span>
+        </div>
+
+        <Slider
+          defaultValue={[Number.parseInt(field.value)]}
+          min={1}
+          max={48}
+          step={1}
+          onValueChange={(value) => {
+            field.onChange(value[0].toString());
+
+            if (!isRateManual) {
+              form.setValue("rate", getAutoRate(value[0]).toString());
+            }
+          }}
+          className="w-full"
+        />
+        <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+          <span>1 month</span>
+          <span>24 months</span>
+          <span>48 months</span>
+        </div>
+      </div>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
                       </div>
                     </CardContent>
                   </Card>
