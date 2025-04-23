@@ -219,6 +219,9 @@ const customerFormSchema = z.object({
     .string()
     .min(5, { message: "Address must be at least 5 characters" }),
   image: z.string(),
+  cnicFront: z.string(),
+  cnicBack: z.string(),
+
 });
 
 type InstallmentFormValues = z.infer<typeof installmentFormSchema>;
@@ -229,6 +232,9 @@ export function CreateInstallmentForm() {
   // State for form data and UI
   const [localInvestors, setLocalInvestors] = useState<any>(investor);
   const [itemImagePreview, setItemImagePreview] = useState<string | null>(null);
+  const [cnicFrontPreview, setCnicFrontPreview] = useState<string | null>(null);
+const [cnicBackPreview, setCnicBackPreview] = useState<string | null>(null);
+
   const [guarantorCnicFrontPreviews, setGuarantorCnicFrontPreviews] = useState<
     (string | null)[]
   >([null, null]);
@@ -383,7 +389,14 @@ export function CreateInstallmentForm() {
         const guarantors = form.getValues("guarantors");
         guarantors[index].cnicBack = publicUrl; // set URL
         form.setValue("guarantors", guarantors);
+      }else if (fieldName === "customerCnicFront") {
+        setCnicFrontPreview(result);
+        customerForm.setValue("cnicFront", publicUrl);
+      } else if (fieldName === "customerCnicBack") {
+        setCnicBackPreview(result);
+        customerForm.setValue("cnicBack", publicUrl);
       }
+      
 
       console.log("Image uploaded to:", publicUrl);
     };
@@ -485,6 +498,8 @@ export function CreateInstallmentForm() {
       cnicNumber: "",
       address: "",
       image: undefined,
+      cnicFront: undefined,
+      cnicBack: undefined
     },
   });
 
@@ -505,7 +520,7 @@ export function CreateInstallmentForm() {
 
     investorIds.forEach((id: string) => {
       const investor = localInvestors.find(
-        (inv: any) => inv.id.toString() === id
+        (inv: any) => inv.id === id
       );
       if (investor) updatedInvestors.push(investor);
     });
@@ -659,7 +674,7 @@ export function CreateInstallmentForm() {
       ...data,
       investors: investors,
       customer: localCustomers.find(
-        (cust: any) => cust.id.toString() === data.customerId
+        (cust: any) => cust.id === data.customerId
       ),
     });
 
@@ -699,7 +714,7 @@ export function CreateInstallmentForm() {
       ...data,
       investors: investors,
       customer: localCustomers.find(
-        (cust: any) => cust.id.toString() === data.customerId
+        (cust: any) => cust.id === data.customerId
       ),
       date: new Date(),
       completedPayments: 0,
@@ -755,7 +770,7 @@ export function CreateInstallmentForm() {
     const activeSince = new Date();
     // Create new investor
     const newInvestor = {
-      id: Math.max(...localInvestors.map((inv: any) => inv.id)) + 1,
+      id: uuidv4(),
       name: data.name,
       image: investorImagePreview || "/placeholder.svg?height=40&width=40",
       userType: "investor",
@@ -777,7 +792,7 @@ export function CreateInstallmentForm() {
 
     // Add to selected investors
     const currentIds = form.getValues("investorIds");
-    form.setValue("investorIds", [...currentIds, newInvestor.id.toString()]);
+    form.setValue("investorIds", [...currentIds, newInvestor.id]);
 
     // Reset form and close
     investorForm.reset();
@@ -799,7 +814,7 @@ export function CreateInstallmentForm() {
     const activeSince = new Date();
     // Create new customer
     const newCustomer = {
-      id: Math.max(...localCustomers.map((cust: any) => cust.id)) + 1,
+      id: uuidv4(),
       name: data.name,
       email: data.email,
       image: customerImagePreview || "/placeholder.svg?height=40&width=40",
@@ -808,6 +823,8 @@ export function CreateInstallmentForm() {
       activeSince: activeSince,
       address: data.address || "",
       cnic: data.cnicNumber || "",
+      cnicFront: cnicFrontPreview || "",
+      cnicBack: cnicBackPreview || ""
     };
 
     const existingUsers = JSON.parse(localStorage.getItem("userData") || "[]");
@@ -822,7 +839,7 @@ export function CreateInstallmentForm() {
     setLocalCustomers([...localCustomers, newCustomer]);
 
     // Set as selected customer
-    form.setValue("customerId", newCustomer.id.toString());
+    form.setValue("customerId", newCustomer.id);
     console.log("Customer added:", data);
 
     // Reset form and close
@@ -974,7 +991,7 @@ export function CreateInstallmentForm() {
                                                 ...field.value,
                                               ];
                                               const investorId =
-                                                investor.id.toString();
+                                                investor.id;
 
                                               if (
                                                 currentIds.includes(investorId)
@@ -1011,7 +1028,7 @@ export function CreateInstallmentForm() {
                                               className={cn(
                                                 "ml-auto h-4 w-4",
                                                 field.value.includes(
-                                                  investor.id.toString()
+                                                  investor.id
                                                 )
                                                   ? "opacity-100 text-violet-500"
                                                   : "opacity-0"
@@ -1033,7 +1050,7 @@ export function CreateInstallmentForm() {
                                   </h4>
                                   <div className="flex flex-wrap gap-2">
                                     {field.value.map((investorId: any) => {
-                                      const investor = localInvestors.find((inv: any) => inv.id.toString() === investorId)
+                                      const investor = localInvestors.find((inv: any) => inv.id === investorId)
                                       // const investor = investors[investorId];
                                       console.log(investorId," investor");
                                       
@@ -1130,7 +1147,7 @@ export function CreateInstallmentForm() {
                                     {field.value
                                       ? localCustomers.find(
                                           (customer: any) =>
-                                            customer.id.toString() ===
+                                            customer.id ===
                                             field.value
                                         )?.name
                                       : "Select customer"}
@@ -1170,7 +1187,7 @@ export function CreateInstallmentForm() {
                                           onSelect={() => {
                                             form.setValue(
                                               "customerId",
-                                              customer.id.toString()
+                                              customer.id
                                             );
                                           }}
                                           className="cursor-pointer  hover:bg-cyan-50 dark:hover:bg-cyan-900/30 py-2 px-3 m-1 rounded-md transition-colors"
@@ -1195,7 +1212,7 @@ export function CreateInstallmentForm() {
                                           <CheckCircle2
                                             className={cn(
                                               "ml-auto h-4 w-4",
-                                              customer.id?.toString() ===
+                                              customer.id ===
                                                 field.value
                                                 ? "opacity-100 text-cyan-500"
                                                 : "opacity-0"
@@ -1938,7 +1955,7 @@ export function CreateInstallmentForm() {
                     <div className="space-y-2">
                       {form.getValues("investorIds").length > 0 ? (
                         form.getValues("investorIds").map((investorId: any) => {
-                          const investor = localInvestors.find((inv: any) => inv.id.toString() === investorId)
+                          const investor = localInvestors.find((inv: any) => inv.id === investorId)
                           if (!investor) return null;
 
                           return (
@@ -1975,7 +1992,7 @@ export function CreateInstallmentForm() {
                             src={
                               localCustomers.find(
                                 (c: any) =>
-                                  c.id.toString() ===
+                                  c.id ===
                                   form.getValues("customerId")
                               )?.image ||
                               "/placeholder.svg" ||
@@ -1989,7 +2006,7 @@ export function CreateInstallmentForm() {
                             {
                               localCustomers.find(
                                 (c: any) =>
-                                  c.id.toString() ===
+                                  c.id ===
                                   form.getValues("customerId")
                               )?.name
                             }
@@ -1998,7 +2015,7 @@ export function CreateInstallmentForm() {
                             {
                               localCustomers.find(
                                 (c: any) =>
-                                  c.id.toString() ===
+                                  c.id ===
                                   form.getValues("customerId")
                               )?.email
                             }
@@ -2378,6 +2395,64 @@ export function CreateInstallmentForm() {
                         </FormItem>
                       )}
                     />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  {/* CNIC Front */}
+  <div className="space-y-2">
+    <FormLabel>CNIC Front</FormLabel>
+    <div
+      className={cn(
+        "h-32 border-2 border-dashed rounded-md flex items-center justify-center overflow-hidden",
+        cnicFrontPreview ? "border-cyan-500" : "border-slate-300"
+      )}
+    >
+      {cnicFrontPreview ? (
+        <img src={cnicFrontPreview} alt="CNIC Front" className="w-full h-full object-contain p-2" />
+      ) : (
+        <div className="text-center text-slate-400 p-4">Upload front side</div>
+      )}
+    </div>
+    <Input
+      id="cnic-front"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={(e) => handleImageUpload(e, "customerCnicFront")}
+    />
+    <Label htmlFor="cnic-front" className="cursor-pointer inline-flex items-center px-3 py-1 bg-cyan-600 text-white rounded text-sm">
+      <Upload className="mr-2 h-4 w-4" /> Upload Front
+    </Label>
+  </div>
+
+  {/* CNIC Back */}
+  <div className="space-y-2">
+    <FormLabel>CNIC Back</FormLabel>
+    <div
+      className={cn(
+        "h-32 border-2 border-dashed rounded-md flex items-center justify-center overflow-hidden",
+        cnicBackPreview ? "border-cyan-500" : "border-slate-300"
+      )}
+    >
+      {cnicBackPreview ? (
+        <img src={cnicBackPreview} alt="CNIC Back" className="w-full h-full object-contain p-2" />
+      ) : (
+        <div className="text-center text-slate-400 p-4">Upload back side</div>
+      )}
+    </div>
+    <Input
+      id="cnic-back"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={(e) => handleImageUpload(e, "customerCnicBack")}
+    />
+    <Label htmlFor="cnic-back" className="cursor-pointer inline-flex items-center px-3 py-1 bg-cyan-600 text-white rounded text-sm">
+      <Upload className="mr-2 h-4 w-4" /> Upload Back
+    </Label>
+  </div>
+</div>
+
+                    
 
                     <div className="flex justify-end gap-4 pt-4">
                       <Button
