@@ -32,7 +32,6 @@ import { Separator } from "@radix-ui/react-dropdown-menu";
 import { ThemeProvider } from "./theme/theme-provider";
 
 export function SellItemDetails({ item, onBack }: any) {
-
   const profile = {
     name: "Sarah Johnson",
     email: "sarah.johnson@example.com",
@@ -43,21 +42,23 @@ export function SellItemDetails({ item, onBack }: any) {
     profilePicture: "/placeholder.svg?height=200&width=200",
     cnicFrontImage: "/placeholder.svg?height=300&width=500",
     cnicBackImage: "/placeholder.svg?height=300&width=500",
-  }
+  };
 
-
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedProfile, setSelectedProfile] = useState<any>()
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<any>();
   const [activeTab, setActiveTab] = useState("overview");
   const [editingInstallmentIndex, setEditingInstallmentIndex] = useState(null);
   const [paidAmount, setPaidAmount] = useState<Record<number, number>>({});
-  const [paymentOption, setPaymentOption] = useState<any>(
-    {}
-  );
+  const [paymentOption, setPaymentOption] = useState<any>({});
   const [installments, setInstallments] = useState(item.installments || []);
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
 
+  const [paymentDates, setPaymentDates] = useState(() => {
+    return new Date().toISOString().split("T")[0]; // today's date
+  });
+
   console.log(paymentOption, "paymentOption");
+  console.log(paymentDates, "paymentDates");
 
   useEffect(() => {
     if (
@@ -244,6 +245,7 @@ export function SellItemDetails({ item, onBack }: any) {
       updated[index] = {
         ...updated[index],
         status: "paid",
+        paidDate: paymentDates,
       };
 
       setInstallments(updated);
@@ -307,15 +309,13 @@ export function SellItemDetails({ item, onBack }: any) {
     }
   };
 
-  function openProfile(data: any){
+  function openProfile(data: any) {
     setSelectedProfile(data);
     setIsOpen(true);
-
   }
   console.log(isOpen, "isopen");
   console.log(selectedProfile, " selectedprofile");
-  
-  
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300 p-4">
       {/* Header */}
@@ -782,6 +782,19 @@ export function SellItemDetails({ item, onBack }: any) {
                                     )}
                                   </span>
                                 </div>
+                                <div className="flex flex-col space-y-2">
+                                  <label className="text-sm text-slate-700 dark:text-slate-300">
+                                    Payment Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={paymentDates}
+                                    onChange={(e) =>
+                                      setPaymentDates(e.target.value)
+                                    }
+                                    className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-3 py-1 text-slate-900 dark:text-white w-full max-w-[200px]"
+                                  />
+                                </div>
                               </div>
 
                               {(paidAmount[index] || 0) <
@@ -882,43 +895,6 @@ export function SellItemDetails({ item, onBack }: any) {
                                         <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-2">
                                           Manual Distribution
                                         </h4>
-
-                                        {/* Quick distribution option */}
-                                        {/* <div className="mb-3 pb-3 border-b border-slate-200 dark:border-slate-600/30">
-                                          <label className="text-xs text-slate-600 dark:text-slate-300 mb-1 block">
-                                            Quick Distribution
-                                          </label>
-                                          <div className="flex flex-wrap items-center gap-2">
-                                            <span className="text-sm text-slate-700 dark:text-slate-300">
-                                              Distribute across next
-                                            </span>
-                                            <select
-                                              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-900 dark:text-white text-sm"
-                                              defaultValue="2"
-                                            >
-                                              <option value="1">1 month</option>
-                                              <option value="2">
-                                                2 months
-                                              </option>
-                                              <option value="3">
-                                                3 months
-                                              </option>
-                                              <option value="4">
-                                                4 months
-                                              </option>
-                                              <option value="all">
-                                                All remaining
-                                              </option>
-                                            </select>
-                                            <Button
-                                              size="sm"
-                                              variant="outline"
-                                              className="text-xs border-cyan-500/50 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-500/10"
-                                            >
-                                              Apply
-                                            </Button>
-                                          </div>
-                                        </div> */}
 
                                         <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2">
                                           {item.installments
@@ -1025,7 +1001,6 @@ export function SellItemDetails({ item, onBack }: any) {
                                   Cancel
                                 </Button>
                                 {paymentOption?.type !== "manual" && (
-
                                   <Button
                                     size="sm"
                                     className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
@@ -1210,7 +1185,10 @@ export function SellItemDetails({ item, onBack }: any) {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Customer */}
-              <div onClick={() => openProfile(item.customer)} className="cursor-pointer flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50">
+              <div
+                onClick={() => openProfile(item.customer)}
+                className="cursor-pointer flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
+              >
                 <Avatar className="h-10 w-10 border-2 border-blue-500/30">
                   <img
                     src={item?.customer?.image || "/placeholder.svg"}
@@ -1218,7 +1196,7 @@ export function SellItemDetails({ item, onBack }: any) {
                   />
                 </Avatar>
                 <div>
-                  <div  className="text-xs text-slate-500 dark:text-slate-400">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
                     Customer
                   </div>
                   <div className="font-medium text-slate-900 dark:text-white">
@@ -1230,7 +1208,7 @@ export function SellItemDetails({ item, onBack }: any) {
               {/* Guarantors */}
               {item.guarantors.map((guarantor: any) => (
                 <div
-                onClick={() => openProfile(guarantor)}
+                  onClick={() => openProfile(guarantor)}
                   key={guarantor.id}
                   className="cursor-pointer flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
                 >
@@ -1256,7 +1234,8 @@ export function SellItemDetails({ item, onBack }: any) {
 
               {/* Investors */}
               {item.investors.map((investor: any) => (
-                <div onClick={() => openProfile(investor)}
+                <div
+                  onClick={() => openProfile(investor)}
                   key={investor.id}
                   className="cursor-pointer flex items-center justify-between p-3 bg-slate-50/80 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600/50"
                 >
@@ -1372,14 +1351,22 @@ export function SellItemDetails({ item, onBack }: any) {
                 <div className="relative">
                   <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-full blur opacity-70"></div>
                   <Avatar className="h-32 w-32 border-4 border-background relative">
-                    <AvatarImage src={selectedProfile.image || "/placeholder.svg"} alt={profile.name} />
-                    <AvatarFallback className="text-4xl">{selectedProfile.name}</AvatarFallback>
+                    <AvatarImage
+                      src={selectedProfile.image || "/placeholder.svg"}
+                      alt={profile.name}
+                    />
+                    <AvatarFallback className="text-4xl">
+                      {selectedProfile.name}
+                    </AvatarFallback>
                   </Avatar>
                 </div>
 
                 <div className="text-center space-y-2">
                   <h2 className="text-2xl font-bold">{selectedProfile.name}</h2>
-                  <Badge variant="outline" className="px-3 py-1 bg-violet-500/10 text-violet-500 border-violet-500/20">
+                  <Badge
+                    variant="outline"
+                    className="px-3 py-1 bg-violet-500/10 text-violet-500 border-violet-500/20"
+                  >
                     Active
                   </Badge>
                 </div>
@@ -1394,7 +1381,11 @@ export function SellItemDetails({ item, onBack }: any) {
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">Active Since:</span>
-                    <span className="ml-auto">{new Date(selectedProfile.activeSince).toLocaleDateString()}</span>
+                    <span className="ml-auto">
+                      {new Date(
+                        selectedProfile.activeSince
+                      ).toLocaleDateString()}
+                    </span>
                   </div>
 
                   {/* <Button variant="outline" size="sm" className="w-full mt-4" onClick={toggleTheme}>
@@ -1406,70 +1397,93 @@ export function SellItemDetails({ item, onBack }: any) {
               {/* Main content area */}
               <div className="col-span-2 p-6 space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Contact Information
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {selectedProfile?.email && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">{selectedProfile.email}</p>
-                    </div>)}
+                    {selectedProfile?.email && (
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">Email</p>
+                        <p className="font-medium">{selectedProfile.email}</p>
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">Phone</p>
-                      <p className="font-medium">{selectedProfile.contactNumber}</p>
+                      <p className="font-medium">
+                        {selectedProfile.contactNumber}
+                      </p>
                     </div>
                     {selectedProfile?.address && (
-                    <div className="space-y-2 md:col-span-2">
-                      <p className="text-sm text-muted-foreground">Address</p>
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                        <p className="font-medium">{selectedProfile.address}</p>
+                      <div className="space-y-2 md:col-span-2">
+                        <p className="text-sm text-muted-foreground">Address</p>
+                        <div className="flex items-start gap-2">
+                          <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                          <p className="font-medium">
+                            {selectedProfile.address}
+                          </p>
+                        </div>
                       </div>
-                    </div>)}
+                    )}
                   </div>
                 </div>
 
                 <Separator />
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">CNIC Information</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    CNIC Information
+                  </h3>
                   {selectedProfile?.cnic && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">CNIC Number</p>
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        <p className="font-medium">{selectedProfile.cnic}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                          CNIC Number
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4 text-muted-foreground" />
+                          <p className="font-medium">{selectedProfile.cnic}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     {selectedProfile?.cnicFrontImage && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">CNIC Front</p>
-                      <div className="relative group overflow-hidden rounded-lg border border-border/50">
-                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <img
-                          src={selectedProfile.cnicFrontImage || "/placeholder.svg"}
-                          alt="CNIC Front"
-                          className="w-full h-auto object-cover"
-                        />
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                          CNIC Front
+                        </p>
+                        <div className="relative group overflow-hidden rounded-lg border border-border/50">
+                          <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <img
+                            src={
+                              selectedProfile.cnicFrontImage ||
+                              "/placeholder.svg"
+                            }
+                            alt="CNIC Front"
+                            className="w-full h-auto object-cover"
+                          />
+                        </div>
                       </div>
-                    </div>
-                      )}
-                      {selectedProfile?.cnicBackImage && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">CNIC Back</p>
-                      <div className="relative group overflow-hidden rounded-lg border border-border/50">
-                        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <img
-                          src={selectedProfile.cnicBackImage || "/placeholder.svg"}
-                          alt="CNIC Back"
-                          className="w-full h-auto object-cover"
-                        />
+                    )}
+                    {selectedProfile?.cnicBackImage && (
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                          CNIC Back
+                        </p>
+                        <div className="relative group overflow-hidden rounded-lg border border-border/50">
+                          <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <img
+                            src={
+                              selectedProfile.cnicBackImage ||
+                              "/placeholder.svg"
+                            }
+                            alt="CNIC Back"
+                            className="w-full h-auto object-cover"
+                          />
+                        </div>
                       </div>
-                    </div>)}
+                    )}
                   </div>
                 </div>
               </div>

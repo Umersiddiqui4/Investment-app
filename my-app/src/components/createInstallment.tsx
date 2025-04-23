@@ -1004,7 +1004,7 @@ console.log("Customer added:", data);
                                           <CheckCircle2
                                             className={cn(
                                               "ml-auto h-4 w-4",
-                                              customer.id.toString() === field.value
+                                              customer.id?.toString() === field.value
                                                 ? "opacity-100 text-cyan-500"
                                                 : "opacity-0",
                                             )}
