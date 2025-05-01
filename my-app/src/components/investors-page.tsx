@@ -21,7 +21,8 @@ import Sidebaar from "./Sidebaar";
 // import { investorsData } from "./api/installments";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsMobile, setSidebarOpen } from "@/redux/appSlice";
-import { set } from "zod";
+import Skeleton from "@/components/ui/skeleton";
+
 
 // Update the InvestorsPage component to include pagination and investor detail view
 export default function InvestorsPage() {
@@ -231,6 +232,28 @@ export default function InvestorsPage() {
           </header>
 
           {/* Investors Page Content */}
+          {!investorsData ? (
+            <>
+            <div className="p-5">
+            <Skeleton className="w-full h-[80px] rounded-full" />
+            </div>
+            <div className="p-5">
+            <Skeleton className="w-full h-[80px] rounded-full" />
+            </div>
+            <div className="p-5">
+            <Skeleton className="w-full h-[80px] rounded-full" />
+            </div>
+            <div className="p-5">
+            <Skeleton className="w-full h-[80px] rounded-full" />
+            </div>
+            <div className="p-5">
+            <Skeleton className="w-full h-[80px] rounded-full" />
+            </div>
+            <div className="p-5">
+            <Skeleton className="w-full h-[80px] rounded-full" />
+            </div>
+            </>
+          ) : (
           <main className="flex-1 overflow-auto p-4 md:p-6">
               {selectedInvestorId ? (
                 <InvestorDetail
@@ -423,6 +446,7 @@ export default function InvestorsPage() {
                 </div>
               )}
           </main>
+          )}
         </div>
       </div>
     </div>
