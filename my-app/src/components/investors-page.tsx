@@ -122,24 +122,6 @@ export default function InvestorsPage() {
     }
   }, [selectedInvestorId]);
   
-
-  if (!investorsData) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-slate-500 dark:text-slate-400">Loading...</p>
-      </div>
-    );
-  }
-  if (investorsData && investorsData.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-slate-500 dark:text-slate-400">
-          No investors found.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
@@ -231,6 +213,13 @@ export default function InvestorsPage() {
             </div>
           </header>
 
+{investorsData && investorsData.length === 0 && (
+          <div className="flex items-center justify-center flex-1">
+            <p className="text-slate-500 dark:text-slate-400">
+              No investors found.
+            </p>
+          </div>
+        )}
           {/* Investors Page Content */}
           {!investorsData ? (
             <>
